@@ -170,13 +170,13 @@ class ProjectEndpoint(Endpoint):
 
     def make_post_xml(self, name, iteration_length, point_scale):
         project = XMLBuilder(format=True)
-            with project.project:
-                if name is not None:
-                    project << ('name', name)
-                if iteration_length is not None:
-                    project << ('iteration_length', iteration_length)
-                if point_scale is not None:
-                    project << ('point_scale', point_scale)
+        with project.project:
+            if name is not None:
+                project << ('name', name)
+            if iteration_length is not None:
+                project << ('iteration_length', iteration_length)
+            if point_scale is not None:
+                project << ('point_scale', point_scale)
         return str(project)
 
     def post(self, name, iteration_length, point_scale):
