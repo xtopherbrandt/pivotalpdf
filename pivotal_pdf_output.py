@@ -25,7 +25,72 @@ class OutputPDF(webapp.RequestHandler):
    PAGE_HEIGHT=defaultPageSize[1]; PAGE_WIDTH=defaultPageSize[0]
    styles = getSampleStyleSheet()
    iterationDateFormat = "%B %d, %Y"
-   
+   styleHeader = ParagraphStyle( name='TableHeader',
+                                 fontName='Helvetica-Bold',
+                                 fontSize=14,
+                                 leading=17,
+                                 leftIndent=0,
+                                 rightIndent=0,
+                                 firstLineIndent=0,
+                                 alignment=TA_CENTER,
+                                 spaceBefore=0,
+                                 spaceAfter=0,
+                                 bulletFontName='Helvetica',
+                                 bulletFontSize=10,
+                                 textColor=colors.white,
+                                 backColor=None,
+                                 wordWrap=None,
+                                 borderWidth=0,
+                                 borderPadding=0,
+                                 borderColor=None,
+                                 borderRadius=None,
+                                 allowWidows=0,
+                                 allowOrphans=0 )
+      
+   styleName = ParagraphStyle( name='Name',
+                                 fontName='Helvetica-Bold',
+                                 fontSize=12,
+                                 leading=14,
+                                 leftIndent=0,
+                                 rightIndent=0,
+                                 firstLineIndent=0,
+                                 alignment=TA_LEFT,
+                                 spaceBefore=0,
+                                 spaceAfter=0,
+                                 bulletFontName='Helvetica',
+                                 bulletFontSize=10,
+                                 textColor=colors.black,
+                                 backColor=None,
+                                 wordWrap=None,
+                                 borderWidth=0,
+                                 borderPadding=0,
+                                 borderColor=None,
+                                 borderRadius=None,
+                                 allowWidows=0,
+                                 allowOrphans=0 )
+                                 
+   styleNormal = ParagraphStyle( name='Normal',
+                                 fontName='Helvetica',
+                                 fontSize=8,
+                                 leading=10,
+                                 leftIndent=0,
+                                 rightIndent=0,
+                                 firstLineIndent=0,
+                                 alignment=TA_LEFT,
+                                 spaceBefore=0,
+                                 spaceAfter=4,
+                                 bulletFontName='Helvetica',
+                                 bulletFontSize=10,
+                                 textColor=colors.black,
+                                 backColor=None,
+                                 wordWrap=None,
+                                 borderWidth=0,
+                                 borderPadding=0,
+                                 borderColor=None,
+                                 borderRadius=None,
+                                 allowWidows=0,
+                                 allowOrphans=1 )
+    
    def post(self):
       apiToken = self.request.get('hiddenAPIKey')
       projectId = self.request.get('hiddenProjectId')
@@ -38,77 +103,7 @@ class OutputPDF(webapp.RequestHandler):
    def get(self, stories, apiToken, projectId):
       self.response.headers['Content-Type'] = 'application/pdf'
       doc = SimpleDocTemplate(self.response.out,pagesize = letter, allowSplitting=1)
-      styles = getSampleStyleSheet()
-      styleN = styles['BodyText']
-      styleH = styles['Heading2']
       
-      styleHeader = ParagraphStyle( name='TableHeader',
-                                    fontName='Helvetica-Bold',
-                                    fontSize=14,
-                                    leading=17,
-                                    leftIndent=0,
-                                    rightIndent=0,
-                                    firstLineIndent=0,
-                                    alignment=TA_CENTER,
-                                    spaceBefore=0,
-                                    spaceAfter=0,
-                                    bulletFontName='Helvetica',
-                                    bulletFontSize=10,
-                                    textColor=colors.white,
-                                    backColor=None,
-                                    wordWrap=None,
-                                    borderWidth=0,
-                                    borderPadding=0,
-                                    borderColor=None,
-                                    borderRadius=None,
-                                    allowWidows=0,
-                                    allowOrphans=0 )
-      
-      styleName = ParagraphStyle( name='Name',
-                                    fontName='Helvetica-Bold',
-                                    fontSize=12,
-                                    leading=14,
-                                    leftIndent=0,
-                                    rightIndent=0,
-                                    firstLineIndent=0,
-                                    alignment=TA_LEFT,
-                                    spaceBefore=0,
-                                    spaceAfter=0,
-                                    bulletFontName='Helvetica',
-                                    bulletFontSize=10,
-                                    textColor=colors.black,
-                                    backColor=None,
-                                    wordWrap=None,
-                                    borderWidth=0,
-                                    borderPadding=0,
-                                    borderColor=None,
-                                    borderRadius=None,
-                                    allowWidows=0,
-                                    allowOrphans=0 )
-                                    
-      styleNormal = ParagraphStyle( name='Normal',
-                                    fontName='Helvetica',
-                                    fontSize=8,
-                                    leading=10,
-                                    leftIndent=0,
-                                    rightIndent=0,
-                                    firstLineIndent=0,
-                                    alignment=TA_LEFT,
-                                    spaceBefore=0,
-                                    spaceAfter=4,
-                                    bulletFontName='Helvetica',
-                                    bulletFontSize=10,
-                                    textColor=colors.black,
-                                    backColor=None,
-                                    wordWrap=None,
-                                    borderWidth=0,
-                                    borderPadding=0,
-                                    borderColor=None,
-                                    borderRadius=None,
-                                    allowWidows=0,
-                                    allowOrphans=1 )
-                                    
-    
       #Create a list of flowables for the document
       flowables = []
       
@@ -118,10 +113,10 @@ class OutputPDF(webapp.RequestHandler):
       #Create a row for our stories
       storyRow = []
       #add some flowables
-      storyRow.append(Paragraph("Story",styleHeader))
-      storyRow.append(Paragraph("Iteration Start",styleHeader))
-      storyRow.append(Paragraph("Iteration End",styleHeader))
-      storyRow.append(Paragraph("Description", styleHeader))
+      storyRow.append(Paragraph("Story",self.styleHeader))
+      storyRow.append(Paragraph("Iteration Start",self.styleHeader))
+      storyRow.append(Paragraph("Iteration End",self.styleHeader))
+      storyRow.append(Paragraph("Description", self.styleHeader))
       tableData.append(storyRow)
       
       #Add the Done Stories
@@ -131,21 +126,13 @@ class OutputPDF(webapp.RequestHandler):
          
          # Paragraphs can take HTML so the mark-up characters in the text must be escaped
          storyName = escape ( storyInfo['story']['name'] )
-         rawDescription = storyInfo['story']['description']
-         
-         # Need to separate out each paragraph in the story. The Paragraph flowable will remove all 
-         # whitespace around end of line characters.
-         paragraphMatches = re.finditer(r"""(^.*$)""", rawDescription, re.M)
-         storyDescription = []
-                  
-         # Add each paragraph to a list of paragraph flowables that are then added to the table
-         for paragraphMatch in paragraphMatches :
-            storyDescription.append( Paragraph( self.MarkDownToMarkUp ( paragraphMatch.group(0) ), styleNormal ) )
+
+         storyDescription = self.BuildDescription( storyInfo )
          
          storyRow = []
-         storyRow.append(Paragraph( storyName,styleName))
-         storyRow.append(Paragraph(storyInfo['start'].strftime(self.iterationDateFormat),styleNormal))
-         storyRow.append(Paragraph(storyInfo['finish'].strftime(self.iterationDateFormat),styleNormal))
+         storyRow.append(Paragraph( storyName,self.styleName))
+         storyRow.append(Paragraph(storyInfo['start'].strftime(self.iterationDateFormat),self.styleNormal))
+         storyRow.append(Paragraph(storyInfo['finish'].strftime(self.iterationDateFormat),self.styleNormal))
          storyRow.append( storyDescription )
          tableData.append(storyRow)
       
@@ -156,21 +143,13 @@ class OutputPDF(webapp.RequestHandler):
          
          # Paragraphs can take HTML so the mark-up characters in the text must be escaped
          storyName = escape ( storyInfo['story']['name'] )
-         rawDescription = storyInfo['story']['description']
-         
-         # Need to separate out each paragraph in the story. The Paragraph flowable will remove all 
-         # whitespace around end of line characters.
-         paragraphMatches = re.finditer(r"""(^.*$)""", rawDescription, re.M)
-         storyDescription = []
-                  
-         # Add each paragraph to a list of paragraph flowables that are then added to the table
-         for paragraphMatch in paragraphMatches :
-            storyDescription.append( Paragraph( self.MarkDownToMarkUp ( paragraphMatch.group(0) ), styleNormal ) )
+
+         storyDescription = self.BuildDescription( storyInfo )
         
          storyRow = []
-         storyRow.append(Paragraph( storyName,styleName))
-         storyRow.append(Paragraph("Current",styleNormal))
-         storyRow.append(Paragraph("Current",styleNormal))
+         storyRow.append(Paragraph( storyName,self.styleName))
+         storyRow.append(Paragraph("Current",self.styleNormal))
+         storyRow.append(Paragraph("Current",self.styleNormal))
          
          storyRow.append(storyDescription)
    
@@ -183,21 +162,13 @@ class OutputPDF(webapp.RequestHandler):
 
          # Paragraphs can take HTML so the mark-up characters in the text must be escaped
          storyName = escape ( storyInfo['story']['name'] )
-         rawDescription = storyInfo['story']['description']
-         
-         # Need to separate out each paragraph in the story. The Paragraph flowable will remove all 
-         # whitespace around end of line characters.
-         paragraphMatches = re.finditer(r"""(^.*$)""", rawDescription, re.M)
-         storyDescription = []
-                  
-         # Add each paragraph to a list of paragraph flowables that are then added to the table
-         for paragraphMatch in paragraphMatches :
-            storyDescription.append( Paragraph( self.MarkDownToMarkUp ( paragraphMatch.group(0) ), styleNormal ) )
+
+         storyDescription = self.BuildDescription( storyInfo )
          
          storyRow = []
-         storyRow.append(Paragraph( storyName,styleName))
-         storyRow.append(Paragraph(storyInfo['start'].strftime(self.iterationDateFormat),styleNormal))
-         storyRow.append(Paragraph(storyInfo['finish'].strftime(self.iterationDateFormat),styleNormal))
+         storyRow.append(Paragraph( storyName,self.styleName))
+         storyRow.append(Paragraph(storyInfo['start'].strftime(self.iterationDateFormat),self.styleNormal))
+         storyRow.append(Paragraph(storyInfo['finish'].strftime(self.iterationDateFormat),self.styleNormal))
          storyRow.append( storyDescription )
          tableData.append(storyRow)
 
@@ -220,6 +191,34 @@ class OutputPDF(webapp.RequestHandler):
       flowables.append( table )
       doc.build(flowables)
 
+   def BuildDescription (self, storyInfo ) :
+   
+         rawDescription = []
+         
+         rawDescription.append (storyInfo['story']['description'])
+         
+         # If there are Activity notes, start our list with a heading
+         if 'notes' in storyInfo['story'] :
+            rawDescription.append('*Activity:*')
+            
+            # Get the set of Activity notes for the story
+            for note in storyInfo['story']['notes'] :
+               rawDescription.append(note['text'])
+                  
+         # Concatenate the story description with the activity notes
+         description = '\n'.join(rawDescription )
+                  
+         # Need to separate out each paragraph in the story. The Paragraph flowable will remove all 
+         # whitespace around end of line characters.
+         paragraphMatches = re.finditer(r"""(^.*$)""", description, re.M)
+         storyDescription = []
+                  
+         # Add each paragraph to a list of paragraph flowables that are then added to the table
+         for paragraphMatch in paragraphMatches :
+            storyDescription.append( Paragraph( self.MarkDownToMarkUp ( paragraphMatch.group(0) ), self.styleNormal ) )
+         
+         return storyDescription
+   
    def GetDoneStories (self, filteredStories, apiToken, projectId) :
    
       doneStories = []
