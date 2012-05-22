@@ -13,7 +13,6 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 from busyflow.pivotal import PivotalClient
 from pivotal_pdf_output import OutputPDF
 from xml.sax.saxutils import escape
-from Test import Test
 
 class MainPage(webapp.RequestHandler):
     def get(self):
@@ -152,31 +151,13 @@ class OutputHTML ( webapp.RequestHandler ):
          </body>
          </html>    
       """)
-   
-class LocalTest(webapp.RequestHandler):
-   def get(self):
-      rows = csv.DictReader(open('pivotal_pdf_tests_20120419_2353.csv', 'rb'))
-
-      #busyflow outputs a list of dictionarys. Each story is a separate dictionary in the list
-      stories=[]
-
-      for row in rows:
-         stories.append({'name':row['Story'], 'description':row['Description']})
-
-      apiToken = ''
-      projectId = ''
-                 
-      output=Test ()
-      output.get( self, stories, apiToken, projectId )
-
 
 
 application = webapp.WSGIApplication([
   ('/', MainPage),
   ('/authenticate', OutputHTML),
   ('/getStories', OutputHTML),
-  ('/outputPDF', OutputPDF),
-  ('/localTest', LocalTest)
+  ('/outputPDF', OutputPDF)
   
 ], debug=True)
 
