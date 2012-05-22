@@ -38,7 +38,7 @@ class OutputPDF(webapp.RequestHandler):
       self.response.headers['Content-Type'] = 'application/pdf'
       doc = SimpleDocTemplate(self.response.out,pagesize = letter, allowSplitting=1)
       styles = getSampleStyleSheet()
-      styleN = styles['Normal']
+      styleN = styles['BodyText']
       styleH = styles['Heading2']
       
       styleHeader = ParagraphStyle( name='TableHeader',
@@ -105,7 +105,7 @@ class OutputPDF(webapp.RequestHandler):
                                     borderColor=None,
                                     borderRadius=None,
                                     allowWidows=0,
-                                    allowOrphans=0 )
+                                    allowOrphans=1 )
                                     
     
       #Create a list of flowables for the document
@@ -130,15 +130,16 @@ class OutputPDF(webapp.RequestHandler):
          
          # Paragraphs can take HTML so the mark-up characters in the text must be escaped
          storyName = escape ( story['name'] )
+         rawDescription = story['description']
          
          # Need to separate out each paragraph in the story. The Paragraph flowable will remove all 
          # whitespace around end of line characters.
-         paragraphMatches = re.finditer(r"""(^.*$)""",story['description'], re.M)
+         paragraphMatches = re.finditer(r"""(^.*$)""", rawDescription, re.M)
          storyDescription = []
                   
          # Add each paragraph to a list of paragraph flowables that are then added to the table
          for paragraphMatch in paragraphMatches :
-            storyDescription.append( Paragraph( escape( paragraphMatch.group(0) ) , styleNormal ) )
+            storyDescription.append( Paragraph( self.MarkDownToMarkUp ( paragraphMatch.group(0) ), styleNormal ) )
          
          storyRow = []
          storyRow.append(Paragraph( storyName,styleName))
@@ -154,15 +155,16 @@ class OutputPDF(webapp.RequestHandler):
          
          # Paragraphs can take HTML so the mark-up characters in the text must be escaped
          storyName = escape ( story['name'] )
+         rawDescription = story['description']
          
          # Need to separate out each paragraph in the story. The Paragraph flowable will remove all 
          # whitespace around end of line characters.
-         paragraphMatches = re.finditer(r"""(^.*$)""",story['description'], re.M)
+         paragraphMatches = re.finditer(r"""(^.*$)""", rawDescription, re.M)
          storyDescription = []
                   
          # Add each paragraph to a list of paragraph flowables that are then added to the table
          for paragraphMatch in paragraphMatches :
-            storyDescription.append( Paragraph( escape( paragraphMatch.group(0) ) , styleNormal ) )
+            storyDescription.append( Paragraph( self.MarkDownToMarkUp ( paragraphMatch.group(0) ), styleNormal ) )
         
          storyRow = []
          storyRow.append(Paragraph( storyName,styleName))
@@ -180,15 +182,16 @@ class OutputPDF(webapp.RequestHandler):
 
          # Paragraphs can take HTML so the mark-up characters in the text must be escaped
          storyName = escape ( story['name'] )
+         rawDescription = story['description']
          
          # Need to separate out each paragraph in the story. The Paragraph flowable will remove all 
          # whitespace around end of line characters.
-         paragraphMatches = re.finditer(r"""(^.*$)""",story['description'], re.M)
+         paragraphMatches = re.finditer(r"""(^.*$)""", rawDescription, re.M)
          storyDescription = []
                   
          # Add each paragraph to a list of paragraph flowables that are then added to the table
          for paragraphMatch in paragraphMatches :
-            storyDescription.append( Paragraph( escape( paragraphMatch.group(0) ) , styleNormal ) )
+            storyDescription.append( Paragraph( self.MarkDownToMarkUp ( paragraphMatch.group(0) ), styleNormal ) )
          
          storyRow = []
          storyRow.append(Paragraph( storyName,styleName))
@@ -197,7 +200,7 @@ class OutputPDF(webapp.RequestHandler):
          storyRow.append( storyDescription )
          tableData.append(storyRow)
 
-      table = LongTable(tableData, colWidths=[2*inch,1*inch,1*inch,3*inch] )  
+      table = LongTable(tableData, colWidths=[2*inch,1*inch,1*inch,3.5*inch] )  
       
       table.setStyle(TableStyle([
                         ('BACKGROUND',(0,0),(-1,0),colors.grey),        #Give the header row a grey background
@@ -281,12 +284,37 @@ class OutputPDF(webapp.RequestHandler):
                   break
                
       return futureStories
+
+   def MarkDownToMarkUp (self, markedDownText) :
+      markedUpText = ''
+      markedUpStrings = []
+      regularTextIndex = 0
+      
+      textMatches = self.FindMarkedDownText( markedDownText )
+      
+      for match in textMatches :
+         # add the next bit of regular text up to the next marked down chunk
+         markedUpStrings.append ( markedDownText[ regularTextIndex : match.start() ] )
+         
+         # add a chunk of text with mark up appropriate to the group it was found in
+         if match.group('bold') != None :
+            markedUpStrings.append ( """<b>{0}</b>""".format( match.group('bold') ) )
+         
+         if match.group('italicized') != None :
+            markedUpStrings.append ( """<i>{0}</i>""".format( match.group('italicized') ) )
+         
+         if match.group('bolditalicized') != None :
+            markedUpStrings.append ( """<b><i>{0}</i></b>""".format( match.group('bolditalicized') ) )
+            
+         regularTextIndex = match.end()
+
+      # add the last bit of regular text from the last match to the end of the string
+      markedUpStrings.append ( markedDownText[ regularTextIndex : len( markedDownText ) ] )
+      
+      return markedUpText.join( markedUpStrings )
+      
+   def FindMarkedDownText (self, text) :
+      # return the MatchObjects containing bold, underlined or bold underline text
+      return re.finditer(r"""(?:(?:(?:(?<=[\s^,(])|(?<=^))\*(?=\S)(?!_)(?P<bold>.+?)(?<!_)(?<=\S)\*(?:(?=[\s$,.?!])|(?<=$)))|(?:(?:(?<=[\s^,(])|(?<=^))_(?=\S)(?!\*)(?P<italicized>.+?)(?<!\*)(?<=\S)_(?:(?=[\s$,.?!])|(?<=$)))|(?:(?:(?<=[\s^,(])|(?<=^))(?:\*_|_\*)(?=\S)(?P<bolditalicized>.+?)(?<=\S)(?:\*_|_\*)(?:(?=[\s$,.?!])|(?<=$))))""",text, re.M)
                
-#application = webapp.WSGIApplication([('/helloworld', MainPage)], debug=True)
 
-#def main():
-#    application = webapp.WSGIApplication([('/helloworld', MainPage)], debug=True)
-#    wsgiref.handlers.CGIHandler().run(application)
-
-#if __name__ == "__main__":
-#    main()
