@@ -1,7 +1,8 @@
 application: pivotal-pdf
-version: 113
+version: 114
 runtime: python27
 api_version: 1
+threadsafe: true
 
 handlers:
 - url: /stylesheets
