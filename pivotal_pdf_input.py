@@ -13,6 +13,7 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from busyflow.pivotal import PivotalClient
 from pivotal_pdf_output import OutputPDF
+from full_report_output import FullReportOutput
 from xml.sax.saxutils import escape
 from gaesessions import get_current_session
 
@@ -194,7 +195,7 @@ application = webapp.WSGIApplication([
   ('/', MainPage),
   ('/authenticate', OutputHTML),
   ('/getStories', OutputHTML),
-  ('/generatePDF', OutputPDF)
+  ('/generatePDF', FullReportOutput)
   
 ], debug=True)
 
