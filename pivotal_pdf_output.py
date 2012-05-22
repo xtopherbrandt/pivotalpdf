@@ -298,7 +298,7 @@ class OutputPDF(webapp.RequestHandler):
       for match in textMatches :
       
          # add the next bit of regular text up to the next marked down chunk
-         markedUpStrings.append ( markedDownText[ regularTextIndex : match.start() ] )
+         markedUpStrings.append ( escape ( markedDownText[ regularTextIndex : match.start() ] ) )
          
          # add a chunk of text with mark up appropriate to the group it was found in
          if match.group('bold') != None :
@@ -312,7 +312,7 @@ class OutputPDF(webapp.RequestHandler):
          regularTextIndex = match.end()
 
       # add the last bit of regular text from the last match to the end of the string
-      markedUpStrings.append ( markedDownText[ regularTextIndex : len( markedDownText ) ] )
+      markedUpStrings.append ( escape ( markedDownText[ regularTextIndex : len( markedDownText ) ] ) )
       
       return markedUpText.join( markedUpStrings )
       
