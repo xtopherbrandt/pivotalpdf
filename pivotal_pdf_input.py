@@ -64,11 +64,14 @@ class OutputHTML ( webapp.RequestHandler ):
       # if the remember My Key checkbox is set then store the key and the setting in cookies
       if self.request.get('rememberMyKey', default_value='False') == 'True' :
          #explicitly setting the domain does not seem to work, at least on the localhost
-         self.response.set_cookie('apiKey', value=self.apikey, secure=False, httponly=True,  expires=datetime.datetime.now() + datetime.timedelta(days=365) )         
-         self.rememberMyKeyCheckedAttribute = 'checked=True'
+         self.response.set_cookie('apiKey', value=self.apikey, secure=False, httponly=True,  expires=datetime.datetime.now() + datetime.timedelta(days=365), overwrite=True )         
+         self.rememberMyKeyCheckedAttribute = "checked='True'"
       else :
-         self.response.delete_cookie('apiKey')         
-         self.rememberMyKeyCheckedAttribute = ''
+         if self.request.get('hiddenRememberMyKey') != None :
+            self.rememberMyKeyCheckedAttribute = "checked='True'"
+         else:
+            self.response.delete_cookie('apiKey')         
+            self.rememberMyKeyCheckedAttribute = ''
          
       client = PivotalClient(token=self.apikey, cache=None)
       projects = client.projects.all()['projects']
@@ -118,6 +121,8 @@ class OutputHTML ( webapp.RequestHandler ):
           
       hiddenApiKey = """<div><input name="hiddenAPIKey" type="hidden" value="{0}"/></div>""".format( self.apikey )
       self.response.out.write( hiddenApiKey )
+      hiddenRememberMyKey = """<div><input name="hiddenRememberMyKey" type="hidden" value="{0}" /></div>""".format( self.rememberMyKeyCheckedAttribute )
+      self.response.out.write( hiddenRememberMyKey )
 
       self.response.out.write("""
 
@@ -170,6 +175,8 @@ class OutputHTML ( webapp.RequestHandler ):
       self.response.out.write( hiddenProjectId )
       hiddenFilter = """<div><input name="hiddenFilter" type="hidden" value="{0}"/></div>""".format( self.filter )
       self.response.out.write( hiddenFilter )
+      hiddenRememberMyKey = """<div><input name="hiddenRememberMyKey" type="hidden" value="{0}" /></div>""".format( self.rememberMyKeyCheckedAttribute )
+      self.response.out.write( hiddenRememberMyKey )
             
       self.response.out.write("""
          </form>

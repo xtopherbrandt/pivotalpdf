@@ -4,6 +4,7 @@ sys.path.insert(0, 'reportlab.zip')
 import re
 import wsgiref.handlers
 import time
+import pickle
 
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
@@ -113,11 +114,25 @@ class OutputPDF(webapp.RequestHandler):
          view = True
       else :
          view = False
+      
+      documentParameters = { 'stories' : stories, 'apiToken' : apiToken, 'projectId' : projectId, 'view' : view }
          
-      self.GeneratePdf( stories, apiToken, projectId, view )
+      self.GeneratePdf( documentParameters )
 
-   def GeneratePdf(self, stories, apiToken, projectId, view):
+   def get(self):
+      # if there is a cookie with the last document parameters, then use it
+      if self.request.cookies.get('lastDocumentParameters') != None :
+         self.GeneratePdf( pickle.loads( self.request.cookies.get('lastDocumentParameters') ) )
+      #else :
+         #redirect back to the authenticate page
    
+   def GeneratePdf(self, documentParameters ):
+   
+      stories = documentParameters[ 'stories' ]
+      apiToken = documentParameters[ 'apiToken' ]
+      projectId = documentParameters[ 'projectId' ]
+      view = documentParameters[ 'view' ]
+      
       if view :
          self.response.headers['Content-Type'] = 'application/pdf'
       else :
