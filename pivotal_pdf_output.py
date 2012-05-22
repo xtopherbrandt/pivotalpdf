@@ -24,6 +24,7 @@ class OutputPDF(webapp.RequestHandler):
 
    PAGE_HEIGHT=defaultPageSize[1]; PAGE_WIDTH=defaultPageSize[0]
    styles = getSampleStyleSheet()
+   iterationDateFormat = "%B %d, %Y"
    
    def post(self):
       apiToken = self.request.get('hiddenAPIKey')
@@ -126,11 +127,11 @@ class OutputPDF(webapp.RequestHandler):
       #Add the Done Stories
       doneStories = self.GetDoneStories( stories, apiToken, projectId )
       
-      for story in doneStories :
+      for storyInfo in doneStories :
          
          # Paragraphs can take HTML so the mark-up characters in the text must be escaped
-         storyName = escape ( story['name'] )
-         rawDescription = story['description']
+         storyName = escape ( storyInfo['story']['name'] )
+         rawDescription = storyInfo['story']['description']
          
          # Need to separate out each paragraph in the story. The Paragraph flowable will remove all 
          # whitespace around end of line characters.
@@ -143,19 +144,19 @@ class OutputPDF(webapp.RequestHandler):
          
          storyRow = []
          storyRow.append(Paragraph( storyName,styleName))
-         storyRow.append(Paragraph("",styleNormal))
-         storyRow.append(Paragraph("",styleNormal))
+         storyRow.append(Paragraph(storyInfo['start'].strftime(self.iterationDateFormat),styleNormal))
+         storyRow.append(Paragraph(storyInfo['finish'].strftime(self.iterationDateFormat),styleNormal))
          storyRow.append( storyDescription )
          tableData.append(storyRow)
       
       #Add the Current Stories
       currentStories = self.GetCurrentStories( stories, apiToken, projectId )
       
-      for story in currentStories :
+      for storyInfo in currentStories :
          
          # Paragraphs can take HTML so the mark-up characters in the text must be escaped
-         storyName = escape ( story['name'] )
-         rawDescription = story['description']
+         storyName = escape ( storyInfo['story']['name'] )
+         rawDescription = storyInfo['story']['description']
          
          # Need to separate out each paragraph in the story. The Paragraph flowable will remove all 
          # whitespace around end of line characters.
@@ -168,8 +169,8 @@ class OutputPDF(webapp.RequestHandler):
         
          storyRow = []
          storyRow.append(Paragraph( storyName,styleName))
-         storyRow.append(Paragraph("",styleNormal))
-         storyRow.append(Paragraph("",styleNormal))
+         storyRow.append(Paragraph("Current",styleNormal))
+         storyRow.append(Paragraph("Current",styleNormal))
          
          storyRow.append(storyDescription)
    
@@ -178,11 +179,11 @@ class OutputPDF(webapp.RequestHandler):
       #Add the Future Stories
       futureStories = self.GetFutureStories( stories, apiToken, projectId )
       
-      for story in futureStories :
+      for storyInfo in futureStories :
 
          # Paragraphs can take HTML so the mark-up characters in the text must be escaped
-         storyName = escape ( story['name'] )
-         rawDescription = story['description']
+         storyName = escape ( storyInfo['story']['name'] )
+         rawDescription = storyInfo['story']['description']
          
          # Need to separate out each paragraph in the story. The Paragraph flowable will remove all 
          # whitespace around end of line characters.
@@ -195,8 +196,8 @@ class OutputPDF(webapp.RequestHandler):
          
          storyRow = []
          storyRow.append(Paragraph( storyName,styleName))
-         storyRow.append(Paragraph("",styleNormal))
-         storyRow.append(Paragraph("",styleNormal))
+         storyRow.append(Paragraph(storyInfo['start'].strftime(self.iterationDateFormat),styleNormal))
+         storyRow.append(Paragraph(storyInfo['finish'].strftime(self.iterationDateFormat),styleNormal))
          storyRow.append( storyDescription )
          tableData.append(storyRow)
 
@@ -230,12 +231,13 @@ class OutputPDF(webapp.RequestHandler):
       # Go through each iteration and find the stories that are in our set
       for iteration in iterations:
          stories = iteration['stories']
-         
+              
          found = False
          for story in stories:
             for filteredStory in filteredStories:               
                if story['name'] == filteredStory['name']:
-                  doneStories.append ( story )
+                  storyInfo = { 'story' : story, 'start' : iteration['start'], 'finish' : iteration['finish'] }
+                  doneStories.append ( storyInfo )
                   found = True
                   break
                
@@ -257,7 +259,8 @@ class OutputPDF(webapp.RequestHandler):
          for story in stories:
             for filteredStory in filteredStories:               
                if story['name'] == filteredStory['name']:
-                  currentStories.append ( story )
+                  storyInfo = { 'story' : story, 'start' : iteration['start'], 'finish' : iteration['finish'] }
+                  currentStories.append ( storyInfo )
                   found = True
                   break
                
@@ -279,7 +282,8 @@ class OutputPDF(webapp.RequestHandler):
          for story in stories:
             for filteredStory in filteredStories:               
                if story['name'] == filteredStory['name']:
-                  futureStories.append ( story )
+                  storyInfo = { 'story' : story, 'start' : iteration['start'], 'finish' : iteration['finish'] }
+                  futureStories.append ( storyInfo )
                   found = True
                   break
                
@@ -305,9 +309,6 @@ class OutputPDF(webapp.RequestHandler):
          if match.group('italicized') != None :
             innerMarkUp = self.MarkDownToMarkUp ( match.group('italicized') )
             markedUpStrings.append ( """<i>{0}</i>""".format( innerMarkUp ) )
-         
-         if match.group('bolditalicized') != None :
-            markedUpStrings.append ( """<b><i>{0}</i></b>""".format( match.group('bolditalicized') ) )
             
          regularTextIndex = match.end()
 
@@ -318,6 +319,6 @@ class OutputPDF(webapp.RequestHandler):
       
    def FindMarkedDownText (self, text) :
       # return the MatchObjects containing bold, underlined or bold underline text
-      return re.finditer(r"""(?:(?:(?:(?<=[\s^,(])|(?<=^))\*(?=\S)(?!_)(?P<bold>.+?)(?<!_)(?<=\S)\*(?:(?=[\s$,.?!])|(?<=$)))|(?:(?:(?<=[\s^,(])|(?<=^))_(?=\S)(?!\*)(?P<italicized>.+?)(?<!\*)(?<=\S)_(?:(?=[\s$,.?!])|(?<=$)))|(?:(?:(?<=[\s^,(])|(?<=^))(?:\*_|_\*)(?=\S)(?P<bolditalicized>.+?)(?<=\S)(?:\*_|_\*)(?:(?=[\s$,.?!])|(?<=$))))""",text, re.M)
+      return re.finditer(r"""(?:(?:(?:(?<=[\s^,(])|(?<=^))\*(?=\S)(?P<bold>.+?)(?<=\S)\*(?:(?=[\s$,.?!])|(?<=$)))|(?:(?:(?<=[\s^,(])|(?<=^))_(?=\S)(?P<italicized>.+?)(?<=\S)_(?:(?=[\s$,.?!])|(?<=$))))""",text, re.M)
                
 
