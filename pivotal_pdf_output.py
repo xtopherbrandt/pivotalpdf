@@ -3,6 +3,7 @@ import sys
 sys.path.insert(0, 'reportlab.zip')
 import re
 import wsgiref.handlers
+import time
 
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
@@ -29,6 +30,7 @@ class OutputPDF(webapp.RequestHandler):
    styles = getSampleStyleSheet()
    iterationDateFormat = "%B %d, %Y"
    activityDateFormat = "%b %d, %Y"
+   fileNameDateTimeFormat = "%Y%m%d%H%M%S"
    styleHeader = ParagraphStyle( name='TableHeader',
                                  fontName='Helvetica-Bold',
                                  fontSize=14,
@@ -120,9 +122,9 @@ class OutputPDF(webapp.RequestHandler):
          self.response.headers['Content-Type'] = 'application/pdf'
       else :
          self.response.headers['Content-Type'] = 'application/octet-stream'
-         self.response.headers['Content-Disposition'] = """attachment; filename=PivotalPDF.pdf"""
+         self.response.headers['Content-Disposition'] = """attachment; filename=UserStories-{0}.pdf""".format(time.strftime(self.fileNameDateTimeFormat))
       
-      doc = SimpleDocTemplate(self.response.out,pagesize = letter, allowSplitting=1, title='Pivotal PDF')
+      doc = SimpleDocTemplate(self.response.out,pagesize = letter, allowSplitting=1, title='User Stories', author='Pivotal PDF (http://pivotal-pdf.appspot.com)')
       
       #Create a list of flowables for the document
       flowables = []
