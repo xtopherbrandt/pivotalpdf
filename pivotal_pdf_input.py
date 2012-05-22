@@ -17,10 +17,18 @@ from xml.sax.saxutils import escape
 class MainPage(webapp.RequestHandler):
     def get(self):
 
-        template_values = {}
-        path = os.path.join(os.path.dirname(__file__), 'index.html')
-        self.response.out.write(template.render(path, template_values))
-
+      #Try to get the apiKey from a cookie, the existance of the cookie also indicates that the user wants to have their key remembered
+      if self.request.cookies.get('apiKey') != None :
+         self.apiKey = self.request.cookies.get('apiKey')  
+         self.rememberMyKey = 'checked=True'       
+      else :
+         self.apiKey = ''
+         self.rememberMyKey = ''
+         
+      template_values = {'apiKey' : self.apiKey, 'checked' : self.rememberMyKey}
+      path = os.path.join(os.path.dirname(__file__), 'index.html')
+      self.response.out.write(template.render(path, template_values))
+        
 class GetProjects(webapp.RequestHandler):
 
    def post(self):
@@ -52,6 +60,15 @@ class OutputHTML ( webapp.RequestHandler ):
          self.filter = self.request.get('filter')
       else :
          self.filter = self.request.get('hiddenFilter')
+      
+      # if the remember My Key checkbox is set then store the key and the setting in cookies
+      if self.request.get('rememberMyKey', default_value='False') == 'True' :
+         #explicitly setting the domain does not seem to work, at least on the localhost
+         self.response.set_cookie('apiKey', value=self.apikey, secure=False, httponly=True,  expires=datetime.datetime.now() + datetime.timedelta(days=365) )         
+         self.rememberMyKeyCheckedAttribute = 'checked=True'
+      else :
+         self.response.delete_cookie('apiKey')         
+         self.rememberMyKeyCheckedAttribute = ''
          
       client = PivotalClient(token=self.apikey, cache=None)
       projects = client.projects.all()['projects']
@@ -62,6 +79,8 @@ class OutputHTML ( webapp.RequestHandler ):
          </head>
          <html>
             <body>
+               <h1>Pivotal PDF</h1>
+               <h2>A User Story Document Generator</h2>
                <h3>Step 1: Authenticate</h3>
                <form action="/authenticate" method="post">
                   Pivotal Tracker API Key
@@ -71,7 +90,7 @@ class OutputHTML ( webapp.RequestHandler ):
       self.response.out.write( apiKey )
     
       self.response.out.write("""
-         <div><input type="submit" value="Set Pivotal Tracker API Key"></div>
+         <div><input type="submit" value="Set Pivotal Tracker API Key"><input type="checkbox" value="True" {0} name="rememberMyKey">Remember My Key</div>
          </form>
 
          <p>
@@ -79,7 +98,7 @@ class OutputHTML ( webapp.RequestHandler ):
 
          <form action="/getStories" method="post">             
          <div><select name="projects" size="10"  style="width:300px;margin:5px 0 5px 0;">
-       """)
+       """.format(self.rememberMyKeyCheckedAttribute))
                     
       for project in projects:
          if project['id'] == self.projectId :

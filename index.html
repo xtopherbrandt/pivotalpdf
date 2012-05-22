@@ -4,32 +4,34 @@
   <html>
   <body>
 
-    <h3>Step 1: Authenticate</h3>
-    <form action="/authenticate" method="post">
+   <h1>Pivotal PDF</h1>
+   <h2>A User Story Document Generator</h2>
+   <h3>Step 1: Authenticate</h3>
+      <form action="/authenticate" method="post">
       Pivotal Tracker API Key
-      <div><textarea name="APIKey" rows="1" cols="60"></textarea></div>
-      <div><input type="submit" value="Set Pivotal Tracker API Key"></div>
-    </form>
+      <div><textarea name="APIKey" rows="1" cols="60">{{apiKey}}</textarea></div>
+      <div><input type="submit" value="Set Pivotal Tracker API Key"><input type="checkbox" value="True" {{checked}} name="rememberMyKey">Remember My Key</div>
+   </form>
 
-    <p>
-    <h3>Step 2: Select Project</h3>
-    <div><select name="projects" size="10" style="width:300px;margin:5px 0 5px 0;">
+   <p>
+   <h3>Step 2: Select Project</h3>
+   <div><select name="projects" size="10" style="width:300px;margin:5px 0 5px 0;">
       <option>User Not Authenticated</option>
-    </select></div>
-    
-    <p>
-    <h3>Step 3: Enter Story Search Filter</h3>
-    This is the same as the Search box in Pivotal Tracker
-    <div><textarea name="filter" rows="1" cols="60" disabled="true"></textarea></div>
-    <div><input type="submit" value="Set Search Filter" disabled="true"></div>
-    
-    <p>
-    <h3>Story List</h3>
-    <div><select name="stories" size="20" style="width:300px;margin:5px 0 5px 0;" >
+   </select></div>
+
+   <p>
+   <h3>Step 3: Enter Story Search Filter</h3>
+   This is the same as the Search box in Pivotal Tracker
+   <div><textarea name="filter" rows="1" cols="60" disabled="true"></textarea></div>
+   <div><input type="submit" value="Set Search Filter" disabled="true"></div>
+
+   <p>
+   <h3>Story List</h3>
+   <div><select name="stories" size="20" style="width:300px;margin:5px 0 5px 0;" >
       <option>No Stories</option>
-    </select></div>
-    <div><input type="submit" value="View PDF" disabled="true"></div>
-    <div><input type="submit" value="Download PDF" disabled="true"></div>
+   </select></div>
+   <div><input type="submit" value="View PDF" disabled="true"></div>
+   <div><input type="submit" value="Download PDF" disabled="true"></div>
 
   </body>
 </html>
