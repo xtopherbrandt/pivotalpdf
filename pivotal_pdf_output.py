@@ -1,9 +1,11 @@
+import os
 import sys
 sys.path.insert(0, 'reportlab.zip')
 import re
 import wsgiref.handlers
 
 from google.appengine.ext import webapp
+from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import run_wsgi_app
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
@@ -11,6 +13,7 @@ from reportlab.lib.pagesizes import letter, A4
 from reportlab.lib.enums import TA_LEFT, TA_RIGHT, TA_CENTER, TA_JUSTIFY
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.platypus.tables import Table, TableStyle, CellStyle, LongTable
+from reportlab.platypus.doctemplate import LayoutError
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.rl_config import defaultPageSize
 from reportlab.lib.units import inch
@@ -189,7 +192,20 @@ class OutputPDF(webapp.RequestHandler):
                         ]))
                               
       flowables.append( table )
-      doc.build(flowables)
+      
+      try :
+         doc.build(flowables)
+      except LayoutError as exception:
+         nameMatch = re.search(r"""('[^']*')""", str(exception), re.M)
+                  
+         if nameMatch != None :
+            template_values = {'storyName': nameMatch.group(0) }
+         else :
+            template_values = {}
+               
+         path = os.path.join(os.path.dirname(__file__), 'error.html')
+         self.response.headers['Content-Type'] = 'html'
+         self.response.out.write(template.render(path, template_values))
 
    def BuildDescription (self, storyInfo ) :
    
