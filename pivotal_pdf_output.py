@@ -179,13 +179,31 @@ class OutputPDF(webapp.RequestHandler):
          storyRow.append(Paragraph(storyInfo['finish'].strftime(self.iterationDateFormat),self.styleNormal))
          storyRow.append( storyDescription )
          tableData.append(storyRow)
+      
+      #Add the Icebox Stories
+      iceboxStories = self.GetIceboxStories( stories, apiToken, projectId )
+      
+      for storyInfo in iceboxStories :
+
+         # Paragraphs can take HTML so the mark-up characters in the text must be escaped
+         storyName = escape ( storyInfo['story']['name'] )
+
+         storyDescription = self.BuildDescription( storyInfo )
+         
+         storyRow = []
+         storyRow.append(Paragraph( storyName,self.styleName))
+         storyRow.append(Paragraph("Icebox",self.styleNormal))
+         storyRow.append(Paragraph('Icebox',self.styleNormal))
+         storyRow.append( storyDescription )
+         tableData.append(storyRow)
 
       table = LongTable(tableData, colWidths=[2*inch,1*inch,1*inch,3.5*inch] )  
       
       table.setStyle(TableStyle([
-                        ('BACKGROUND',(0,0),(-1,0),colors.grey),        #Give the header row a grey background
+                        ('BACKGROUND',(0,0),(-1,0),colors.darkslategray),        #Give the header row a grey background
                         ('BACKGROUND',(0,1),(-1, len(doneStories) ),colors.lightgrey),  #Shade the Done stories in light grey
-                        ('BACKGROUND',(0, len(doneStories) + len(currentStories) + 1 ),(-1, -1 ),colors.lightgrey),  #Shade the backlog stories in light grey
+                        ('BACKGROUND',(0, len(doneStories) + len(currentStories) + 1 ),(-1, -1 ),colors.grey),  #Shade the backlog stories in light grey
+                        ('BACKGROUND',(0, len(doneStories) + len(currentStories) + len(futureStories) + 1 ),(-1, -1 ),colors.dimgrey),  #Shade the backlog stories in light grey
                         ('TEXTCOLOR',(0,0),(-1,0),colors.white),        #Give the header row white text
                         ('ALIGNMENT',(0,0),(-1,0),'CENTRE'),            #Horizontally align the header row to the center
                         ('VALIGN',(0,0),(-1,0),'MIDDLE'),               #Vertically align the header row in the middle
@@ -319,6 +337,23 @@ class OutputPDF(webapp.RequestHandler):
                      break
                
       return futureStories
+
+   def GetIceboxStories (self, filteredStories, apiToken, projectId) :
+   
+      iceboxStories = []
+        
+      # Get the set of icebox stories
+      client = PivotalClient(token=apiToken, cache=None)
+      stories = client.stories.get_filter(projectId, 'state:unscheduled', True )['stories']
+            
+      for story in stories:
+         for filteredStory in filteredStories:               
+            if str(story['id']) == filteredStory:
+               storyInfo = { 'story' : story, 'start' : None, 'finish' : None }
+               iceboxStories.append ( storyInfo )
+               break
+               
+      return iceboxStories
 
    def MarkDownToMarkUp (self, markedDownText) :
       markedUpText = ''

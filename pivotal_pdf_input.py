@@ -93,6 +93,7 @@ class OutputHTML ( webapp.RequestHandler ):
      
          <p>
          <h3>Step 3: Enter Story Search Filter</h3>
+         This is the same as the Search box in Pivotal Tracker
          <div><textarea name="filter" rows="1" cols="60" >{0}</textarea></div>
       """.format( self.filter ))
           
