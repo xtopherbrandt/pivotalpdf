@@ -99,9 +99,12 @@ class OutputPDF(webapp.RequestHandler):
       projectId = self.request.get('hiddenProjectId')
       filter = self.request.get('hiddenFilter')
 
-      #client = PivotalClient(token=apiToken, cache=None)
-      #stories = client.stories.get_filter(projectId, filter, True )['stories']
       stories = self.request.get_all('stories')
+
+      # if no stories were selected, assume all are desired and get all by the filter
+      if len(stories) == 0:
+         client = PivotalClient(token=apiToken, cache=None)
+         stories = [ str(story['id']) for story in client.stories.get_filter(projectId, filter, True )['stories'] ]
 
       self.get( stories, apiToken, projectId )
 
