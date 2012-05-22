@@ -1,0 +1,30 @@
+  <head>
+    <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
+  </head>
+  <html>
+  <body>
+
+    <h3>Step 1: Authenticate</h3>
+    <form action="/authenticate" method="post">
+      Enter Pivotal Tracker API Key
+      <div><textarea name="APIKey" rows="1" cols="60"></textarea></div>
+      <div><input type="submit" value="Set Pivotal Tracker API Key"></div>
+    </form>
+
+    <p>
+    <h3>Step 2: Select Project</h3>
+    <div><select name="projects" size="10" cols="60">
+      <option>User Not Authenticated</option>
+    </select></div>
+    <div><input type="submit" value="Select Project" ></div>
+    
+    <p>
+    <h3>Step 3: Enter Story Search Filter</h3>
+
+    <form action="/getStories" method="post">
+      <div><textarea name="filter" rows="1" cols="60"></textarea></div>
+      <div><input type="submit" value="Set Search Filter"></div>
+    </form>
+
+  </body>
+</html>

@@ -1,0 +1,34 @@
+<html>
+<head><title>Test PDF generator</title></head>
+<body>
+<h2>Test PDF generator</h2>
+<p>
+Proof of concept for dynamically generating a PDF file
+from a Python module in Google AppEngine.
+</p>
+<form action="testpdf" method="get" style="background:#CCFFFF; border:thin black solid; padding:8px;">
+Enter some random text:
+<input type="text" name="t" value="Hello world!" />
+<input type="submit" value="Generate PDF" />
+</form>
+<p>
+<a href="testpdf.zip">Download the source code</a> -
+includes a re-packaged
+<a href="http://www.reportlab.com/software/opensource/rl-toolkit/">ReportLab Toolkit 2.4</a>
+(leaving only the reportlab directory and its subdirectories)
+with a modified utils.py (to work around the
+<a href="http://groups.google.com/group/google-appengine/browse_thread/thread/d30b28525cc47b49?tvc=2">AttributeError: 'HardenedModulesHook' object has no attribute '_files'</a>).
+</p>
+<p>
+Updates:
+<ul>
+<li>2010-03-22: upgraded from ReportLab Toolkit 2.3 to 2.4.
+If you insist on using 2.3, download it <a href="reportlab23.zip">here</a>.
+Future versions may be patched with
+<a href="reportlab_gae.diff">this patch file</a>.
+</li>
+</ul>
+</p>
+<p><a href="/">Back</a></p>
+</body>
+</html>

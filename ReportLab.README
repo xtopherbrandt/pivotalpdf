@@ -1,0 +1,9 @@
+Version 2.4 of ReportLab generates a error:  AttributeError: 'HardenedModulesHook' object has no attribute '_files', when GAE attempts to import the canvas class.
+
+Someone has kindly corrected the problem in the utils.py file, repackaged it and shared in Google Docs: https://docs.google.com/viewer?url=http%3A%2F%2Fruudhelderman.appspot.com%2Ftestpdf.zip
+
+That version seems to be for correcting the problem with respect to using zip functions. However, I have found that if utils.py is not compiled (ie, I delete the utils.pyc file) it runs fine without the error.
+
+The version of report lab currently running in this directory is 2.4 from a locally built copy of the source, no patching applied. The utils.pyc has been removed.
+
+As well the google app engine development server must be run by a sudo user
