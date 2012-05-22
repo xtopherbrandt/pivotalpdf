@@ -28,6 +28,7 @@ class OutputPDF(webapp.RequestHandler):
    PAGE_HEIGHT=defaultPageSize[1]; PAGE_WIDTH=defaultPageSize[0]
    styles = getSampleStyleSheet()
    iterationDateFormat = "%B %d, %Y"
+   activityDateFormat = "%b %d, %Y"
    styleHeader = ParagraphStyle( name='TableHeader',
                                  fontName='Helvetica-Bold',
                                  fontSize=14,
@@ -253,7 +254,7 @@ class OutputPDF(webapp.RequestHandler):
             
             # Get the set of Activity notes for the story
             for note in storyInfo['story']['notes'] :
-               rawDescription.append(note['text'])
+               rawDescription.append("""_{0}_ - {1}""".format(note['noted_at'].strftime(self.activityDateFormat), note['text']))
                   
          # Concatenate the story description with the activity notes
          description = '\n'.join(rawDescription )
