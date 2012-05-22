@@ -1,5 +1,5 @@
 application: pivotal-pdf
-version: 108
+version: 112
 runtime: python
 api_version: 1
 
