@@ -1,5 +1,5 @@
 application: pivotal-pdf
-version: 123
+version: 125
 runtime: python27
 api_version: 1
 threadsafe: false
@@ -7,6 +7,11 @@ threadsafe: false
 handlers:
 - url: /stylesheets
   static_dir: stylesheets
+  
+- url: /favicon.ico
+  static_files: favicon.ico
+  upload: favicon.ico
     
 - url: /.*
   script: pivotal_pdf_input.py  
+  
