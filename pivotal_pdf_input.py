@@ -2,6 +2,7 @@ import os
 from google.appengine.ext.webapp import template
 import cgi
 import datetime
+import time
 import urllib
 import wsgiref.handlers
 import csv
@@ -45,7 +46,13 @@ class GetStories ( webapp.RequestHandler ):
            self.response.out.write("<p>")      
 
 class OutputHTML ( webapp.RequestHandler ):
+
    def post ( self ):
+
+      # initialize the class properties
+      self.projectId = None
+      self.filter = ''         
+      self.rememberMyKeyCheckedAttribute = ''         
 
       session = get_current_session()
       
@@ -54,18 +61,12 @@ class OutputHTML ( webapp.RequestHandler ):
           
          if session.has_key('projectId') :
             self.projectId = session['projectId']
-         else :
-            self.projectId = None
              
          if session.has_key('filter') :
             self.filter = session['filter']
-         else :
-            self.filter = ''         
              
          if session.has_key('rememberMyKeyCheckedAttribute') :
             self.rememberMyKeyCheckedAttribute = session['rememberMyKeyCheckedAttribute']
-         else :
-            self.rememberMyKeyCheckedAttribute = ''         
             
       else:
          # when the user logs in, it is recommended that you rotate the session ID (security)
@@ -153,9 +154,9 @@ class OutputHTML ( webapp.RequestHandler ):
          stories = client.stories.get_filter(self.projectId, self.request.get('filter'), True )['stories']
 
       self.response.out.write("""
-         <form action="/PivotalPDFOutput.pdf" method="post">
+         <form action="/generatePDF" method="post">
       """)
-      
+     
       # list the stories
       self.response.out.write("""
     
@@ -175,13 +176,11 @@ class OutputHTML ( webapp.RequestHandler ):
       # if there are no stories, disable the Output PDF button
       if len(stories) == 0 :
          self.response.out.write( """
-            <div><input type="submit" value="View PDF" disabled="true"></div>
-            <div><input type="submit" value="Download PDF" disabled="true"></div>
+            <div><input type="submit" value="Generate PDF" disabled="true"></div>
             """)
       else :
          self.response.out.write( """
-            <div><input type="submit" name="outputType" value="View PDF" ></div>
-            <div><input type="submit" name="outputType" value="Download PDF" ></div>
+            <div><input type="submit" name="outputType" value="Generate PDF" ></div>
             """)
                       
       self.response.out.write("""
@@ -195,7 +194,7 @@ application = webapp.WSGIApplication([
   ('/', MainPage),
   ('/authenticate', OutputHTML),
   ('/getStories', OutputHTML),
-  ('/PivotalPDFOutput.pdf', OutputPDF)
+  ('/generatePDF', OutputPDF)
   
 ], debug=True)
 

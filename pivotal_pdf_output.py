@@ -4,7 +4,6 @@ sys.path.insert(0, 'reportlab.zip')
 import re
 import wsgiref.handlers
 import time
-import pickle
 
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
@@ -33,6 +32,7 @@ class OutputPDF(webapp.RequestHandler):
    iterationDateFormat = "%B %d, %Y"
    activityDateFormat = "%b %d, %Y"
    fileNameDateTimeFormat = "%Y%m%d%H%M%S"
+
    styleHeader = ParagraphStyle( name='TableHeader',
                                  fontName='Helvetica-Bold',
                                  fontSize=14,
@@ -100,45 +100,67 @@ class OutputPDF(webapp.RequestHandler):
                                  allowOrphans=1 )
     
    def post(self):
-      apiToken = self.request.get('hiddenAPIKey')
-      projectId = self.request.get('hiddenProjectId')
-      filter = self.request.get('hiddenFilter')
-      
+   
+      session = get_current_session()
+
       stories = self.request.get_all('stories')
+      filter = ''         
+      projectId = None
+      filename =  """UserStories-{0}.pdf""".format(time.strftime(self.fileNameDateTimeFormat))
+
+      if session.is_active():
+         apiToken = session['APIKey']
+          
+         if session.has_key('projectId') :
+            projectId = session['projectId']
+             
+         if session.has_key('filter') :
+            filter = session['filter']
+      
+         #store the selected story list
+         session['stories'] = stories
 
       # if no stories were selected, assume all are desired and get all by the filter
       if len(stories) == 0:
          client = PivotalClient(token=apiToken, cache=None)
          stories = [ str(story['id']) for story in client.stories.get_filter(projectId, filter, True )['stories'] ]
-
-      if self.request.get('outputType') == 'View PDF':
-         view = True
-      else :
-         view = False
-      
-      documentParameters = { 'stories' : stories, 'apiToken' : apiToken, 'projectId' : projectId, 'view' : view }
-      
-      self.GeneratePdf( documentParameters )
+            
+      self.GeneratePdf( apiToken, projectId, stories, filename )
 
    def get(self):
-      # if there is a cookie with the last document parameters, then use it
-      if self.request.cookies.get('lastDocumentParameters') != None :
-         self.GeneratePdf( pickle.loads( self.request.cookies.get('lastDocumentParameters') ) )
-      #else :
-         #redirect back to the authenticate page
    
-   def GeneratePdf(self, documentParameters ):
-   
-      stories = documentParameters[ 'stories' ]
-      apiToken = documentParameters[ 'apiToken' ]
-      projectId = documentParameters[ 'projectId' ]
-      view = documentParameters[ 'view' ]
+      session = get_current_session()
       
-      if view :
-         self.response.headers['Content-Type'] = 'application/pdf'
-      else :
-         self.response.headers['Content-Type'] = 'application/octet-stream'
-         self.response.headers['Content-Disposition'] = """attachment; filename=UserStories-{0}.pdf""".format(time.strftime(self.fileNameDateTimeFormat))
+      stories = []
+      filter = ''         
+      projectId = None
+      filename =  """UserStories-{0}.pdf""".format(time.strftime(self.fileNameDateTimeFormat))
+      
+      if session.is_active():
+         apiToken = session['APIKey']
+          
+         if session.has_key('projectId') :
+            projectId = session['projectId']
+         else :
+            projectId = None
+             
+         if session.has_key('filter') :
+            filter = session['filter']
+         else :
+            filter = ''         
+            
+         stories = session['stories']
+
+      # if no stories were selected, assume all are desired and get all by the filter
+      if len(stories) == 0:
+         client = PivotalClient(token=apiToken, cache=None)
+         stories = [ str(story['id']) for story in client.stories.get_filter(projectId, filter, True )['stories'] ]
+            
+      self.GeneratePdf( apiToken, projectId, stories, filename )
+   
+   def GeneratePdf(self, apiToken, projectId, stories, filename ):
+   
+      self.response.headers['Content-Type'] = 'application/pdf'
       
       doc = SimpleDocTemplate(self.response.out,pagesize = letter, allowSplitting=1, title='User Stories', author='Pivotal PDF (http://pivotal-pdf.appspot.com)')
       
