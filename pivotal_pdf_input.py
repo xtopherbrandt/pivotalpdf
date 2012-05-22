@@ -114,7 +114,7 @@ class OutputHTML ( webapp.RequestHandler ):
          stories = client.stories.get_filter(self.projectId, self.request.get('filter'), True )['stories']
 
       self.response.out.write("""
-         <form action="/outputPDF" method="post">
+         <form action="/PivotalPDFOutput.pdf" method="post">
       """)
       
       # list the stories
@@ -136,11 +136,13 @@ class OutputHTML ( webapp.RequestHandler ):
       # if there are no stories, disable the Output PDF button
       if len(stories) == 0 :
          self.response.out.write( """
-            <div><input type="submit" value="Generate PDF" disabled="true"></div>
+            <div><input type="submit" value="View PDF" disabled="true"></div>
+            <div><input type="submit" value="Download PDF" disabled="true"></div>
             """)
       else :
          self.response.out.write( """
-            <div><input type="submit" value="Generate PDF" ></div>
+            <div><input type="submit" name="outputType" value="View PDF" ></div>
+            <div><input type="submit" name="outputType" value="Download PDF" ></div>
             """)
           
       hiddenApiKey = """<div><input name="hiddenAPIKey" type="hidden" value="{0}"/></div>""".format( self.apikey )
@@ -161,7 +163,7 @@ application = webapp.WSGIApplication([
   ('/', MainPage),
   ('/authenticate', OutputHTML),
   ('/getStories', OutputHTML),
-  ('/outputPDF', OutputPDF)
+  ('/PivotalPDFOutput.pdf', OutputPDF)
   
 ], debug=True)
 

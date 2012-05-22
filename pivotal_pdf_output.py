@@ -98,7 +98,7 @@ class OutputPDF(webapp.RequestHandler):
       apiToken = self.request.get('hiddenAPIKey')
       projectId = self.request.get('hiddenProjectId')
       filter = self.request.get('hiddenFilter')
-
+      
       stories = self.request.get_all('stories')
 
       # if no stories were selected, assume all are desired and get all by the filter
@@ -106,11 +106,22 @@ class OutputPDF(webapp.RequestHandler):
          client = PivotalClient(token=apiToken, cache=None)
          stories = [ str(story['id']) for story in client.stories.get_filter(projectId, filter, True )['stories'] ]
 
-      self.get( stories, apiToken, projectId )
+      if self.request.get('outputType') == 'View PDF':
+         view = True
+      else :
+         view = False
+         
+      self.GeneratePdf( stories, apiToken, projectId, view )
 
-   def get(self, stories, apiToken, projectId):
-      self.response.headers['Content-Type'] = 'application/pdf'
-      doc = SimpleDocTemplate(self.response.out,pagesize = letter, allowSplitting=1)
+   def GeneratePdf(self, stories, apiToken, projectId, view):
+   
+      if view :
+         self.response.headers['Content-Type'] = 'application/pdf'
+      else :
+         self.response.headers['Content-Type'] = 'application/octet-stream'
+         self.response.headers['Content-Disposition'] = """attachment; filename=PivotalPDF.pdf"""
+      
+      doc = SimpleDocTemplate(self.response.out,pagesize = letter, allowSplitting=1, title='Pivotal PDF')
       
       #Create a list of flowables for the document
       flowables = []
