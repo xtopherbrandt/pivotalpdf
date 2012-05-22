@@ -293,15 +293,18 @@ class OutputPDF(webapp.RequestHandler):
       textMatches = self.FindMarkedDownText( markedDownText )
       
       for match in textMatches :
+      
          # add the next bit of regular text up to the next marked down chunk
          markedUpStrings.append ( markedDownText[ regularTextIndex : match.start() ] )
          
          # add a chunk of text with mark up appropriate to the group it was found in
          if match.group('bold') != None :
-            markedUpStrings.append ( """<b>{0}</b>""".format( match.group('bold') ) )
+            innerMarkUp = self.MarkDownToMarkUp ( match.group('bold') )
+            markedUpStrings.append ( """<b>{0}</b>""".format( innerMarkUp ) )
          
          if match.group('italicized') != None :
-            markedUpStrings.append ( """<i>{0}</i>""".format( match.group('italicized') ) )
+            innerMarkUp = self.MarkDownToMarkUp ( match.group('italicized') )
+            markedUpStrings.append ( """<i>{0}</i>""".format( innerMarkUp ) )
          
          if match.group('bolditalicized') != None :
             markedUpStrings.append ( """<b><i>{0}</i></b>""".format( match.group('bolditalicized') ) )
