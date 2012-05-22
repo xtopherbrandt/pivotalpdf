@@ -4,12 +4,15 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
 from reportlab.lib.pagesizes import letter, A4
+from reportlab.lib.enums import TA_LEFT, TA_RIGHT, TA_CENTER, TA_JUSTIFY
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.platypus.tables import Table, TableStyle, CellStyle, LongTable
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.rl_config import defaultPageSize
 from reportlab.lib.units import inch
 from reportlab.lib import colors
+from xml.sax.saxutils import escape 
+
     
 class OutputPDF:
 
@@ -21,8 +24,76 @@ class OutputPDF:
       doc = SimpleDocTemplate(requestHandler.response.out,pagesize = letter)
       styles = getSampleStyleSheet()
       styleN = styles['Normal']
-      styleH = styles['Heading1']
+      styleH = styles['Heading2']
+      
+      styleHeader = ParagraphStyle( name='TableHeader',
+                                    fontName='Helvetica-Bold',
+                                    fontSize=14,
+                                    leading=17,
+                                    leftIndent=0,
+                                    rightIndent=0,
+                                    firstLineIndent=0,
+                                    alignment=TA_CENTER,
+                                    spaceBefore=0,
+                                    spaceAfter=0,
+                                    bulletFontName='Helvetica',
+                                    bulletFontSize=10,
+                                    textColor=colors.white,
+                                    backColor=None,
+                                    wordWrap=None,
+                                    borderWidth=0,
+                                    borderPadding=0,
+                                    borderColor=None,
+                                    borderRadius=None,
+                                    allowWidows=0,
+                                    allowOrphans=0 )
+      
+      styleName = ParagraphStyle( name='Name',
+                                    fontName='Helvetica-Bold',
+                                    fontSize=12,
+                                    leading=14,
+                                    leftIndent=0,
+                                    rightIndent=0,
+                                    firstLineIndent=0,
+                                    alignment=TA_LEFT,
+                                    spaceBefore=0,
+                                    spaceAfter=0,
+                                    bulletFontName='Helvetica',
+                                    bulletFontSize=10,
+                                    textColor=colors.black,
+                                    backColor=None,
+                                    wordWrap=None,
+                                    borderWidth=0,
+                                    borderPadding=0,
+                                    borderColor=None,
+                                    borderRadius=None,
+                                    allowWidows=0,
+                                    allowOrphans=0 )
+                                    
+      styleNormal = ParagraphStyle( name='Normal',
+                                    fontName='Helvetica',
+                                    fontSize=8,
+                                    leading=10,
+                                    leftIndent=0,
+                                    rightIndent=0,
+                                    firstLineIndent=0,
+                                    alignment=TA_LEFT,
+                                    spaceBefore=0,
+                                    spaceAfter=0,
+                                    bulletFontName='Helvetica',
+                                    bulletFontSize=10,
+                                    textColor=colors.black,
+                                    backColor=None,
+                                    wordWrap=None,
+                                    borderWidth=0,
+                                    borderPadding=0,
+                                    borderColor=None,
+                                    borderRadius=None,
+                                    allowWidows=0,
+                                    allowOrphans=0 )
+                                    
             
+      
       #Create a list of flowables for the document
       flowables = []
       
@@ -32,21 +103,25 @@ class OutputPDF:
       #Create a row for our stories
       storyRow = []
       #add some flowables
-      storyRow.append(Paragraph("Story",styleH))
-      storyRow.append(Paragraph("Iteration Start",styleH))
-      storyRow.append(Paragraph("Iteration End",styleH))
-      storyRow.append(Paragraph("Description", styleH))
+      storyRow.append(Paragraph("Story",styleHeader))
+      storyRow.append(Paragraph("Iteration Start",styleHeader))
+      storyRow.append(Paragraph("Iteration End",styleHeader))
+      storyRow.append(Paragraph("Description", styleHeader))
       tableData.append(storyRow)
       for story in stories :
          
+         # Paragraphs can take HTML so the mark-up characters in the text must be escaped
+         storyName = escape ( story['name'] )
+         storyDescription = escape ( story['description'] )
+         
          storyRow = []
-         storyRow.append(Paragraph(story['name'],styleH))
-         storyRow.append(Paragraph("",styleN))
-         storyRow.append(Paragraph("",styleN))
-         storyRow.append(Paragraph(story['description'],styleN))
+         storyRow.append(Paragraph( storyName,styleName))
+         storyRow.append(Paragraph("",styleNormal))
+         storyRow.append(Paragraph("",styleNormal))
+         storyRow.append(Paragraph( storyDescription, styleNormal))
          tableData.append(storyRow)
 
-      table = LongTable(tableData)  
+      table = LongTable(tableData, colWidths=[2*inch,1*inch,1*inch,3*inch] )  
       
       table.setStyle(TableStyle([
                         ('BACKGROUND',(0,0),(-1,0),colors.grey),  #Give the header row a grey background

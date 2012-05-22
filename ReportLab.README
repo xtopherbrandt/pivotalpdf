@@ -4,6 +4,10 @@ Someone has kindly corrected the problem in the utils.py file, repackaged it and
 
 That version seems to be for correcting the problem with respect to using zip functions. However, I have found that if utils.py is not compiled (ie, I delete the utils.pyc file) it runs fine without the error.
 
-The version of report lab currently running in this directory is 2.4 from a locally built copy of the source, no patching applied. The utils.pyc has been removed.
+The version of report lab currently running in this directory is 2.4 from a locally built copy of the source, no patching applied. 
 
-As well the google app engine development server must be run by a sudo user
+When the file Utils.pyc has been removed and the Google App Engine server started, the server will compile Utils.pyc when the site is first run. But it will not give an attribute error until the second time it is run. So if it tries to import the utils from the .pyc it fails. The only way to get it running again is to delete the .pyc and restart the GAE server.
+
+
+
+
