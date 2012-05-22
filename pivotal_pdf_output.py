@@ -243,19 +243,23 @@ class OutputPDF(webapp.RequestHandler):
         
       # Get the set of done iterations
       client = PivotalClient(token=apiToken, cache=None)
-      iterations = client.iterations.done( projectId )['iterations']
+      project = client.iterations.done( projectId )
+      
+      # if the project has some done iterations
+      if 'iterations' in project:
+         iterations = project['iterations']
         
-      # Go through each iteration and find the stories that are in our set
-      for iteration in iterations:
-         stories = iteration['stories']
-         found = False
-         for story in stories:
-            for filteredStory in filteredStories: 
-               if str(story['id']) == filteredStory:
-                  storyInfo = { 'story' : story, 'start' : iteration['start'], 'finish' : iteration['finish'] }
-                  doneStories.append ( storyInfo )
-                  found = True
-                  break
+         # Go through each iteration and find the stories that are in our set
+         for iteration in iterations:
+            stories = iteration['stories']
+            found = False
+            for story in stories:
+               for filteredStory in filteredStories: 
+                  if str(story['id']) == filteredStory:
+                     storyInfo = { 'story' : story, 'start' : iteration['start'], 'finish' : iteration['finish'] }
+                     doneStories.append ( storyInfo )
+                     found = True
+                     break
                
       return doneStories
 
@@ -265,20 +269,24 @@ class OutputPDF(webapp.RequestHandler):
         
       # Get the current iteration
       client = PivotalClient(token=apiToken, cache=None)
-      iterations = client.iterations.current( projectId )['iterations']
+      project = client.iterations.current( projectId )
+      
+      # if the project has a current iteration
+      if 'iterations' in project:
+         iterations = project['iterations']
         
-      # Go through each iteration and find the stories that are in our set
-      for iteration in iterations:
-         stories = iteration['stories']
-         
-         found = False
-         for story in stories:
-            for filteredStory in filteredStories:               
-               if str(story['id']) == filteredStory:
-                  storyInfo = { 'story' : story, 'start' : iteration['start'], 'finish' : iteration['finish'] }
-                  currentStories.append ( storyInfo )
-                  found = True
-                  break
+         # Go through each iteration and find the stories that are in our set
+         for iteration in iterations:
+            stories = iteration['stories']
+            
+            found = False
+            for story in stories:
+               for filteredStory in filteredStories:               
+                  if str(story['id']) == filteredStory:
+                     storyInfo = { 'story' : story, 'start' : iteration['start'], 'finish' : iteration['finish'] }
+                     currentStories.append ( storyInfo )
+                     found = True
+                     break
                
       return currentStories
 
@@ -288,20 +296,24 @@ class OutputPDF(webapp.RequestHandler):
         
       # Get the set of future iterations
       client = PivotalClient(token=apiToken, cache=None)
-      iterations = client.iterations.backlog( projectId )['iterations']
+      project = client.iterations.backlog( projectId )
+      
+      # if the project has a current iteration
+      if 'iterations' in project:
+         iterations = project['iterations']
         
-      # Go through each iteration and find the stories that are in our set
-      for iteration in iterations:
-         stories = iteration['stories']
-         
-         found = False
-         for story in stories:
-            for filteredStory in filteredStories:               
-               if str(story['id']) == filteredStory:
-                  storyInfo = { 'story' : story, 'start' : iteration['start'], 'finish' : iteration['finish'] }
-                  futureStories.append ( storyInfo )
-                  found = True
-                  break
+         # Go through each iteration and find the stories that are in our set
+         for iteration in iterations:
+            stories = iteration['stories']
+            
+            found = False
+            for story in stories:
+               for filteredStory in filteredStories:               
+                  if str(story['id']) == filteredStory:
+                     storyInfo = { 'story' : story, 'start' : iteration['start'], 'finish' : iteration['finish'] }
+                     futureStories.append ( storyInfo )
+                     found = True
+                     break
                
       return futureStories
 
