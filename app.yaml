@@ -10,8 +10,8 @@ handlers:
 - url: /helloworld
   script: helloworld.py
   
-- url: /testpdf
-  script: testpdf.py
+- url: /localTest
+  script: pivotal_pdf_input.py 
     
 - url: /.*
   script: pivotal_pdf_input.py  

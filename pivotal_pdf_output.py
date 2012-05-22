@@ -1,7 +1,8 @@
 import sys
 sys.path.insert(0, 'reportlab.zip')
-
+import re
 import wsgiref.handlers
+
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from reportlab.pdfgen import canvas
@@ -19,14 +20,23 @@ from xml.sax.saxutils import escape
 from busyflow.pivotal import PivotalClient
 
     
-class OutputPDF:
+class OutputPDF(webapp.RequestHandler):
 
    PAGE_HEIGHT=defaultPageSize[1]; PAGE_WIDTH=defaultPageSize[0]
    styles = getSampleStyleSheet()
+   
+   def post(self):
+      apiToken = self.request.get('hiddenAPIKey')
+      projectId = self.request.get('hiddenProjectId')
+      filter = self.request.get('hiddenFilter')
 
-   def get(self, requestHandler, stories, apiToken, projectId):
-      requestHandler.response.headers['Content-Type'] = 'application/pdf'
-      doc = SimpleDocTemplate(requestHandler.response.out,pagesize = letter)
+      client = PivotalClient(token=apiToken, cache=None)
+      stories = client.stories.get_filter(projectId, filter, True )['stories']
+      self.get( stories, apiToken, projectId )
+
+   def get(self, stories, apiToken, projectId):
+      self.response.headers['Content-Type'] = 'application/pdf'
+      doc = SimpleDocTemplate(self.response.out,pagesize = letter, allowSplitting=1)
       styles = getSampleStyleSheet()
       styleN = styles['Normal']
       styleH = styles['Heading2']
@@ -84,7 +94,7 @@ class OutputPDF:
                                     firstLineIndent=0,
                                     alignment=TA_LEFT,
                                     spaceBefore=0,
-                                    spaceAfter=0,
+                                    spaceAfter=4,
                                     bulletFontName='Helvetica',
                                     bulletFontSize=10,
                                     textColor=colors.black,
@@ -120,13 +130,21 @@ class OutputPDF:
          
          # Paragraphs can take HTML so the mark-up characters in the text must be escaped
          storyName = escape ( story['name'] )
-         storyDescription = escape ( story['description'] )
+         
+         # Need to separate out each paragraph in the story. The Paragraph flowable will remove all 
+         # whitespace around end of line characters.
+         paragraphMatches = re.finditer(r"""(^.*$)""",story['description'], re.M)
+         storyDescription = []
+                  
+         # Add each paragraph to a list of paragraph flowables that are then added to the table
+         for paragraphMatch in paragraphMatches :
+            storyDescription.append( Paragraph( escape( paragraphMatch.group(0) ) , styleNormal ) )
          
          storyRow = []
          storyRow.append(Paragraph( storyName,styleName))
          storyRow.append(Paragraph("",styleNormal))
          storyRow.append(Paragraph("",styleNormal))
-         storyRow.append(Paragraph( storyDescription, styleNormal))
+         storyRow.append( storyDescription )
          tableData.append(storyRow)
       
       #Add the Current Stories
@@ -136,29 +154,47 @@ class OutputPDF:
          
          # Paragraphs can take HTML so the mark-up characters in the text must be escaped
          storyName = escape ( story['name'] )
-         storyDescription = escape ( story['description'] )
          
+         # Need to separate out each paragraph in the story. The Paragraph flowable will remove all 
+         # whitespace around end of line characters.
+         paragraphMatches = re.finditer(r"""(^.*$)""",story['description'], re.M)
+         storyDescription = []
+                  
+         # Add each paragraph to a list of paragraph flowables that are then added to the table
+         for paragraphMatch in paragraphMatches :
+            storyDescription.append( Paragraph( escape( paragraphMatch.group(0) ) , styleNormal ) )
+        
          storyRow = []
          storyRow.append(Paragraph( storyName,styleName))
          storyRow.append(Paragraph("",styleNormal))
          storyRow.append(Paragraph("",styleNormal))
-         storyRow.append(Paragraph( storyDescription, styleNormal))
+         
+         storyRow.append(storyDescription)
+   
          tableData.append(storyRow)
       
       #Add the Future Stories
       futureStories = self.GetFutureStories( stories, apiToken, projectId )
       
       for story in futureStories :
-         
+
          # Paragraphs can take HTML so the mark-up characters in the text must be escaped
          storyName = escape ( story['name'] )
-         storyDescription = escape ( story['description'] )
+         
+         # Need to separate out each paragraph in the story. The Paragraph flowable will remove all 
+         # whitespace around end of line characters.
+         paragraphMatches = re.finditer(r"""(^.*$)""",story['description'], re.M)
+         storyDescription = []
+                  
+         # Add each paragraph to a list of paragraph flowables that are then added to the table
+         for paragraphMatch in paragraphMatches :
+            storyDescription.append( Paragraph( escape( paragraphMatch.group(0) ) , styleNormal ) )
          
          storyRow = []
          storyRow.append(Paragraph( storyName,styleName))
          storyRow.append(Paragraph("",styleNormal))
          storyRow.append(Paragraph("",styleNormal))
-         storyRow.append(Paragraph( storyDescription, styleNormal))
+         storyRow.append( storyDescription )
          tableData.append(storyRow)
 
       table = LongTable(tableData, colWidths=[2*inch,1*inch,1*inch,3*inch] )  
