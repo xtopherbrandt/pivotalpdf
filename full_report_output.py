@@ -101,27 +101,14 @@ class FullReportOutput(webapp.RequestHandler):
                                  allowWidows=0,
                                  allowOrphans=1 )
                                   
-   styleDetail = ParagraphStyle( name='Detail',
-                                 fontName='Helvetica-Oblique',
-                                 fontSize=12,
-                                 leading=14,
-                                 leftIndent=0,
-                                 rightIndent=0,
-                                 firstLineIndent=0,
-                                 alignment=TA_LEFT,
-                                 spaceBefore=0,
-                                 spaceAfter=4,
-                                 bulletFontName='Helvetica',
-                                 bulletFontSize=10,
-                                 textColor=colors.black,
-                                 backColor=None,
-                                 wordWrap=None,
-                                 borderWidth=0,
-                                 borderPadding=0,
-                                 borderColor=None,
-                                 borderRadius=None,
-                                 allowWidows=0,
-                                 allowOrphans=1 )
+   detailTableStyle = TableStyle([
+                           ('FONT',(0,0),(-1,0),'Helvetica-Oblique'),         #Set all of the text to be italized helvetica
+                           ('FONTSIZE',(0,0),(-1,0),12),                      #Set all text to be font size 12
+                           ('TEXTCOLOR',(0,0),(-1,0),colors.black),           #Set all text to be black
+                           ('ALIGNMENT',(0,0),(0,0),'LEFT'),                  #Left align the left column
+                           ('ALIGNMENT',(1,0),(1,0),'CENTER'),                #Center the middle column
+                           ('ALIGNMENT',(-1,0),(-1,0),'RIGHT')                  #Right align the right column
+                           ])
     
    def post(self):
    
@@ -207,19 +194,15 @@ class FullReportOutput(webapp.RequestHandler):
          tableData = []
          detailRow = []
          #add some flowables
-         detailRow.append(Paragraph("""Accepted: {0}""".format(storyInfo['story']['accepted_at'].strftime(self.iterationDateFormat)),self.styleDetail) )
-         detailRow.append(Paragraph(storyInfo['story']['owned_by'],self.styleDetail))
-         detailRow.append(Paragraph("""Size: {0}""".format( storyInfo['story']['estimate'] ),self.styleDetail))
+         detailRow.append("""Accepted: {0}""".format(storyInfo['story']['accepted_at'].strftime(self.iterationDateFormat)) )
+         detailRow.append(storyInfo['story']['owned_by'])
+         detailRow.append("""Size: {0}""".format( storyInfo['story']['estimate'] ))
 
          tableData.append ( detailRow )
          
          table = Table(tableData, colWidths=[2.33*inch,2.33*inch,2.33*inch] )  
-         
-         table.setStyle(TableStyle([
-                           ('ALIGNMENT',(0,0),(0,0),'LEFT'),               #Left align the left column
-                           ('ALIGNMENT',(1,0),(1,0),'CENTRE'),             #Center the middle column
-                           ('ALIGNMENT',(-1,0),(-1,0),'RIGHT'),            #Right align the right column
-                           ]))
+                  
+         table.setStyle( self.detailTableStyle )
          
          flowables.append(table)
             
@@ -246,23 +229,19 @@ class FullReportOutput(webapp.RequestHandler):
          tableData = []
          detailRow = []
          #add some flowables
-         detailRow.append(Paragraph("In Progress",self.styleDetail) )
+         detailRow.append("In Progress" )
          if 'owned_by' in storyInfo['story'] :
-            detailRow.append(Paragraph(storyInfo['story']['owned_by'],self.styleDetail))
+            detailRow.append(storyInfo['story']['owned_by'])
          else:
-            detailRow.append(Paragraph("",self.styleDetail) )
+            detailRow.append("" )
          
-         detailRow.append(Paragraph("""Size: {0}""".format( storyInfo['story']['estimate'] ),self.styleDetail))
+         detailRow.append("""Size: {0}""".format( storyInfo['story']['estimate'] ))
 
          tableData.append ( detailRow )
          
          table = Table(tableData, colWidths=[2.33*inch,2.33*inch,2.33*inch] )  
          
-         table.setStyle(TableStyle([
-                           ('ALIGN',(0,0),(0,-1),'LEFT'),               #Left align the left column
-                           ('ALIGN',(1,0),(1,-1),'CENTRE'),             #Center the middle column
-                           ('ALIGN',(2,0),(2,-1),'RIGHT'),            #Right align the right column
-                           ]))
+         table.setStyle( self.detailTableStyle )
          
          flowables.append(table)
             
@@ -289,17 +268,14 @@ class FullReportOutput(webapp.RequestHandler):
          tableData = []
          detailRow = []
          #add some flowables
-         detailRow.append(Paragraph("""Scheduled Sprint: {0}""".format(storyInfo['start'].strftime(self.iterationDateFormat)),self.styleDetail) )
-         detailRow.append(Paragraph("""Size: {0}""".format( storyInfo['story']['estimate'] ),self.styleDetail))
+         detailRow.append("""Scheduled Sprint: {0}""".format(storyInfo['start'].strftime(self.iterationDateFormat)) )
+         detailRow.append("""Size: {0}""".format( storyInfo['story']['estimate'] ))
 
          tableData.append ( detailRow )
          
          table = Table(tableData, colWidths=[3.5*inch,3.5*inch] )  
-         
-         table.setStyle(TableStyle([
-                           ('ALIGNMENT',(0,0),(0,0),'LEFT'),               #Left align the left column
-                           ('ALIGNMENT',(-1,0),(-1,0),'RIGHT'),            #Right align the right column
-                           ]))
+                  
+         table.setStyle( self.detailTableStyle )
          
          flowables.append(table)
             
@@ -326,21 +302,18 @@ class FullReportOutput(webapp.RequestHandler):
          tableData = []
          detailRow = []
          #add some flowables
-         detailRow.append(Paragraph("In the Ice Box",self.styleDetail) )
+         detailRow.append("In the Ice Box" )
          if storyInfo['story']['estimate'] != -1:
-            detailRow.append(Paragraph("""Size: {0}""".format( storyInfo['story']['estimate'] ),self.styleDetail))
+            detailRow.append("""Size: {0}""".format( storyInfo['story']['estimate'] ))
          else:
-            detailRow.append(Paragraph("Unestimated",self.styleDetail) )
+            detailRow.append("Unestimated" )
          
 
          tableData.append ( detailRow )
          
          table = Table(tableData, colWidths=[3.5*inch,3.5*inch] )  
          
-         table.setStyle(TableStyle([
-                           ('ALIGNMENT',(0,0),(0,0),'LEFT'),               #Left align the left column
-                           ('ALIGNMENT',(-1,0),(-1,0),'RIGHT'),            #Right align the right column
-                           ]))
+         table.setStyle( self.detailTableStyle )
          
          flowables.append(table)
             
