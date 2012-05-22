@@ -1,3 +1,6 @@
+import sys
+sys.path.insert(0, 'reportlab.zip')
+
 import wsgiref.handlers
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
@@ -11,7 +14,9 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.rl_config import defaultPageSize
 from reportlab.lib.units import inch
 from reportlab.lib import colors
+from reportlab.pdfbase import pdfmetrics
 from xml.sax.saxutils import escape 
+from busyflow.pivotal import PivotalClient
 
     
 class OutputPDF:
@@ -19,7 +24,7 @@ class OutputPDF:
    PAGE_HEIGHT=defaultPageSize[1]; PAGE_WIDTH=defaultPageSize[0]
    styles = getSampleStyleSheet()
 
-   def get(self, requestHandler, stories):
+   def get(self, requestHandler, stories, apiToken, projectId):
       requestHandler.response.headers['Content-Type'] = 'application/pdf'
       doc = SimpleDocTemplate(requestHandler.response.out,pagesize = letter)
       styles = getSampleStyleSheet()
@@ -108,7 +113,43 @@ class OutputPDF:
       storyRow.append(Paragraph("Iteration End",styleHeader))
       storyRow.append(Paragraph("Description", styleHeader))
       tableData.append(storyRow)
-      for story in stories :
+      
+      #Add the Done Stories
+      doneStories = self.GetDoneStories( stories, apiToken, projectId )
+      
+      for story in doneStories :
+         
+         # Paragraphs can take HTML so the mark-up characters in the text must be escaped
+         storyName = escape ( story['name'] )
+         storyDescription = escape ( story['description'] )
+         
+         storyRow = []
+         storyRow.append(Paragraph( storyName,styleName))
+         storyRow.append(Paragraph("",styleNormal))
+         storyRow.append(Paragraph("",styleNormal))
+         storyRow.append(Paragraph( storyDescription, styleNormal))
+         tableData.append(storyRow)
+      
+      #Add the Current Stories
+      currentStories = self.GetCurrentStories( stories, apiToken, projectId )
+      
+      for story in currentStories :
+         
+         # Paragraphs can take HTML so the mark-up characters in the text must be escaped
+         storyName = escape ( story['name'] )
+         storyDescription = escape ( story['description'] )
+         
+         storyRow = []
+         storyRow.append(Paragraph( storyName,styleName))
+         storyRow.append(Paragraph("",styleNormal))
+         storyRow.append(Paragraph("",styleNormal))
+         storyRow.append(Paragraph( storyDescription, styleNormal))
+         tableData.append(storyRow)
+      
+      #Add the Future Stories
+      futureStories = self.GetFutureStories( stories, apiToken, projectId )
+      
+      for story in futureStories :
          
          # Paragraphs can take HTML so the mark-up characters in the text must be escaped
          storyName = escape ( story['name'] )
@@ -138,6 +179,71 @@ class OutputPDF:
       flowables.append( table )
       doc.build(flowables)
 
+   def GetDoneStories (self, filteredStories, apiToken, projectId) :
+   
+      doneStories = []
+        
+      # Get the set of done iterations
+      client = PivotalClient(token=apiToken, cache=None)
+      iterations = client.iterations.done( projectId )['iterations']
+        
+      # Go through each iteration and find the stories that are in our set
+      for iteration in iterations:
+         stories = iteration['stories']
+         
+         found = False
+         for story in stories:
+            for filteredStory in filteredStories:               
+               if story['name'] == filteredStory['name']:
+                  doneStories.append ( story )
+                  found = True
+                  break
+               
+      return doneStories
+
+   def GetCurrentStories (self, filteredStories, apiToken, projectId) :
+   
+      currentStories = []
+        
+      # Get the current iteration
+      client = PivotalClient(token=apiToken, cache=None)
+      iterations = client.iterations.current( projectId )['iterations']
+        
+      # Go through each iteration and find the stories that are in our set
+      for iteration in iterations:
+         stories = iteration['stories']
+         
+         found = False
+         for story in stories:
+            for filteredStory in filteredStories:               
+               if story['name'] == filteredStory['name']:
+                  currentStories.append ( story )
+                  found = True
+                  break
+               
+      return currentStories
+
+   def GetFutureStories (self, filteredStories, apiToken, projectId) :
+   
+      futureStories = []
+        
+      # Get the set of future iterations
+      client = PivotalClient(token=apiToken, cache=None)
+      iterations = client.iterations.backlog( projectId )['iterations']
+        
+      # Go through each iteration and find the stories that are in our set
+      for iteration in iterations:
+         stories = iteration['stories']
+         
+         found = False
+         for story in stories:
+            for filteredStory in filteredStories:               
+               if story['name'] == filteredStory['name']:
+                  futureStories.append ( story )
+                  found = True
+                  break
+               
+      return futureStories
                
 #application = webapp.WSGIApplication([('/helloworld', MainPage)], debug=True)
 

@@ -80,14 +80,13 @@ class GetProjects(webapp.RequestHandler):
 
 class GetStories(webapp.RequestHandler):
   def post(self):
-        client = PivotalClient(token=self.request.get('hiddenAPIKey'), cache=None)
-        #stories = client.stories.get_filter(self.request.get('projects'), self.request.get('filter'), True )['stories']
-        iterations = client.iterations.done_filtered(self.request.get('projects'), search_filter=self.request.get('filter'))['iterations']
-        #filter is being ignored
-        for iteration in iterations:
-           stories = iteration['stories']
-           output=OutputPDF ()
-           output.get( self, stories)
+        apiToken = self.request.get('hiddenAPIKey')
+        projectId = self.request.get('projects')
+        
+        client = PivotalClient(token=apiToken, cache=None)
+        stories = client.stories.get_filter(projectId, self.request.get('filter'), True )['stories']
+        output=OutputPDF ()
+        output.get( self, stories, apiToken, projectId )
 #           for story in stories:
 #               self.response.out.write( story['name'] )
 #               self.response.out.write("<p>")

@@ -2,12 +2,13 @@ Version 2.4 of ReportLab generates a error:  AttributeError: 'HardenedModulesHoo
 
 Someone has kindly corrected the problem in the utils.py file, repackaged it and shared in Google Docs: https://docs.google.com/viewer?url=http%3A%2F%2Fruudhelderman.appspot.com%2Ftestpdf.zip
 
-That version seems to be for correcting the problem with respect to using zip functions. However, I have found that if utils.py is not compiled (ie, I delete the utils.pyc file) it runs fine without the error.
+In order to make that version work, the reportlab.zip file must be added to the project and not unzipped. So the project folder should contain reportlab.zip. To reference it we must add the following:
 
-The version of report lab currently running in this directory is 2.4 from a locally built copy of the source, no patching applied. 
+import sys
+sys.path.insert(0, 'reportlab.zip')
 
+If not using this version, but using the original Report Lab code unpatched I find that utils.pyc causes a problem
 When the file Utils.pyc has been removed and the Google App Engine server started, the server will compile Utils.pyc when the site is first run. But it will not give an attribute error until the second time it is run. So if it tries to import the utils from the .pyc it fails. The only way to get it running again is to delete the .pyc and restart the GAE server.
-
 
 
 
