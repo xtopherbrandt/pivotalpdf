@@ -9,6 +9,7 @@ import pickle
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import run_wsgi_app
+from gaesessions import get_current_session
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
 from reportlab.lib.pagesizes import letter, A4
@@ -116,7 +117,7 @@ class OutputPDF(webapp.RequestHandler):
          view = False
       
       documentParameters = { 'stories' : stories, 'apiToken' : apiToken, 'projectId' : projectId, 'view' : view }
-         
+      
       self.GeneratePdf( documentParameters )
 
    def get(self):

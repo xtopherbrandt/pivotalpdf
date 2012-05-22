@@ -13,6 +13,7 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 from busyflow.pivotal import PivotalClient
 from pivotal_pdf_output import OutputPDF
 from xml.sax.saxutils import escape
+from gaesessions import get_current_session
 
 class MainPage(webapp.RequestHandler):
     def get(self):
@@ -25,6 +26,7 @@ class MainPage(webapp.RequestHandler):
          self.apiKey = ''
          self.rememberMyKey = ''
          
+      
       template_values = {'apiKey' : self.apiKey, 'checked' : self.rememberMyKey}
       path = os.path.join(os.path.dirname(__file__), 'index.html')
       self.response.out.write(template.render(path, template_values))
@@ -45,34 +47,52 @@ class GetStories ( webapp.RequestHandler ):
 class OutputHTML ( webapp.RequestHandler ):
    def post ( self ):
 
+      session = get_current_session()
       
-      if self.request.get('APIKey') != '' :
+      if session.is_active():
+         self.apikey = session['APIKey']
+          
+         if session.has_key('projectId') :
+            self.projectId = session['projectId']
+         else :
+            self.projectId = None
+             
+         if session.has_key('filter') :
+            self.filter = session['filter']
+         else :
+            self.filter = ''         
+             
+         if session.has_key('rememberMyKeyCheckedAttribute') :
+            self.rememberMyKeyCheckedAttribute = session['rememberMyKeyCheckedAttribute']
+         else :
+            self.rememberMyKeyCheckedAttribute = ''         
+            
+      else:
+         # when the user logs in, it is recommended that you rotate the session ID (security)
+         session.regenerate_id()
          self.apikey = self.request.get('APIKey')
-      else :
-         self.apikey = self.request.get('hiddenAPIKey')
+         session['APIKey'] = self.apikey
       
       if self.request.get('projects') != '' :
          self.projectId = self.request.get('projects')
-      else :
-         self.projectId = self.request.get('hiddenProjectId')
+         session['projectId'] = self.projectId
       
       if self.request.get('filter') != '' :
          self.filter = self.request.get('filter')
-      else :
-         self.filter = self.request.get('hiddenFilter')
+         session['filter'] = self.filter
       
-      # if the remember My Key checkbox is set then store the key and the setting in cookies
+      # if the remember My Key checkbox is set then store the key in a cookie
       if self.request.get('rememberMyKey', default_value='False') == 'True' :
          #explicitly setting the domain does not seem to work, at least on the localhost
-         self.response.set_cookie('apiKey', value=self.apikey, secure=False, httponly=True,  expires=datetime.datetime.now() + datetime.timedelta(days=365), overwrite=True )         
+         self.response.set_cookie('apiKey', value=self.apikey, secure=False, httponly=True, expires=datetime.datetime.now() + datetime.timedelta(days=365), overwrite=True )         
          self.rememberMyKeyCheckedAttribute = "checked='True'"
+         session['rememberMyKeyCheckedAttribute'] = self.rememberMyKeyCheckedAttribute
       else :
-         if self.request.get('hiddenRememberMyKey') != None :
-            self.rememberMyKeyCheckedAttribute = "checked='True'"
-         else:
-            self.response.delete_cookie('apiKey')         
-            self.rememberMyKeyCheckedAttribute = ''
-         
+         #if we didn't get the value in the form and we don't remember having the checkbox set then delete the cookie 
+         if session.has_key('rememberMyKeyCheckedAttribute') == False :
+            self.response.delete_cookie('apiKey')
+            self.rememberMyKeyCheckedAttribute = ''         
+               
       client = PivotalClient(token=self.apikey, cache=None)
       projects = client.projects.all()['projects']
     
@@ -118,11 +138,6 @@ class OutputHTML ( webapp.RequestHandler ):
          This is the same as the Search box in Pivotal Tracker
          <div><textarea name="filter" rows="1" cols="60" >{0}</textarea></div>
       """.format( self.filter ))
-          
-      hiddenApiKey = """<div><input name="hiddenAPIKey" type="hidden" value="{0}"/></div>""".format( self.apikey )
-      self.response.out.write( hiddenApiKey )
-      hiddenRememberMyKey = """<div><input name="hiddenRememberMyKey" type="hidden" value="{0}" /></div>""".format( self.rememberMyKeyCheckedAttribute )
-      self.response.out.write( hiddenRememberMyKey )
 
       self.response.out.write("""
 
@@ -134,7 +149,7 @@ class OutputHTML ( webapp.RequestHandler ):
       stories = []
       
       # if a project is selected, get it's stories
-      if self.projectId != '' :
+      if self.projectId != None :
          stories = client.stories.get_filter(self.projectId, self.request.get('filter'), True )['stories']
 
       self.response.out.write("""
@@ -168,16 +183,7 @@ class OutputHTML ( webapp.RequestHandler ):
             <div><input type="submit" name="outputType" value="View PDF" ></div>
             <div><input type="submit" name="outputType" value="Download PDF" ></div>
             """)
-          
-      hiddenApiKey = """<div><input name="hiddenAPIKey" type="hidden" value="{0}"/></div>""".format( self.apikey )
-      self.response.out.write( hiddenApiKey )
-      hiddenProjectId = """<div><input name="hiddenProjectId" type="hidden" value="{0}"/></div>""".format( self.projectId )
-      self.response.out.write( hiddenProjectId )
-      hiddenFilter = """<div><input name="hiddenFilter" type="hidden" value="{0}"/></div>""".format( self.filter )
-      self.response.out.write( hiddenFilter )
-      hiddenRememberMyKey = """<div><input name="hiddenRememberMyKey" type="hidden" value="{0}" /></div>""".format( self.rememberMyKeyCheckedAttribute )
-      self.response.out.write( hiddenRememberMyKey )
-            
+                      
       self.response.out.write("""
          </form>
          </body>
