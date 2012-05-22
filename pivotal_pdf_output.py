@@ -99,8 +99,10 @@ class OutputPDF(webapp.RequestHandler):
       projectId = self.request.get('hiddenProjectId')
       filter = self.request.get('hiddenFilter')
 
-      client = PivotalClient(token=apiToken, cache=None)
-      stories = client.stories.get_filter(projectId, filter, True )['stories']
+      #client = PivotalClient(token=apiToken, cache=None)
+      #stories = client.stories.get_filter(projectId, filter, True )['stories']
+      stories = self.request.get_all('stories')
+
       self.get( stories, apiToken, projectId )
 
    def get(self, stories, apiToken, projectId):
@@ -246,11 +248,10 @@ class OutputPDF(webapp.RequestHandler):
       # Go through each iteration and find the stories that are in our set
       for iteration in iterations:
          stories = iteration['stories']
-              
          found = False
          for story in stories:
-            for filteredStory in filteredStories:               
-               if story['name'] == filteredStory['name']:
+            for filteredStory in filteredStories: 
+               if str(story['id']) == filteredStory:
                   storyInfo = { 'story' : story, 'start' : iteration['start'], 'finish' : iteration['finish'] }
                   doneStories.append ( storyInfo )
                   found = True
@@ -273,7 +274,7 @@ class OutputPDF(webapp.RequestHandler):
          found = False
          for story in stories:
             for filteredStory in filteredStories:               
-               if story['name'] == filteredStory['name']:
+               if str(story['id']) == filteredStory:
                   storyInfo = { 'story' : story, 'start' : iteration['start'], 'finish' : iteration['finish'] }
                   currentStories.append ( storyInfo )
                   found = True
@@ -296,7 +297,7 @@ class OutputPDF(webapp.RequestHandler):
          found = False
          for story in stories:
             for filteredStory in filteredStories:               
-               if story['name'] == filteredStory['name']:
+               if str(story['id']) == filteredStory:
                   storyInfo = { 'story' : story, 'start' : iteration['start'], 'finish' : iteration['finish'] }
                   futureStories.append ( storyInfo )
                   found = True

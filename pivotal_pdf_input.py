@@ -82,7 +82,10 @@ class OutputHTML ( webapp.RequestHandler ):
        """)
                     
       for project in projects:
-         option = """<option value="{0}">{1}</option>""".format( project['id'], project['name'] )
+         if project['id'] == self.projectId :
+            option = """<option selected="selected" value="{0}">{1}</option>""".format( project['id'], project['name'] )
+         else:
+            option = """<option value="{0}">{1}</option>""".format( project['id'], project['name'] )
          self.response.out.write( option )  
     
       self.response.out.write("""
@@ -118,7 +121,7 @@ class OutputHTML ( webapp.RequestHandler ):
     
          <p>
          <h3>Story List</h3>
-         <div><select name="stories" size="20" style="width:300px;margin:5px 0 5px 0;" >
+         <div><select name="stories" size="20" style="width:300px;margin:5px 0 5px 0;" multiple="multiple">
       """)
       
       for story in stories :
@@ -132,11 +135,11 @@ class OutputHTML ( webapp.RequestHandler ):
       # if there are no stories, disable the Output PDF button
       if len(stories) == 0 :
          self.response.out.write( """
-            <div><input type="submit" value="Output PDF" disabled="true"></div>
+            <div><input type="submit" value="Generate PDF" disabled="true"></div>
             """)
       else :
          self.response.out.write( """
-            <div><input type="submit" value="Output PDF" ></div>
+            <div><input type="submit" value="Generate PDF" ></div>
             """)
           
       hiddenApiKey = """<div><input name="hiddenAPIKey" type="hidden" value="{0}"/></div>""".format( self.apikey )
