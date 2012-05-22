@@ -37,19 +37,16 @@ class OutputPDF:
       storyRow.append(Paragraph("Iteration End",styleH))
       storyRow.append(Paragraph("Description", styleH))
       tableData.append(storyRow)
-      storyRow = []
-      storyRow.append(Paragraph("Some Story",styleH))
-      storyRow.append(Paragraph("April 12, 2012",styleN))
-      storyRow.append(Paragraph("April 13, 2012",styleN))
-      storyRow.append(Paragraph("Description <i>text</i>",styleN))
-      tableData.append(storyRow)
-      storyRow = []
-      storyRow.append(Paragraph("Another Story",styleH))
-      storyRow.append(Paragraph("April 14, 2012",styleN))
-      storyRow.append(Paragraph("April 15, 2012",styleN))
-      storyRow.append(Paragraph("Description <i>text</i>",styleN))
-      tableData.append(storyRow)
-      table = Table(tableData)  
+      for story in stories :
+         
+         storyRow = []
+         storyRow.append(Paragraph(story['name'],styleH))
+         storyRow.append(Paragraph("",styleN))
+         storyRow.append(Paragraph("",styleN))
+         storyRow.append(Paragraph(story['description'],styleN))
+         tableData.append(storyRow)
+
+      table = LongTable(tableData)  
       
       table.setStyle(TableStyle([
                         ('BACKGROUND',(0,0),(-1,0),colors.grey),  #Give the header row a grey background
