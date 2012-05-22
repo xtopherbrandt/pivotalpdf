@@ -97,8 +97,7 @@ class OutputPDF:
                                     allowWidows=0,
                                     allowOrphans=0 )
                                     
-            
-      
+    
       #Create a list of flowables for the document
       flowables = []
       
@@ -165,13 +164,15 @@ class OutputPDF:
       table = LongTable(tableData, colWidths=[2*inch,1*inch,1*inch,3*inch] )  
       
       table.setStyle(TableStyle([
-                        ('BACKGROUND',(0,0),(-1,0),colors.grey),  #Give the header row a grey background
-                        ('TEXTCOLOR',(0,0),(-1,0),colors.white),  #Give the header row white text
-                        ('ALIGNMENT',(0,0),(-1,0),'CENTRE'),          #Horizontally align the header row to the center
-                        ('VALIGN',(0,0),(-1,0),'MIDDLE'),         #Vertically align the header row in the middle
-                        ('TEXTCOLOR',(0,1),(-1,-2),colors.black), #Make the rest of the text white
-                        ('VALIGN',(0,1),(-1,-1),'TOP'),           #Make the rest of the cells vertically aligned to the top
-                        ('ALIGN',(0,1),(-1,-2),'LEFT'),          #Generally align everything to the right
+                        ('BACKGROUND',(0,0),(-1,0),colors.grey),        #Give the header row a grey background
+                        ('BACKGROUND',(0,1),(-1, len(doneStories) ),colors.lightgrey),  #Shade the Done stories in light grey
+                        ('BACKGROUND',(0, len(doneStories) + len(currentStories) + 1 ),(-1, -1 ),colors.lightgrey),  #Shade the backlog stories in light grey
+                        ('TEXTCOLOR',(0,0),(-1,0),colors.white),        #Give the header row white text
+                        ('ALIGNMENT',(0,0),(-1,0),'CENTRE'),            #Horizontally align the header row to the center
+                        ('VALIGN',(0,0),(-1,0),'MIDDLE'),               #Vertically align the header row in the middle
+                        ('TEXTCOLOR',(0,1),(-1,-2),colors.black),       #Make the rest of the text white
+                        ('VALIGN',(0,1),(-1,-1),'TOP'),                 #Make the rest of the cells vertically aligned to the top
+                        ('ALIGN',(0,1),(-1,-2),'LEFT'),                 #Generally align everything to the right
                         ('INNERGRID', (0,0), (-1,-1), 0.25, colors.black),
                         ('BOX', (0,0), (-1,-1), 0.25, colors.black),
                         ]))
