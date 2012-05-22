@@ -1,5 +1,5 @@
 application: pivotal-pdf
-version: 119
+version: 120
 runtime: python27
 api_version: 1
 threadsafe: false
