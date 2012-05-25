@@ -32,13 +32,14 @@ class FullReportOutput(webapp.RequestHandler):
    iterationDateFormat = "%B %d, %Y"
    activityDateFormat = "%b %d, %Y"
    fileNameDateTimeFormat = "%Y%m%d%H%M%S"
+   titleSpace = 0.25*inch
    interStorySpace = 0.25*inch
    intraStorySpace = 0.125*inch
 
-   styleHeader = ParagraphStyle( name='TableHeader',
+   styleDocTitle = ParagraphStyle( name='DocumentTitle',
                                  fontName='Helvetica-Bold',
-                                 fontSize=14,
-                                 leading=17,
+                                 fontSize=20,
+                                 leading=20,
                                  leftIndent=0,
                                  rightIndent=0,
                                  firstLineIndent=0,
@@ -47,8 +48,30 @@ class FullReportOutput(webapp.RequestHandler):
                                  spaceAfter=0,
                                  bulletFontName='Helvetica',
                                  bulletFontSize=10,
-                                 textColor=colors.white,
+                                 textColor=colors.black,
                                  backColor=None,
+                                 wordWrap=None,
+                                 borderWidth=0,
+                                 borderPadding=0,
+                                 borderColor=None,
+                                 borderRadius=None,
+                                 allowWidows=0,
+                                 allowOrphans=0 )
+
+   styleSectionTitle = ParagraphStyle( name='SectionTitle',
+                                 fontName='Helvetica-Bold',
+                                 fontSize=16,
+                                 leading=20,
+                                 leftIndent=0,
+                                 rightIndent=0,
+                                 firstLineIndent=0,
+                                 alignment=TA_LEFT,
+                                 spaceBefore=0,
+                                 spaceAfter=0,
+                                 bulletFontName='Helvetica',
+                                 bulletFontSize=10,
+                                 textColor=colors.black,
+                                 backColor=colors.lightgrey,
                                  wordWrap=None,
                                  borderWidth=0,
                                  borderPadding=0,
@@ -178,9 +201,19 @@ class FullReportOutput(webapp.RequestHandler):
       #Create a list of flowables for the document
       flowables = []
       
+      #Add a Document Title
+      client = PivotalClient(token=apiToken, cache=None)
+      projectName = client.projects.get( projectId )['project']['name']
+      
+      flowables.append( Paragraph ( projectName, self.styleDocTitle ) )
+      flowables.append( Spacer(0, self.titleSpace) )
+      
       #Add the Done Stories
       doneStories = self.GetDoneStories( stories, apiToken, projectId )
-      
+                  
+      flowables.append( Paragraph ( 'Completed Work', self.styleSectionTitle ) )
+      flowables.append( Spacer(0, self.titleSpace) )
+
       for storyInfo in doneStories :
          
          # Paragraphs can take HTML so the mark-up characters in the text must be escaped
@@ -193,9 +226,16 @@ class FullReportOutput(webapp.RequestHandler):
          #Create a table row for our detail line
          tableData = []
          detailRow = []
+         
          #add some flowables
          detailRow.append("""Accepted: {0}""".format(storyInfo['story']['accepted_at'].strftime(self.iterationDateFormat)) )
-         detailRow.append(storyInfo['story']['owned_by'])
+         
+         # add the owner if one exists
+         if 'owned_by' in storyInfo['story'] :
+            detailRow.append(storyInfo['story']['owned_by'])
+         else:
+            detailRow.append( "" )
+            
          detailRow.append("""Size: {0}""".format( storyInfo['story']['estimate'] ))
 
          tableData.append ( detailRow )
@@ -215,6 +255,9 @@ class FullReportOutput(webapp.RequestHandler):
       
       #Add the Current Stories
       currentStories = self.GetCurrentStories( stories, apiToken, projectId )
+                  
+      flowables.append( Paragraph ( 'Current Work', self.styleSectionTitle ) )
+      flowables.append( Spacer(0, self.titleSpace) )
       
       for storyInfo in currentStories :
          
@@ -254,6 +297,9 @@ class FullReportOutput(webapp.RequestHandler):
       
       #Add the Backlog Stories
       backlogStories = self.GetFutureStories( stories, apiToken, projectId )
+                  
+      flowables.append( Paragraph ( 'Upcoming Work', self.styleSectionTitle ) )
+      flowables.append( Spacer(0, self.titleSpace) )
       
       for storyInfo in backlogStories :
          
@@ -288,6 +334,9 @@ class FullReportOutput(webapp.RequestHandler):
       
       #Add the Ice Box Stories
       iceboxStories = self.GetIceboxStories( stories, apiToken, projectId )
+                  
+      flowables.append( Paragraph ( 'Unscheduled Work', self.styleSectionTitle ) )
+      flowables.append( Spacer(0, self.titleSpace) )
       
       for storyInfo in iceboxStories :
          
