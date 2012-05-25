@@ -13,7 +13,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
 from reportlab.lib.pagesizes import letter, A4
 from reportlab.lib.enums import TA_LEFT, TA_RIGHT, TA_CENTER, TA_JUSTIFY
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak, KeepTogether
 from reportlab.platypus.tables import Table, TableStyle, CellStyle, LongTable
 from reportlab.platypus.doctemplate import LayoutError
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -30,6 +30,7 @@ class FullReportOutput(webapp.RequestHandler):
    PAGE_HEIGHT=defaultPageSize[1]; PAGE_WIDTH=defaultPageSize[0]
    styles = getSampleStyleSheet()
    iterationDateFormat = "%B %d, %Y"
+   generatedDateFormat = "%A %B %d, %Y"
    activityDateFormat = "%b %d, %Y"
    fileNameDateTimeFormat = "%Y%m%d%H%M%S"
    titleSpace = 0.25*inch
@@ -110,6 +111,28 @@ class FullReportOutput(webapp.RequestHandler):
                                  rightIndent=0,
                                  firstLineIndent=0,
                                  alignment=TA_LEFT,
+                                 spaceBefore=0,
+                                 spaceAfter=4,
+                                 bulletFontName='Helvetica',
+                                 bulletFontSize=10,
+                                 textColor=colors.black,
+                                 backColor=None,
+                                 wordWrap=None,
+                                 borderWidth=0,
+                                 borderPadding=0,
+                                 borderColor=None,
+                                 borderRadius=None,
+                                 allowWidows=0,
+                                 allowOrphans=1 )
+                                 
+   styleNotes = ParagraphStyle( name='Notes',
+                                 fontName='Helvetica-Oblique',
+                                 fontSize=10,
+                                 leading=10,
+                                 leftIndent=0,
+                                 rightIndent=0,
+                                 firstLineIndent=0,
+                                 alignment=TA_RIGHT,
                                  spaceBefore=0,
                                  spaceAfter=4,
                                  bulletFontName='Helvetica',
@@ -208,6 +231,8 @@ class FullReportOutput(webapp.RequestHandler):
       flowables.append( Paragraph ( projectName, self.styleDocTitle ) )
       flowables.append( Spacer(0, self.titleSpace) )
       
+      flowables.append( Paragraph ( """As of: {0}""".format(time.strftime(self.generatedDateFormat)), self.styleNotes ) )
+      
       #Add the Done Stories
       doneStories = self.GetDoneStories( stories, apiToken, projectId )
                   
@@ -216,12 +241,15 @@ class FullReportOutput(webapp.RequestHandler):
 
       for storyInfo in doneStories :
          
+         # put all of the story flowables in a list that will be kept together if possible
+         storyBlock = []
+         
          # Paragraphs can take HTML so the mark-up characters in the text must be escaped
          storyName = escape ( storyInfo['story']['name'] )
 
          storyDescription = self.BuildDescription( storyInfo )
          
-         flowables.append(Paragraph( storyName,self.styleName))
+         storyBlock.append(Paragraph( storyName,self.styleName))
          
          #Create a table row for our detail line
          tableData = []
@@ -244,14 +272,19 @@ class FullReportOutput(webapp.RequestHandler):
                   
          table.setStyle( self.detailTableStyle )
          
-         flowables.append(table)
+         storyBlock.append(table)
             
-         flowables.append(Spacer(0,self.intraStorySpace))
+         storyBlock.append(Spacer(0,self.intraStorySpace))
                   
          for paragraph in storyDescription:
-            flowables.append( paragraph )
+            storyBlock.append( paragraph )
+            
+         flowables.append( KeepTogether ( storyBlock ) )
             
          flowables.append(Spacer(0,self.interStorySpace))
+      
+      # Add a page break before the next section
+      flowables.append( PageBreak() )
       
       #Add the Current Stories
       currentStories = self.GetCurrentStories( stories, apiToken, projectId )
@@ -261,12 +294,15 @@ class FullReportOutput(webapp.RequestHandler):
       
       for storyInfo in currentStories :
          
+         # put all of the story flowables in a list that will be kept together if possible
+         storyBlock = []
+         
          # Paragraphs can take HTML so the mark-up characters in the text must be escaped
          storyName = escape ( storyInfo['story']['name'] )
 
          storyDescription = self.BuildDescription( storyInfo )
          
-         flowables.append(Paragraph( storyName,self.styleName))
+         storyBlock.append(Paragraph( storyName,self.styleName))
          
          #Create a table row for our detail line
          tableData = []
@@ -286,14 +322,19 @@ class FullReportOutput(webapp.RequestHandler):
          
          table.setStyle( self.detailTableStyle )
          
-         flowables.append(table)
+         storyBlock.append(table)
             
-         flowables.append(Spacer(0,self.intraStorySpace))
+         storyBlock.append(Spacer(0,self.intraStorySpace))
          
          for paragraph in storyDescription:
-            flowables.append( paragraph )
+            storyBlock.append( paragraph )
+            
+         flowables.append( KeepTogether ( storyBlock ) )
             
          flowables.append(Spacer(0,self.interStorySpace))
+      
+      # Add a page break before the next section
+      flowables.append( PageBreak() )
       
       #Add the Backlog Stories
       backlogStories = self.GetFutureStories( stories, apiToken, projectId )
@@ -303,12 +344,15 @@ class FullReportOutput(webapp.RequestHandler):
       
       for storyInfo in backlogStories :
          
+         # put all of the story flowables in a list that will be kept together if possible
+         storyBlock = []
+         
          # Paragraphs can take HTML so the mark-up characters in the text must be escaped
          storyName = escape ( storyInfo['story']['name'] )
 
          storyDescription = self.BuildDescription( storyInfo )
          
-         flowables.append(Paragraph( storyName,self.styleName))
+         storyBlock.append(Paragraph( storyName,self.styleName))
          
          #Create a table row for our detail line
          tableData = []
@@ -323,14 +367,19 @@ class FullReportOutput(webapp.RequestHandler):
                   
          table.setStyle( self.detailTableStyle )
          
-         flowables.append(table)
+         storyBlock.append(table)
             
-         flowables.append(Spacer(0,self.intraStorySpace))
+         storyBlock.append(Spacer(0,self.intraStorySpace))
          
          for paragraph in storyDescription:
-            flowables.append( paragraph )
+            storyBlock.append( paragraph )
+            
+         flowables.append( KeepTogether ( storyBlock ) )
             
          flowables.append(Spacer(0,self.interStorySpace))
+      
+      # Add a page break before the next section
+      flowables.append( PageBreak() )
       
       #Add the Ice Box Stories
       iceboxStories = self.GetIceboxStories( stories, apiToken, projectId )
@@ -340,12 +389,15 @@ class FullReportOutput(webapp.RequestHandler):
       
       for storyInfo in iceboxStories :
          
+         # put all of the story flowables in a list that will be kept together if possible
+         storyBlock = []
+         
          # Paragraphs can take HTML so the mark-up characters in the text must be escaped
          storyName = escape ( storyInfo['story']['name'] )
 
          storyDescription = self.BuildDescription( storyInfo )
          
-         flowables.append(Paragraph( storyName,self.styleName))
+         storyBlock.append(Paragraph( storyName,self.styleName))
          
          #Create a table row for our detail line
          tableData = []
@@ -357,19 +409,20 @@ class FullReportOutput(webapp.RequestHandler):
          else:
             detailRow.append("Unestimated" )
          
-
          tableData.append ( detailRow )
          
          table = Table(tableData, colWidths=[3.5*inch,3.5*inch] )  
          
          table.setStyle( self.detailTableStyle )
          
-         flowables.append(table)
+         storyBlock.append(table)
             
-         flowables.append(Spacer(0,self.intraStorySpace))
+         storyBlock.append(Spacer(0,self.intraStorySpace))
          
          for paragraph in storyDescription:
-            flowables.append( paragraph )
+            storyBlock.append( paragraph )
+            
+         flowables.append( KeepTogether ( storyBlock ) )
             
          flowables.append(Spacer(0,self.interStorySpace))
       
