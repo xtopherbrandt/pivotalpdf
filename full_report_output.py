@@ -263,8 +263,11 @@ class FullReportOutput(webapp.RequestHandler):
             detailRow.append(storyInfo['story']['owned_by'])
          else:
             detailRow.append( "" )
-            
-         detailRow.append("""Size: {0}""".format( storyInfo['story']['estimate'] ))
+
+         if 'estimate' in storyInfo['story'] :    
+            detailRow.append("""Size: {0}""".format( storyInfo['story']['estimate'] ))
+         else:
+            detailRow.append( "" )
 
          tableData.append ( detailRow )
          
@@ -314,7 +317,10 @@ class FullReportOutput(webapp.RequestHandler):
          else:
             detailRow.append("" )
          
-         detailRow.append("""Size: {0}""".format( storyInfo['story']['estimate'] ))
+         if 'estimate' in storyInfo['story'] :    
+            detailRow.append("""Size: {0}""".format( storyInfo['story']['estimate'] ))
+         else:
+            detailRow.append( "" )
 
          tableData.append ( detailRow )
          
@@ -359,7 +365,11 @@ class FullReportOutput(webapp.RequestHandler):
          detailRow = []
          #add some flowables
          detailRow.append("""Scheduled Sprint: {0}""".format(storyInfo['start'].strftime(self.iterationDateFormat)) )
-         detailRow.append("""Size: {0}""".format( storyInfo['story']['estimate'] ))
+
+         if 'estimate' in storyInfo['story'] :    
+            detailRow.append("""Size: {0}""".format( storyInfo['story']['estimate'] ))
+         else:
+            detailRow.append( "" )
 
          tableData.append ( detailRow )
          
