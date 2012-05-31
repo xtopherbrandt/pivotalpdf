@@ -14,6 +14,7 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 from busyflow.pivotal import PivotalClient
 from pivotal_pdf_output import OutputPDF
 from full_report_output import FullReportOutput
+from abbreviated_report_output import AbbreviatedReportOutput
 from xml.sax.saxutils import escape
 from gaesessions import get_current_session
 

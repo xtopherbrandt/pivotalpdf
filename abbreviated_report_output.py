@@ -25,7 +25,7 @@ from xml.sax.saxutils import escape
 from busyflow.pivotal import PivotalClient
 
     
-class FullReportOutput(webapp.RequestHandler):
+class AbbreviatedReportOutput(webapp.RequestHandler):
 
    PAGE_HEIGHT=defaultPageSize[1]; PAGE_WIDTH=defaultPageSize[0]
    styles = getSampleStyleSheet()
@@ -147,6 +147,15 @@ class FullReportOutput(webapp.RequestHandler):
                                  allowWidows=0,
                                  allowOrphans=1 )
                                   
+   notesTableStyle = TableStyle([
+                           ('FONT',(0,0),(-1,0),'Helvetica-Oblique'),         #Set all of the text to be italized helvetica
+                           ('FONTSIZE',(0,0),(-1,0),10),                      #Set all text to be font size 12
+                           ('TEXTCOLOR',(0,0),(-1,0),colors.black),           #Set all text to be black
+                           ('ALIGNMENT',(0,0),(0,0),'LEFT'),                  #Left align the left column
+                           ('ALIGNMENT',(1,0),(1,0),'CENTER'),                #Center the middle column
+                           ('ALIGNMENT',(-1,0),(-1,0),'RIGHT')                  #Right align the right column
+                           ])
+                                  
    detailTableStyle = TableStyle([
                            ('FONT',(0,0),(-1,0),'Helvetica-Oblique'),         #Set all of the text to be italized helvetica
                            ('FONTSIZE',(0,0),(-1,0),12),                      #Set all text to be font size 12
@@ -230,11 +239,11 @@ class FullReportOutput(webapp.RequestHandler):
       
       flowables.append( Paragraph ( projectName, self.styleDocTitle ) )
       flowables.append( Spacer(0, self.titleSpace) )
-      
+
       tableData = []
       detailRow = []      
       
-      detailRow.append( 'Complete Stories' )
+      detailRow.append( 'Story Summaries' )
       detailRow.append( """As of: {0}""".format(time.strftime(self.generatedDateFormat)))
       tableData.append( detailRow )
       table = Table(tableData, colWidths=[3.5*inch,3.5*inch] )  
@@ -463,29 +472,14 @@ class FullReportOutput(webapp.RequestHandler):
 
    def BuildDescription (self, storyInfo ) :
    
-         rawDescription = []
-         
-         rawDescription.append (storyInfo['story']['description'])
-         
-         # If there are Activity notes, start our list with a heading
-         if 'notes' in storyInfo['story'] :
-            rawDescription.append('*Activity:*')
-            
-            # Get the set of Activity notes for the story
-            for note in storyInfo['story']['notes'] :
-               rawDescription.append("""_{0}_ - {1}""".format(note['noted_at'].strftime(self.activityDateFormat), note['text']))
-                  
-         # Concatenate the story description with the activity notes
-         description = '\n'.join(rawDescription )
-                  
-         # Need to separate out each paragraph in the story. The Paragraph flowable will remove all 
-         # whitespace around end of line characters.
-         paragraphMatches = re.finditer(r"""(^.*$)""", description, re.M)
+         description = storyInfo['story']['description']
+
+         # Only want the first paragraph of the story, so separate out the paragraphs                  
+         paragraphMatch = re.match(r"""(^.*$)""", description, re.M)
          storyDescription = []
                   
-         # Add each paragraph to a list of paragraph flowables that are then added to the table
-         for paragraphMatch in paragraphMatches :
-            storyDescription.append( Paragraph( self.MarkDownToMarkUp ( paragraphMatch.group(0) ), self.styleNormal ) )
+         # Add first paragraph to a list of paragraph flowables that are then added to the table
+         storyDescription.append( Paragraph( self.MarkDownToMarkUp ( paragraphMatch.group(0) ), self.styleNormal ) )
          
          return storyDescription
    
