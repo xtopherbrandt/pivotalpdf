@@ -20,16 +20,19 @@ from generate_output import *
 class MainPage(webapp.RequestHandler):
     def get(self):
 
-      #Try to get the apiKey from a cookie, the existance of the cookie also indicates that the user wants to have their key remembered
-      if self.request.cookies.get('apiKey') != None :
-         self.apiKey = self.request.cookies.get('apiKey')  
-         self.rememberMyKey = 'checked=True'       
-      else :
-         self.apiKey = ''
-         self.rememberMyKey = ''
-         
+      #Try to get the apiKey from a session cookie
+      session = get_current_session()
+
+      self.apikey = ''
       
-      template_values = {'apiKey' : self.apiKey, 'checked' : self.rememberMyKey}
+      # if the session is active      
+      if session.is_active():
+         
+         # and it has an APIKey, get it
+         if session.has_key('APIKey') :
+            self.apiKey = session['APIKey']
+      
+      template_values = {'apiKey' : self.apiKey}
       path = os.path.join(os.path.dirname(__file__), 'index.html')
       self.response.out.write(template.render(path, template_values))
         
@@ -56,45 +59,40 @@ class OutputHTML ( webapp.RequestHandler ):
       self.rememberMyKeyCheckedAttribute = ''         
 
       session = get_current_session()
-      
-      if session.is_active():
-         self.apikey = session['APIKey']
-          
-         if session.has_key('projectId') :
-            self.projectId = session['projectId']
-             
-         if session.has_key('filter') :
-            self.filter = session['filter']
-             
-         if session.has_key('rememberMyKeyCheckedAttribute') :
-            self.rememberMyKeyCheckedAttribute = session['rememberMyKeyCheckedAttribute']
-            
-      else:
-         # when the user logs in, it is recommended that you rotate the session ID (security)
-         session.regenerate_id()
+
+      # if we're authenticating get the key from the input
+      if self.request.get('APIKey', default_value=None) != None :
          self.apikey = self.request.get('APIKey')
-         session['APIKey'] = self.apikey
-      
-      if self.request.get('projects') != '' :
+            
+         # if the session is active      
+         if session.is_active():
+            
+            # and it has an APIKey
+            if session.has_key('APIKey') :
+            
+               # but the stored API Key has changed, store the new value and clear everything else
+               if self.request.get('APIKey') != session['APIKey'] :
+                  session['APIKey'] = self.request.get('APIKey')
+                  session.pop('projectId')
+                  session.pop('filter')
+         
+         else :
+            # if we're authenticating but the session isn't active, it is recommended that you rotate the session ID (security)
+            session.regenerate_id()
+            session['APIKey'] = self.apikey
+            
+      # if we're getting the stories
+      elif self.request.get('projects', default_value=None) != None :
+
+         self.apikey = session['APIKey']
+
          self.projectId = self.request.get('projects')
          session['projectId'] = self.projectId
-      
-      if self.request.get('filter') != '' :
+         
          self.filter = self.request.get('filter')
          session['filter'] = self.filter
+
       
-      # if the remember My Key checkbox is set then store the key in a cookie
-      if self.request.get('rememberMyKey', default_value='False') == 'True' :
-         #explicitly setting the domain does not seem to work, at least on the localhost
-         self.response.set_cookie('apiKey', value=self.apikey, secure=False, httponly=True, expires=datetime.datetime.now() + datetime.timedelta(days=365), overwrite=True )         
-         self.rememberMyKeyCheckedAttribute = "checked='True'"
-         session['rememberMyKeyCheckedAttribute'] = self.rememberMyKeyCheckedAttribute
-      else :
-         #if we didn't get the value in the form and we don't remember having the checkbox set then delete the cookie 
-         if session.has_key('rememberMyKeyCheckedAttribute') == False :
-            self.response.delete_cookie('apiKey')
-            self.rememberMyKeyCheckedAttribute = ''         
-               
       client = PivotalClient(token=self.apikey, cache=None)
       projects = client.projects.all()['projects']
     
@@ -115,7 +113,7 @@ class OutputHTML ( webapp.RequestHandler ):
       self.response.out.write( apiKey )
     
       self.response.out.write("""
-         <div><input type="submit" value="Set Pivotal Tracker API Key"><input type="checkbox" value="True" {0} name="rememberMyKey">Remember My Key</div>
+         <div><input type="submit" value="Login"></div>
          </form>
 
          <p>
@@ -123,7 +121,7 @@ class OutputHTML ( webapp.RequestHandler ):
 
          <form action="/getStories" method="post">             
          <div><select name="projects" size="10"  style="width:300px;margin:5px 0 5px 0;">
-       """.format(self.rememberMyKeyCheckedAttribute))
+       """)
                     
       for project in projects:
          if project['id'] == self.projectId :
@@ -152,7 +150,7 @@ class OutputHTML ( webapp.RequestHandler ):
       
       # if a project is selected, get it's stories
       if self.projectId != None :
-         stories = client.stories.get_filter(self.projectId, self.request.get('filter'), True )['stories']         
+         stories = client.stories.get_filter(self.projectId, self.filter, True )['stories']         
 
       self.response.out.write("""
          <form action="/generatePDF" method="post">
