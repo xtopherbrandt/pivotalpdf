@@ -155,18 +155,25 @@ class FullReportOutput():
                            ])
     
    def GeneratePdf(self, httpResponse, apiToken, projectId, stories, filename ):
+
+      # Get the project Name
+      client = PivotalClient(token=apiToken, cache=None)
+      projectName = client.projects.get( projectId )['project']['name']
    
+      # Set the http headers
       httpResponse.headers['Content-Type'] = 'application/pdf'
-      
-      doc = SimpleDocTemplate( httpResponse.out, pagesize = letter, allowSplitting=1, title='User Stories', author='Pivotal PDF (http://pivotal-pdf.appspot.com)', leftMargin=0.75*inch, rightMargin=0.75*inch)
+      httpResponse.headers['Pragma'] = 'public'
+      httpResponse.headers['Cache-Control'] = 'maxage=1'
+      httpResponse.headers['Content-Disposition'] = """inline; filename='{0}'""".format(filename)
+      httpResponse.headers['Accept-Ranges'] = 'bytes'
+      httpResponse.headers['Expires'] = '0'
+     
+      doc = SimpleDocTemplate( httpResponse.out, pagesize = letter, allowSplitting=1, title="""{0} User Stories""".format( projectName ), author='Pivotal PDF (http://pivotal-pdf.appspot.com)', leftMargin=0.75*inch, rightMargin=0.75*inch)
       
       #Create a list of flowables for the document
       flowables = []
       
-      #Add a Document Title
-      client = PivotalClient(token=apiToken, cache=None)
-      projectName = client.projects.get( projectId )['project']['name']
-      
+      #Add a Document Title      
       flowables.append( Paragraph ( projectName, self.styleDocTitle ) )
       flowables.append( Spacer(0, self.titleSpace) )
       
