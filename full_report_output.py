@@ -7,8 +7,6 @@ import time
 
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
-from google.appengine.ext.webapp.util import run_wsgi_app
-from gaesessions import get_current_session
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
 from reportlab.lib.pagesizes import letter, A4
@@ -25,7 +23,7 @@ from xml.sax.saxutils import escape
 from busyflow.pivotal import PivotalClient
 
     
-class FullReportOutput(webapp.RequestHandler):
+class FullReportOutput():
 
    PAGE_HEIGHT=defaultPageSize[1]; PAGE_WIDTH=defaultPageSize[0]
    styles = getSampleStyleSheet()
@@ -156,70 +154,11 @@ class FullReportOutput(webapp.RequestHandler):
                            ('ALIGNMENT',(-1,0),(-1,0),'RIGHT')                  #Right align the right column
                            ])
     
-   def post(self):
+   def GeneratePdf(self, httpResponse, apiToken, projectId, stories, filename ):
    
-      session = get_current_session()
-
-      stories = self.request.get_all('stories')
-      filter = ''         
-      projectId = None
-      filename =  """UserStories-{0}.pdf""".format(time.strftime(self.fileNameDateTimeFormat))
-
-      if session.is_active():
-         apiToken = session['APIKey']
-          
-         if session.has_key('projectId') :
-            projectId = session['projectId']
-             
-         if session.has_key('filter') :
-            filter = session['filter']
+      httpResponse.headers['Content-Type'] = 'application/pdf'
       
-         #store the selected story list
-         session['stories'] = stories
-
-      # if no stories were selected, assume all are desired and get all by the filter
-      if len(stories) == 0:
-         client = PivotalClient(token=apiToken, cache=None)
-         stories = [ str(story['id']) for story in client.stories.get_filter(projectId, filter, True )['stories'] ]
-            
-      self.GeneratePdf( apiToken, projectId, stories, filename )
-
-   def get(self):
-   
-      session = get_current_session()
-      
-      stories = []
-      filter = ''         
-      projectId = None
-      filename =  """UserStories-{0}.pdf""".format(time.strftime(self.fileNameDateTimeFormat))
-      
-      if session.is_active():
-         apiToken = session['APIKey']
-          
-         if session.has_key('projectId') :
-            projectId = session['projectId']
-         else :
-            projectId = None
-             
-         if session.has_key('filter') :
-            filter = session['filter']
-         else :
-            filter = ''         
-            
-         stories = session['stories']
-
-      # if no stories were selected, assume all are desired and get all by the filter
-      if len(stories) == 0:
-         client = PivotalClient(token=apiToken, cache=None)
-         stories = [ str(story['id']) for story in client.stories.get_filter(projectId, filter, True )['stories'] ]
-            
-      self.GeneratePdf( apiToken, projectId, stories, filename )
-   
-   def GeneratePdf(self, apiToken, projectId, stories, filename ):
-   
-      self.response.headers['Content-Type'] = 'application/pdf'
-      
-      doc = SimpleDocTemplate(self.response.out,pagesize = letter, allowSplitting=1, title='User Stories', author='Pivotal PDF (http://pivotal-pdf.appspot.com)', leftMargin=0.75*inch, rightMargin=0.75*inch)
+      doc = SimpleDocTemplate( httpResponse.out, pagesize = letter, allowSplitting=1, title='User Stories', author='Pivotal PDF (http://pivotal-pdf.appspot.com)', leftMargin=0.75*inch, rightMargin=0.75*inch)
       
       #Create a list of flowables for the document
       flowables = []
@@ -458,8 +397,8 @@ class FullReportOutput(webapp.RequestHandler):
             template_values = {}
                
          path = os.path.join(os.path.dirname(__file__), 'error.html')
-         self.response.headers['Content-Type'] = 'html'
-         self.response.out.write(template.render(path, template_values))
+         httpResponse.headers['Content-Type'] = 'html'
+         httpResponse.out.write(template.render(path, template_values))
 
    def BuildDescription (self, storyInfo ) :
    

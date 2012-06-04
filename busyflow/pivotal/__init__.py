@@ -46,9 +46,9 @@ class UnauthorizedError(RequestError):
 
 def parse(node):
     # determine type
-    if node.attributes:
+    if node.attributes:            
         obj_type = node.attributes["type"].value
-    elif node.nodeName in ["stories", "notes", "memberships", "integrations"]:
+    elif node.nodeName in ["stories", "notes", "memberships", "integrations","epics"]:
         obj_type = "array"
     elif node.nodeName in ["labels"]:
         obj_type = "csv"
@@ -337,6 +337,24 @@ class StoryEndpoint(Endpoint):
                           headers=mp_headers)
 
 
+class EpicEndpoint(Endpoint):
+
+    def all(self, project_id, query=None, limit=None, offset=None):
+        return self._get("projects/%s/epics" % project_id, query=query, limit=limit, offset=offset)
+
+    def get(self, project_id, epic_id):
+        return self._get("projects/%s/epics/%s" % (project_id, epic_id))
+
+    def get_filter(self, project_id, search_filter, include_done):
+        if include_done:
+            filter_text = "{0} includedone:true".format( search_filter )
+        else :
+            filter_text = search_filter
+            
+        return self._get("projects/{0}/epics".format( project_id ), filter=filter_text )
+        
+        
+
 class PivotalClient(object):
 
     def __init__(self, token,
@@ -350,6 +368,7 @@ class PivotalClient(object):
         # connect endpoints
         self.projects = ProjectEndpoint(self)
         self.stories = StoryEndpoint(self)
+        self.epics = EpicEndpoint(self)
         self.activities = ActivityEndpoint(self)
         self.iterations = IterationEndpoint(self)
         self.tokens = TokenEndpoint(self)

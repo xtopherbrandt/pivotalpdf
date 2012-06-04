@@ -12,11 +12,10 @@ from google.appengine.api import users
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from busyflow.pivotal import PivotalClient
-from pivotal_pdf_output import OutputPDF
-from full_report_output import FullReportOutput
-from abbreviated_report_output import AbbreviatedReportOutput
 from xml.sax.saxutils import escape
 from gaesessions import get_current_session
+
+from generate_output import *
 
 class MainPage(webapp.RequestHandler):
     def get(self):
@@ -153,7 +152,7 @@ class OutputHTML ( webapp.RequestHandler ):
       
       # if a project is selected, get it's stories
       if self.projectId != None :
-         stories = client.stories.get_filter(self.projectId, self.request.get('filter'), True )['stories']
+         stories = client.stories.get_filter(self.projectId, self.request.get('filter'), True )['stories']         
 
       self.response.out.write("""
          <form action="/generatePDF" method="post">
@@ -173,6 +172,15 @@ class OutputHTML ( webapp.RequestHandler ):
          
       self.response.out.write("""
          </select></div>
+      """)
+      
+      self.response.out.write("""
+         <p>
+         <div>
+            <input type="radio" name="format" value="full" checked="True"/>Full Report<br/>
+            <input type="radio" name="format" value="summary"/>Summary Report<br/>
+         </div>
+         <p>
       """)
       
       # if there are no stories, disable the Output PDF button
@@ -196,7 +204,7 @@ application = webapp.WSGIApplication([
   ('/', MainPage),
   ('/authenticate', OutputHTML),
   ('/getStories', OutputHTML),
-  ('/generatePDF', FullReportOutput)
+  ('/generatePDF', GenerateOutput)
   
 ], debug=True)
 
