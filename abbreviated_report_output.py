@@ -171,7 +171,7 @@ class AbbreviatedReportOutput():
    
       # Set the http headers
       httpResponse.headers['Content-Type'] = 'application/pdf'
-      httpResponse.headers['Pragma'] = 'public'
+      httpResponse.headers['Pragma'] = 'private'
       httpResponse.headers['Cache-Control'] = 'maxage=1'
       httpResponse.headers['Content-Disposition'] = """inline; filename='{0}'""".format(filename)
       httpResponse.headers['Accept-Ranges'] = 'bytes'
