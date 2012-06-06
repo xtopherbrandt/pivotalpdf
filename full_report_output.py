@@ -419,8 +419,12 @@ class FullReportOutput():
             
             # Get the set of Activity notes for the story
             for note in storyInfo['story']['notes'] :
-               rawDescription.append("""_{0}_ - {1}""".format(note['noted_at'].strftime(self.activityDateFormat), note['text']))
-                  
+               try:
+                  rawDescription.append(u"""_{0}_ - {1}""".format(note['noted_at'].strftime(self.activityDateFormat), note['text']))
+               except Exception as e:
+                  rawDescription.append("""_{0}_ - NOTE SKIPPED due to an exception interpreting the text: {1}""".format(note['noted_at'].strftime(self.activityDateFormat), e ))
+
+               
          # Concatenate the story description with the activity notes
          description = '\n'.join(rawDescription )
                   
