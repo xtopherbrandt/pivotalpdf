@@ -221,7 +221,7 @@ class FullReportOutput():
          else:
             detailRow.append( "" )
 
-         if 'estimate' in storyInfo['story'] :    
+         if 'estimate' in storyInfo['story'] and storyInfo['story']['estimate'] != -1 :
             detailRow.append("""Size: {0}""".format( storyInfo['story']['estimate'] ))
          else:
             detailRow.append( "" )
@@ -274,7 +274,7 @@ class FullReportOutput():
          else:
             detailRow.append("" )
          
-         if 'estimate' in storyInfo['story'] :    
+         if 'estimate' in storyInfo['story'] and storyInfo['story']['estimate'] != -1 :
             detailRow.append("""Size: {0}""".format( storyInfo['story']['estimate'] ))
          else:
             detailRow.append( "" )
@@ -323,7 +323,7 @@ class FullReportOutput():
          #add some flowables
          detailRow.append("""Scheduled Sprint: {0}""".format(storyInfo['start'].strftime(self.iterationDateFormat)) )
 
-         if 'estimate' in storyInfo['story'] :    
+         if 'estimate' in storyInfo['story'] and storyInfo['story']['estimate'] != -1 :
             detailRow.append("""Size: {0}""".format( storyInfo['story']['estimate'] ))
          else:
             detailRow.append( "" )
@@ -371,7 +371,7 @@ class FullReportOutput():
          detailRow = []
          #add some flowables
          detailRow.append("In the Ice Box" )
-         if storyInfo['story']['estimate'] != -1:
+         if 'estimate' in storyInfo['story'] and storyInfo['story']['estimate'] != -1:
             detailRow.append("""Size: {0}""".format( storyInfo['story']['estimate'] ))
          else:
             detailRow.append("Unestimated" )
