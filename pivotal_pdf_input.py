@@ -20,19 +20,23 @@ from generate_output import *
 class MainPage(webapp.RequestHandler):
     def get(self):
 
+      self.apikey = ""
+
       #Try to get the apiKey from a session cookie
       session = get_current_session()
-
-      self.apikey = ''
       
       # if the session is active      
       if session.is_active():
          
          # and it has an APIKey, get it
          if session.has_key('APIKey') :
-            self.apiKey = session['APIKey']
+            self.apikey = session['APIKey']
+      # if the session is not active, create it and store the empty api key
+      else :
+         session.regenerate_id()
+         session['APIKey'] = self.apikey
       
-      template_values = {'apiKey' : self.apiKey}
+      template_values = {'apiKey' : self.apikey}
       path = os.path.join(os.path.dirname(__file__), 'index.html')
       self.response.out.write(template.render(path, template_values))
         
