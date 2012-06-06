@@ -55,8 +55,11 @@ class OutputHTML ( webapp.RequestHandler ):
 
       # initialize the class properties
       self.projectId = None
-      self.filter = ''         
-      self.rememberMyKeyCheckedAttribute = ''         
+      self.filter = ''     
+      self.featuresChecked = "checked='true'"
+      self.bugsChecked = "checked='true'"
+      self.choresChecked = "checked='true'"
+      self.releasesChecked = ""
 
       session = get_current_session()
 
@@ -91,7 +94,34 @@ class OutputHTML ( webapp.RequestHandler ):
          
          self.filter = self.request.get('filter')
          session['filter'] = self.filter
+         
+         if self.request.get('featuresChecked') != '' :
+            self.featuresChecked = "checked='true'"
+         else :
+            self.featuresChecked = ''
 
+         session['featuresChecked'] = self.featuresChecked
+         
+         if self.request.get('bugsChecked') != '' :
+            self.bugsChecked = "checked='true'"
+         else :
+            self.bugsChecked = ''
+            
+         session['bugsChecked'] = self.bugsChecked
+         
+         if self.request.get('choresChecked') != '' :
+            self.choresChecked = "checked='true'"
+         else :
+            self.choresChecked = ''
+            
+         session['choresChecked'] = self.choresChecked
+         
+         if self.request.get('releasesChecked') != '' :
+            self.releasesChecked = "checked='true'"
+         else :
+            self.releasesChecked = ''
+            
+         session['releasesChecked'] = self.releasesChecked
       
       client = PivotalClient(token=self.apikey, cache=None)
       projects = client.projects.all()['projects']
@@ -109,7 +139,7 @@ class OutputHTML ( webapp.RequestHandler ):
                   Pivotal Tracker API Key
       """)
     
-      apiKey = """<div><textarea name="APIKey" rows="1" cols="60">{0}</textarea></div>""".format( self.apikey )
+      apiKey = """<div><input type="text" name="APIKey" size="60" value="{0}"></input></div>""".format( self.apikey )
       self.response.out.write( apiKey )
     
       self.response.out.write("""
@@ -134,10 +164,16 @@ class OutputHTML ( webapp.RequestHandler ):
          </select></div>
      
          <p>
-         <h3>Step 3: Enter Story Search Filter</h3>
+         <h3>Step 3: Select Story Types and Enter Story Search Filter</h3>
+         <div><label for="featuresChecked">Features</label><input type="checkbox" id="featuresChecked" name="featuresChecked" {1}>
+         <label for="bugsChecked">Bugs</label><input type="checkbox" id="bugsChecked" name="bugsChecked" {2} >
+         <label for="choresChecked">Chores</label><input type="checkbox" id="choresChecked" name="choresChecked" {3} >
+         <label for="releasesChecked">Releases</label><input type="checkbox" id="releasesChecked" name="releasesChecked" {4} >
+         </div>
+         <br/>
          This is the same as the Search box in Pivotal Tracker
-         <div><textarea name="filter" rows="1" cols="60" >{0}</textarea></div>
-      """.format( self.filter ))
+         <div><input type="text" name="filter" size="60" value="{0}"></input></div>
+      """.format( self.filter, self.featuresChecked, self.bugsChecked, self.choresChecked, self.releasesChecked ))
 
       self.response.out.write("""
 
@@ -148,8 +184,26 @@ class OutputHTML ( webapp.RequestHandler ):
       
       stories = []
       
+      # add the story types to the filter
+      typeFilter = ' type:none,'
+
+      if self.featuresChecked != '' :
+         typeFilter += 'feature,'
+
+      if self.bugsChecked != '' :
+         typeFilter += 'bug,'
+
+      if self.choresChecked != '' :
+         typeFilter += 'chore,'
+
+      if self.releasesChecked != '' :
+         typeFilter += 'release'
+      
+      self.filter += typeFilter
+      session['filter'] = self.filter
+      
       # if a project is selected, get it's stories
-      if self.projectId != None :
+      if self.projectId != None :         
          stories = client.stories.get_filter(self.projectId, self.filter, True )['stories']         
 
       self.response.out.write("""

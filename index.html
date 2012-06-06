@@ -9,7 +9,7 @@
    <h3>Step 1: Authenticate</h3>
       <form action="/authenticate" method="post">
       Pivotal Tracker API Key
-      <div><textarea name="APIKey" rows="1" cols="60">{{apiKey}}</textarea></div>
+      <div><input type="text" name="APIKey" size="60" value="{{apiKey}}"></input></div>
       <div><input type="submit" value="Login"></div>
    </form>
 
@@ -20,9 +20,15 @@
    </select></div>
 
    <p>
-   <h3>Step 3: Enter Story Search Filter</h3>
+   <h3>Step 3: Select Story Types and Enter Story Search Filter</h3>
+   <div><label for="Feature">Feature</label><input type="checkbox" id="Feature" name="Feature" checked="true" disabled="true">
+   <label for="Bug">Bug</label><input type="checkbox" id="Bug" name="Bug" checked="True" disabled="true">
+   <label for="Chore">Chore</label><input type="checkbox" id="Chore" name="Chore" checked="True" disabled="true">
+   <label for="Release">Release</label><input type="checkbox" id="Release" name="Release" disabled="true">
+   </div>
+   <br/>
    This is the same as the Search box in Pivotal Tracker
-   <div><textarea name="filter" rows="1" cols="60" disabled="true"></textarea></div>
+   <div><input type="text" name="filter" size="60" disabled="true"></input></div>
    <div><input type="submit" value="Set Search Filter" disabled="true"></div>
 
    <p>

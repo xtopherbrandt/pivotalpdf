@@ -221,10 +221,18 @@ class FullReportOutput():
          else:
             detailRow.append( "" )
 
-         if 'estimate' in storyInfo['story'] and storyInfo['story']['estimate'] != -1 :
-            detailRow.append("""Size: {0}""".format( storyInfo['story']['estimate'] ))
+         # if the story has an estimate
+         if 'estimate' in storyInfo['story'] :
+            # and the estimate is not -1
+            if storyInfo['story']['estimate'] != -1 :
+               # add the size
+               detailRow.append("""Size: {0}""".format( storyInfo['story']['estimate'] ))
+            else:
+               # if the estimate is -1 it is unestimated
+               detailRow.append("Unestimated" )
          else:
-            detailRow.append( "" )
+            # if there is no estimate, put the story type
+            detailRow.append( storyInfo['story']['story_type'].capitalize() )
 
          tableData.append ( detailRow )
          
@@ -274,10 +282,18 @@ class FullReportOutput():
          else:
             detailRow.append("" )
          
-         if 'estimate' in storyInfo['story'] and storyInfo['story']['estimate'] != -1 :
-            detailRow.append("""Size: {0}""".format( storyInfo['story']['estimate'] ))
+         # if the story has an estimate
+         if 'estimate' in storyInfo['story'] :
+            # and the estimate is not -1
+            if storyInfo['story']['estimate'] != -1 :
+               # add the size
+               detailRow.append("""Size: {0}""".format( storyInfo['story']['estimate'] ))
+            else:
+               # if the estimate is -1 it is unestimated
+               detailRow.append("Unestimated" )
          else:
-            detailRow.append( "" )
+            # if there is no estimate, put the story type
+            detailRow.append( storyInfo['story']['story_type'].capitalize() )
 
          tableData.append ( detailRow )
          
@@ -323,10 +339,18 @@ class FullReportOutput():
          #add some flowables
          detailRow.append("""Scheduled Sprint: {0}""".format(storyInfo['start'].strftime(self.iterationDateFormat)) )
 
-         if 'estimate' in storyInfo['story'] and storyInfo['story']['estimate'] != -1 :
-            detailRow.append("""Size: {0}""".format( storyInfo['story']['estimate'] ))
+         # if the story has an estimate
+         if 'estimate' in storyInfo['story'] :
+            # and the estimate is not -1
+            if storyInfo['story']['estimate'] != -1 :
+               # add the size
+               detailRow.append("""Size: {0}""".format( storyInfo['story']['estimate'] ))
+            else:
+               # if the estimate is -1 it is unestimated
+               detailRow.append("Unestimated" )
          else:
-            detailRow.append( "" )
+            # if there is no estimate, put the story type
+            detailRow.append( storyInfo['story']['story_type'].capitalize() )
 
          tableData.append ( detailRow )
          
@@ -371,10 +395,19 @@ class FullReportOutput():
          detailRow = []
          #add some flowables
          detailRow.append("In the Ice Box" )
-         if 'estimate' in storyInfo['story'] and storyInfo['story']['estimate'] != -1:
-            detailRow.append("""Size: {0}""".format( storyInfo['story']['estimate'] ))
+
+         # if the story has an estimate
+         if 'estimate' in storyInfo['story'] :
+            # and the estimate is not -1
+            if storyInfo['story']['estimate'] != -1 :
+               # add the size
+               detailRow.append("""Size: {0}""".format( storyInfo['story']['estimate'] ))
+            else:
+               # if the estimate is -1 it is unestimated
+               detailRow.append("Unestimated" )
          else:
-            detailRow.append("Unestimated" )
+            # if there is no estimate, put the story type
+            detailRow.append( storyInfo['story']['story_type'].capitalize() )
          
          tableData.append ( detailRow )
          
