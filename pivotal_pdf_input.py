@@ -157,6 +157,10 @@ class OutputHTML ( webapp.RequestHandler ):
          <div><select name="projects" size="10"  style="width:300px;margin:5px 0 5px 0;">
        """)
                     
+      # if we havn't selected a project and there is at least 1, the select the first by default
+      if self.projectId == None and len(projects) > 0 :
+         self.projectId = projects[0]['id']
+                                      
       for project in projects:
          if project['id'] == self.projectId :
             option = """<option selected="selected" value="{0}">{1}</option>""".format( project['id'], project['name'] )
