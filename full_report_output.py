@@ -34,6 +34,7 @@ class FullReportOutput():
    titleSpace = 0.25*inch
    interStorySpace = 0.25*inch
    intraStorySpace = 0.125*inch
+   pageInfo = "Pivotal PDF"
 
    styleDocTitle = ParagraphStyle( name='DocumentTitle',
                                  fontName='Helvetica-Bold',
@@ -143,7 +144,7 @@ class FullReportOutput():
                                  borderColor=None,
                                  borderRadius=None,
                                  allowWidows=0,
-                                 allowOrphans=1 )
+                                 allowOrphans=1 )     
                                   
    detailTableStyle = TableStyle([
                            ('FONT',(0,0),(-1,0),'Helvetica-Oblique'),         #Set all of the text to be italized helvetica
@@ -153,6 +154,13 @@ class FullReportOutput():
                            ('ALIGNMENT',(1,0),(1,0),'CENTER'),                #Center the middle column
                            ('ALIGNMENT',(-1,0),(-1,0),'RIGHT')                  #Right align the right column
                            ])
+                           
+   footerFontName = "Helvetica"   
+   footerFontSize = 8
+   footerFontLeading = None
+   footerLeftEdge = 0.85 * inch # x-coordinate of the left side of the footer
+   footerRightEdge = 7.65 * inch # x-coordinate of the right side of the footer
+   footerHeight = 0.75 * inch # y-coordinate of the footer
     
    def GeneratePdf(self, httpResponse, apiToken, projectId, stories, filename ):
 
@@ -427,7 +435,7 @@ class FullReportOutput():
          flowables.append(Spacer(0,self.interStorySpace))
       
       try :
-         doc.build(flowables)
+         doc.build(flowables, onFirstPage = self.pageFooter, onLaterPages = self.pageFooter )
       except LayoutError as exception:
          nameMatch = re.search(r"""('[^']*')""", str(exception), re.M)
                   
@@ -600,5 +608,15 @@ class FullReportOutput():
    def FindMarkedDownText (self, text) :
       # return the MatchObjects containing bold, underlined or bold underline text
       return re.finditer(r"""(?:(?:(?:(?<=[\s^,(])|(?<=^))\*(?=\S)(?P<bold>.+?)(?<=\S)\*(?:(?=[\s$,.?!])|(?<=$)))|(?:(?:(?<=[\s^,(])|(?<=^))_(?=\S)(?P<italicized>.+?)(?<=\S)_(?:(?=[\s$,.?!])|(?<=$))))""",text, re.M)
-               
+            
+   def pageFooter(self, canvas, doc):
+       canvas.saveState()
+       canvas.setFont( self.footerFontName, self.footerFontSize, self.footerFontLeading )
+       
+       # draw the doc info
+       canvas.drawString ( self.footerLeftEdge, self.footerHeight, self.pageInfo )
+       
+       # draw the page number
+       canvas.drawRightString ( self.footerRightEdge, self.footerHeight, "Page {0}".format (doc.page) )
+       canvas.restoreState()       
 
