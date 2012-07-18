@@ -1,6 +1,7 @@
 import os
+import webapp2
 from google.appengine.ext.webapp import template
-import cgi
+
 import datetime
 import time
 import urllib
@@ -9,51 +10,25 @@ import csv
 
 from google.appengine.ext import db
 from google.appengine.api import users
-from google.appengine.ext import webapp
-from google.appengine.ext.webapp.util import run_wsgi_app
 from busyflow.pivotal import PivotalClient
 from xml.sax.saxutils import escape
 from gaesessions import get_current_session
 
-from generate_output import *
-
-class MainPage(webapp.RequestHandler):
-    def get(self):
-
-      self.apikey = ""
-
-      #Try to get the apiKey from a session cookie
-      session = get_current_session()
-      
-      # if the session is active      
-      if session.is_active():
-         
-         # and it has an APIKey, get it
-         if session.has_key('APIKey') :
-            self.apikey = session['APIKey']
-      # if the session is not active, create it and store the empty api key
-      else :
-         session.regenerate_id()
-         session['APIKey'] = self.apikey
-      
-      template_values = {'apiKey' : self.apikey}
-      path = os.path.join(os.path.dirname(__file__), 'index.html')
-      self.response.out.write(template.render(path, template_values))
         
-class GetProjects(webapp.RequestHandler):
+class GetProjects(webapp2.RequestHandler):
 
    def post(self):
 
       output = OutputHTML( self )
       output.post()  
       
-class GetStories ( webapp.RequestHandler ):
+class GetStories ( webapp2.RequestHandler ):
    def post ( self ):
       for story in stories:
            self.response.out.write( story['name'] )
            self.response.out.write("<p>")      
 
-class OutputHTML ( webapp.RequestHandler ):
+class OutputHTML ( webapp2.RequestHandler ):
 
    def post ( self ):
 
@@ -191,6 +166,7 @@ class OutputHTML ( webapp.RequestHandler ):
       """)
       
       stories = []
+      labels = {}
       
       # add the story types to the filter
       typeFilter = ' type:none,'
@@ -229,7 +205,28 @@ class OutputHTML ( webapp.RequestHandler ):
       for story in stories :
          option = """<option value="{0}">{1}</option>""".format( story['id'], story['name'] )
          self.response.out.write( option )
-         
+   
+         # as we go through each, pick out the label and add it to our list
+         if 'labels' in story :
+            for label in story['labels'] :
+               labels[label] = label
+                    
+      self.response.out.write("""
+         </select></div>
+      """)
+       
+     # list the labels
+      self.response.out.write("""
+    
+         <p>
+         <h3>Label List</h3>
+         <div><select name="labels" size="20" style="width:300px;margin:5px 0 5px 0;" multiple="multiple">
+      """)
+      
+      for label in labels :
+         option = """<option value="{0}">{0}</option>""".format( label )
+         self.response.out.write( option )
+                    
       self.response.out.write("""
          </select></div>
       """)
@@ -260,18 +257,4 @@ class OutputHTML ( webapp.RequestHandler ):
       """)
 
 
-application = webapp.WSGIApplication([
-  ('/', MainPage),
-  ('/authenticate', OutputHTML),
-  ('/getStories', OutputHTML),
-  ('/generatePDF', GenerateOutput)
-  
-], debug=True)
 
-
-def main():
-  run_wsgi_app(application)
-
-
-if __name__ == '__main__':
-  main()

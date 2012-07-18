@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head><meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>sign_in.html</title></head><body>
+
+  <link type="text/css" rel="stylesheet" href="/stylesheets/main.css">
+
+   
+<table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
+
+  <tbody>
+    <tr>
+      <td style="vertical-align: middle;">
+      <h1>Pivotal PDF</h1>
+      </td>
+      <td style="vertical-align: middle; text-align: right;">
+      <h2>A User Story Document Generator</h2>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div style="text-align: right;">{% if not apiKey %} <a href="file:///SignIn">Sign In</a> {% else %} Key: {{apiKey}} {% endif %}<br>
+</div>
+
+<br>
+
+
+   
+<h3>Sign In<br>
+</h3>
+
+      
+<form action="/authenticate" method="post">
+      Pivotal Tracker API Key
+      <div><input name="APIKey" size="60" value="{{apiKey}}" type="text"></div>
+      <div><input value="Login" type="submit"></div>
+   </form>
+
+
+   
+<p>
+   </p>
+</body></html>

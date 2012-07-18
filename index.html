@@ -1,42 +1,138 @@
-  <head>
-    <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
-  </head>
-  <html>
-  <body>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
 
-   <h1>Pivotal PDF</h1>
-   <h2>A User Story Document Generator</h2>
-   <h3>Step 1: Authenticate</h3>
-      <form action="/authenticate" method="post">
-      Pivotal Tracker API Key
-      <div><input type="text" name="APIKey" size="60" value="{{apiKey}}"></input></div>
-      <div><input type="submit" value="Login"></div>
-   </form>
+  <link type="text/css" rel="stylesheet" href="/stylesheets/main.css">
+   <script type="text/javascript">
+      function formSubmit()
+      {
+         document.getElementById("getStories").submit();
+      }
+   </script>
 
-   <p>
-   <h3>Step 2: Select Project</h3>
-   <div><select name="projects" size="10" style="width:300px;margin:5px 0 5px 0;">
-      <option>User Not Authenticated</option>
-   </select></div>
+</head><body>
+<table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
 
-   <p>
-   <h3>Step 3: Select Story Types and Enter Story Search Filter</h3>
-   <div><label for="Feature">Feature</label><input type="checkbox" id="Feature" name="Feature" checked="true" disabled="true">
-   <label for="Bug">Bug</label><input type="checkbox" id="Bug" name="Bug" checked="True" disabled="true">
-   <label for="Chore">Chore</label><input type="checkbox" id="Chore" name="Chore" checked="True" disabled="true">
-   <label for="Release">Release</label><input type="checkbox" id="Release" name="Release" disabled="true">
-   </div>
-   <br/>
-   This is the same as the Search box in Pivotal Tracker
-   <div><input type="text" name="filter" size="60" disabled="true"></input></div>
-   <div><input type="submit" value="Set Search Filter" disabled="true"></div>
+  <tbody>
+    <tr>
+      <td style="vertical-align: middle;">
+      <h1>Pivotal PDF</h1>
+      </td>
+      <td style="vertical-align: middle; text-align: right;">
+      <h2>A User Story Document Generator</h2>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
-   <p>
-   <h3>Story List</h3>
-   <div><select name="stories" size="20" style="width:300px;margin:5px 0 5px 0;" >
-      <option>No Stories</option>
-   </select></div>
-   <div><input type="submit" value="Generate PDF" disabled="true"></div>
+<div style="text-align: right;">{% if not apiKey %} <a href="SignIn">SignIn</a>
+{% else %} Key: {{apiKey}} <a href="SignOut">Sign Out</a> {% endif %}
+</div>
 
-  </body>
-</html>
+<br>
+<table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
+   <tbody>
+    <tr>
+      <form id="getStories" action="/getStories" method="post">             
+      <td style="vertical-align: top;">
+         <div>
+         <select name="projects" style="margin: 5px 0pt; width: 250px;" onchange="formSubmit()" >
+         {% if not apiKey %}
+            <option>User Not Authenticated</option>
+         {% else %}
+            {% for project in projects %}
+               {% if project.id == selected_project %}
+                  <option selected="selected" value="{{project.id}}">{{project.name}}</option>
+               {% else %}
+                  <option value="{{project.id}}">{{project.name}}</option>
+               {% endif %}
+            {% endfor %}
+         {% endif %}
+         </select>
+         </div>
+      </td>
+      </form>
+   </tr>
+   <tr>
+      <form id="filterStories" action="/filterStories" method="post">             
+   
+      <td style="vertical-align: middle;">
+
+         <div><label for="featuresChecked">Features</label><input type="checkbox" id="featuresChecked" name="featuresChecked" {{features_checked}}> 
+         <label for="bugsChecked">Bug</label><input type="checkbox" id="bugsChecked" name="bugsChecked" {{bugs_checked}} > 
+         <label for="choresChecked">Chore</label><input type="checkbox" id="choresChecked" name="choresChecked" {{chores_checked}} >
+         <label for="releasesChecked">Release</label><input type="checkbox" id="releasesChecked" name="releasesChecked" {{releases_checked}} > </div>
+
+      
+      </td>
+      <td style="vertical-align: middle;">
+
+         <div>
+         <select name="labels" style="margin: 5px 0pt; width: 250px;">
+         <option value="">Label Filter</option>
+         {% for label in labels %}
+            {% if label == selected_label %}
+               <option selected="selected" value="{{label}}">{{label}}</option>
+            {% else %}
+               <option value="{{label}}">{{label}}</option>
+            {% endif %}
+         {% endfor %}
+         </select>
+         </div>
+      </td>
+      <td style="vertical-align: middle;">
+         
+         <div>Keyword Search <input name="filter" size="30" type="text"></div>
+      </td>
+      <td style="vertical-align: middle;">
+         {% if not apiKey %}
+            <div><input value="Set Search Filter" type="submit" disabled="true"></div>
+         {% else %}
+            <div><input value="Set Search Filter" type="submit"></div>
+         {% endif %}
+      </td>
+      </form>
+    </tr>
+   </tbody>
+</table>
+
+<p> </p>
+<table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
+   <tbody>
+    <tr>
+      <td style="vertical-align: middle;">
+        
+         <form id="generatePDF" action="/generatePDF" method="post">
+
+         <h3>Story List</h3>
+
+         <div>
+         <select name="stories" size="20" style="margin: 5px 0pt; width: 500px;" multiple="multiple">
+         {% for story in stories %}
+            <option value="{{story.id}}">{{story.name}}</option>
+         {% endfor %}
+         </select>
+         </div>
+      </td>
+      <td style="vertical-align: middle;">
+      
+         <div>
+            <input type="radio" name="format" value="full" checked="True"/>Full Report<br/>
+            <input type="radio" name="format" value="summary"/>Summary Report<br/>
+         </div>
+         
+         <p/>
+         {% if not apiKey %}
+            <div><input name="outputType" value="Generate PDF" type="submit" disabled="true" ></div>      
+         {% else %}
+            <div><input name="outputType" value="Generate PDF" type="submit"></div>      
+         {% endif %}
+         </form>
+      </td>
+    </tr>
+   </tbody>
+</table>
+
+<p>
+
+
+</body></html>
