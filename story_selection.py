@@ -132,8 +132,10 @@ class OutputHTML ( webapp2.RequestHandler ):
       if session.is_active() and session.has_key('APIKey') :
          
          # but the stored API Key has changed, store the new value and clear everything else
-         if self.request.get('APIKey') != '' and self.request.get('APIKey') != session['APIKey'] :
-            session['APIKey'] = self.request.get('APIKey')
+         if self.request.get('userName') != '' :
+            client = PivotalClient(token='', cache=None)
+            session['APIKey'] = client.tokens.active( username=self.request.get('userName'), password=self.request.get('password') )['token']['guid']
+
             session.pop('projectId')
             session.pop('filter')
          
