@@ -23,15 +23,12 @@ class SignIn(webapp2.RequestHandler):
       session = get_current_session()
       
       # if the session is active      
-      if session.is_active():
-         
-         # and it has an APIKey, get it
-         if session.has_key('APIKey') :
+      if session.is_active() and session.has_key('APIKey') :
             self.apikey = session['APIKey']
+            
       # if the session is not active, create it and store the empty api key
       else :
          session.regenerate_id()
-         session['APIKey'] = self.apikey
       
       template_values = {'apiKey' : self.apikey}
       path = os.path.join(os.path.dirname(__file__), 'sign_in.html')

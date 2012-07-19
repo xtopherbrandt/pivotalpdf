@@ -48,9 +48,7 @@ class MainPage(webapp2.RequestHandler):
             self.labels = session['labelList']
             
       else :
-         # if we're authenticating but the session isn't active, it is recommended that you rotate the session ID (security)
-         session.regenerate_id()
-         self.request.redirect('/SignIn')
+         return self.redirect('/SignIn')
             
       client = PivotalClient(token=self.apikey, cache=None)
       projects = client.projects.all()['projects']

@@ -57,9 +57,7 @@ class OutputHTML ( webapp2.RequestHandler ):
             self.labels = session['labelList']
             
       else :
-         # if we're authenticating but the session isn't active, it is recommended that you rotate the session ID (security)
-         session.regenerate_id()
-         self.request.redirect('/SignIn')
+         return self.redirect('/SignIn')
             
       client = PivotalClient(token=self.apikey, cache=None)
       projects = client.projects.all()['projects']
@@ -127,17 +125,18 @@ class OutputHTML ( webapp2.RequestHandler ):
       self.labels = {}
 
       session = get_current_session()
+
+      # if the request has a user name field, then try to sign the user in
+      if self.request.get('userName') != '' :
+         client = PivotalClient(token='', cache=None)
+         session['APIKey'] = client.tokens.active( username=self.request.get('userName'), password=self.request.get('password') )['token']['guid']
+
+         session.pop('projectId')
+         session.pop('filter')
       
       # if the session is active and it has an APIKey   
       if session.is_active() and session.has_key('APIKey') :
          
-         # but the stored API Key has changed, store the new value and clear everything else
-         if self.request.get('userName') != '' :
-            client = PivotalClient(token='', cache=None)
-            session['APIKey'] = client.tokens.active( username=self.request.get('userName'), password=self.request.get('password') )['token']['guid']
-
-            session.pop('projectId')
-            session.pop('filter')
          
          self.apikey = session['APIKey']
          
@@ -148,9 +147,7 @@ class OutputHTML ( webapp2.RequestHandler ):
             self.labels = session['labelList']
             
       else :
-         # if we're authenticating but the session isn't active, it is recommended that you rotate the session ID (security)
-         session.regenerate_id()
-         self.request.redirect('/SignIn')
+         return self.redirect('/SignIn')
             
       client = PivotalClient(token=self.apikey, cache=None)
       projects = client.projects.all()['projects']
