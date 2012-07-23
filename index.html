@@ -9,130 +9,156 @@
       }
    </script>
 
-</head><body>
+</head>
+<body>
 <table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
-
   <tbody>
     <tr>
+      <td style="vertical-align: top;">
+      <!-- Spacer column - Left -->
+      </td>      
       <td style="vertical-align: middle;">
-      <h1>Pivotal PDF</h1>
+      <!-- Main content column - Middle -->
+         <table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
+
+           <tbody>
+             <tr>
+               <td style="vertical-align: middle;">
+               <h1>Pivotal PDF</h1>
+               </td>
+               <td style="vertical-align: middle; text-align: right;">
+               <h2>A User Story Document Generator</h2>
+               </td>
+             </tr>
+           </tbody>
+         </table>
+
+         <div style="text-align: right;">{% if not apiKey %} <a href="SignIn">SignIn</a>
+         {% else %} <a href="SignOut">Sign Out</{% endif %}
+         </div>
+
+         <br>
+         <table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
+            <tbody>
+             <tr>
+               <form id="getStories" action="/getStories" method="post">             
+               <td style="vertical-align: top;">
+                  <div>
+                  <select name="projects" style="margin: 5px 0pt; width: 250px;" onchange="formSubmit()" >
+                  {% if not apiKey %}
+                     <option>User Not Authenticated</option>
+                  {% else %}
+                     {% for project in projects %}
+                        {% if project.id == selected_project %}
+                           <option selected="selected" value="{{project.id}}">{{project.name}}</option>
+                        {% else %}
+                           <option value="{{project.id}}">{{project.name}}</option>
+                        {% endif %}
+                     {% endfor %}
+                  {% endif %}
+                  </select>
+                  </div>
+               </td>
+               </form>
+            </tr>
+            <tr>
+               <form id="filterStories" action="/filterStories" method="post">             
+            
+               <td style="vertical-align: middle;">
+
+                  <div><label for="featuresChecked">Features</label><input type="checkbox" id="featuresChecked" name="featuresChecked" {{features_checked}}> 
+                  <label for="bugsChecked">Bug</label><input type="checkbox" id="bugsChecked" name="bugsChecked" {{bugs_checked}} > 
+                  <label for="choresChecked">Chore</label><input type="checkbox" id="choresChecked" name="choresChecked" {{chores_checked}} >
+                  <label for="releasesChecked">Release</label><input type="checkbox" id="releasesChecked" name="releasesChecked" {{releases_checked}} > </div>
+
+               
+               </td>
+               <td style="vertical-align: middle;">
+
+                  <div>
+                  <select name="labels" style="margin: 5px 0pt; width: 250px;">
+                  <option value="">Label Filter</option>
+                  {% for label in labels %}
+                     {% if label == selected_label %}
+                        <option selected="selected" value="{{label}}">{{label}}</option>
+                     {% else %}
+                        <option value="{{label}}">{{label}}</option>
+                     {% endif %}
+                  {% endfor %}
+                  </select>
+                  </div>
+               </td>
+               <td style="vertical-align: middle;">
+                  
+                  <div>Keyword Search <input name="filter" size="30" type="text"></div>
+               </td>
+               <td style="vertical-align: middle;">
+                  {% if not apiKey %}
+                     <div><input value="Set Search Filter" type="submit" disabled="true"></div>
+                  {% else %}
+                     <div><input value="Set Search Filter" type="submit"></div>
+                  {% endif %}
+               </td>
+               </form>
+             </tr>
+            </tbody>
+         </table>
+
+         <p> </p>
+         <table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
+            <tbody>
+             <tr>
+               <td style="vertical-align: middle;">
+                 
+                  <form id="generatePDF" action="/generatePDF" method="post">
+
+                  <h3>Story List</h3>
+
+                  <div>
+                  <select name="stories" size="20" style="margin: 5px 0pt; width: 500px;" multiple="multiple">
+                  {% for story in stories %}
+                     <option value="{{story.id}}">{{story.name}}</option>
+                  {% endfor %}
+                  </select>
+                  </div>
+               </td>
+               <td style="vertical-align: middle;">
+               
+                  <div>
+                     <input type="radio" name="format" value="full" checked="True"/>Full Report<br/>
+                     <input type="radio" name="format" value="summary"/>Summary Report<br/>
+                  </div>
+                  
+                  <p/>
+                  {% if not apiKey %}
+                     <div><input name="outputType" value="Generate PDF" type="submit" disabled="true" ></div>      
+                  {% else %}
+                     <div><input name="outputType" value="Generate PDF" type="submit"></div>      
+                  {% endif %}
+                  </form>
+               </td>
+             </tr>
+            </tbody>
+         </table>
       </td>
-      <td style="vertical-align: middle; text-align: right;">
-      <h2>A User Story Document Generator</h2>
+      <td style="vertical-align: top;">
+         <!-- Google add column - Right -->
+         <p>
+
+         <script type="text/javascript"><!--
+         google_ad_client = "ca-pub-2979351542327334";
+         /* Pivotal PDF */
+         google_ad_slot = "2851849388";
+         google_ad_width = 728;
+         google_ad_height = 90;
+         //-->
+         </script>
+         <script type="text/javascript"
+         src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+         </script>
       </td>
     </tr>
   </tbody>
 </table>
-
-<div style="text-align: right;">{% if not apiKey %} <a href="SignIn">SignIn</a>
-{% else %} <a href="SignOut">Sign Out</a> {% endif %}
-</div>
-
-<br>
-<table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
-   <tbody>
-    <tr>
-      <form id="getStories" action="/getStories" method="post">             
-      <td style="vertical-align: top;">
-         <div>
-         <select name="projects" style="margin: 5px 0pt; width: 250px;" onchange="formSubmit()" >
-         {% if not apiKey %}
-            <option>User Not Authenticated</option>
-         {% else %}
-            {% for project in projects %}
-               {% if project.id == selected_project %}
-                  <option selected="selected" value="{{project.id}}">{{project.name}}</option>
-               {% else %}
-                  <option value="{{project.id}}">{{project.name}}</option>
-               {% endif %}
-            {% endfor %}
-         {% endif %}
-         </select>
-         </div>
-      </td>
-      </form>
-   </tr>
-   <tr>
-      <form id="filterStories" action="/filterStories" method="post">             
-   
-      <td style="vertical-align: middle;">
-
-         <div><label for="featuresChecked">Features</label><input type="checkbox" id="featuresChecked" name="featuresChecked" {{features_checked}}> 
-         <label for="bugsChecked">Bug</label><input type="checkbox" id="bugsChecked" name="bugsChecked" {{bugs_checked}} > 
-         <label for="choresChecked">Chore</label><input type="checkbox" id="choresChecked" name="choresChecked" {{chores_checked}} >
-         <label for="releasesChecked">Release</label><input type="checkbox" id="releasesChecked" name="releasesChecked" {{releases_checked}} > </div>
-
-      
-      </td>
-      <td style="vertical-align: middle;">
-
-         <div>
-         <select name="labels" style="margin: 5px 0pt; width: 250px;">
-         <option value="">Label Filter</option>
-         {% for label in labels %}
-            {% if label == selected_label %}
-               <option selected="selected" value="{{label}}">{{label}}</option>
-            {% else %}
-               <option value="{{label}}">{{label}}</option>
-            {% endif %}
-         {% endfor %}
-         </select>
-         </div>
-      </td>
-      <td style="vertical-align: middle;">
-         
-         <div>Keyword Search <input name="filter" size="30" type="text"></div>
-      </td>
-      <td style="vertical-align: middle;">
-         {% if not apiKey %}
-            <div><input value="Set Search Filter" type="submit" disabled="true"></div>
-         {% else %}
-            <div><input value="Set Search Filter" type="submit"></div>
-         {% endif %}
-      </td>
-      </form>
-    </tr>
-   </tbody>
-</table>
-
-<p> </p>
-<table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
-   <tbody>
-    <tr>
-      <td style="vertical-align: middle;">
-        
-         <form id="generatePDF" action="/generatePDF" method="post">
-
-         <h3>Story List</h3>
-
-         <div>
-         <select name="stories" size="20" style="margin: 5px 0pt; width: 500px;" multiple="multiple">
-         {% for story in stories %}
-            <option value="{{story.id}}">{{story.name}}</option>
-         {% endfor %}
-         </select>
-         </div>
-      </td>
-      <td style="vertical-align: middle;">
-      
-         <div>
-            <input type="radio" name="format" value="full" checked="True"/>Full Report<br/>
-            <input type="radio" name="format" value="summary"/>Summary Report<br/>
-         </div>
-         
-         <p/>
-         {% if not apiKey %}
-            <div><input name="outputType" value="Generate PDF" type="submit" disabled="true" ></div>      
-         {% else %}
-            <div><input name="outputType" value="Generate PDF" type="submit"></div>      
-         {% endif %}
-         </form>
-      </td>
-    </tr>
-   </tbody>
-</table>
-
-<p>
-
 
 </body></html>
