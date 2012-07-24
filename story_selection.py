@@ -126,8 +126,15 @@ class OutputHTML ( webapp2.RequestHandler ):
 
       session = get_current_session()
 
-      # if the request has a user name field, then try to sign the user in
-      if self.request.get('userName') != '' :
+      # if the request has an API Key then set it in our session
+      if self.request.get('APIKey') != '' :
+         session['APIKey'] = self.request.get('APIKey')
+
+         session.pop('projectId')
+         session.pop('filter')
+         
+      # if the request has a non-empty user name and password field, then try to sign the user in
+      if self.request.get('userName') != '' and self.request.get('password') :
          client = PivotalClient(token='', cache=None)
          session['APIKey'] = client.tokens.active( username=self.request.get('userName'), password=self.request.get('password') )['token']['guid']
 
