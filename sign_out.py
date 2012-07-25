@@ -25,8 +25,8 @@ class SignOut(webapp2.RequestHandler):
       # if the session is active      
       if session.is_active():
          session.terminate( clear_data=True )
-               
+      
       template_values = {}
-      path = os.path.join(os.path.dirname(__file__), 'index.html')
+      path = os.path.join(os.path.dirname(__file__), 'sign_in.html')
       self.response.out.write(template.render(path, template_values))        
 
