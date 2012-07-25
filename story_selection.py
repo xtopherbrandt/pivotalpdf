@@ -164,6 +164,7 @@ class OutputHTML ( webapp2.RequestHandler ):
       # if we havn't selected a project and there is at least 1, the select the first by default
       if self.projectId == None and len(projects) > 0 :
          self.projectId = projects[0]['id']
+         session['projectId'] = self.projectId
             
       # if we're getting the stories
       if self.request.get('projects', default_value=None) != None :
