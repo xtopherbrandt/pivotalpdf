@@ -1,0 +1,3 @@
+blacklist:
+- subnet: 184.72.204.253
+  description: a single IP address
