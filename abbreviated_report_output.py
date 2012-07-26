@@ -459,7 +459,11 @@ class AbbreviatedReportOutput():
 
    def BuildDescription (self, storyInfo ) :
    
-         description = storyInfo['story']['description']
+         # if a description was retrieved then get it out.
+         if 'description' in storyInfo['story'] :
+            description = storyInfo['story']['description']
+         else :
+            description = ''
 
          # Only want the first paragraph of the story, so separate out the paragraphs                  
          paragraphMatch = re.match(r"""(^.*$)""", description, re.M)

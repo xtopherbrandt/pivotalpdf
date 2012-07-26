@@ -1,5 +1,5 @@
 application: pivotal-pdf
-version: 167
+version: 169
 runtime: python27
 api_version: 1
 threadsafe: false
@@ -11,7 +11,11 @@ handlers:
 - url: /favicon.ico
   static_files: favicon.ico
   upload: favicon.ico
-    
+  
+- url: /robots.txt
+  static_files: robots.txt
+  upload: robots.txt
+      
 - url: /.*
   script: main.application
   secure: always

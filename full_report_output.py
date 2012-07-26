@@ -452,8 +452,12 @@ class FullReportOutput():
    
          rawDescription = []
          
-         rawDescription.append (storyInfo['story']['description'])
-         
+         # if a description was retrieved then get it out.
+         if 'description' in storyInfo['story'] :
+            rawDescription.append (storyInfo['story']['description'])
+         else :
+            rawDescription.append ( '' )
+            
          # If there are Activity notes, start our list with a heading
          if 'notes' in storyInfo['story'] :
             rawDescription.append('*Activity:*')
