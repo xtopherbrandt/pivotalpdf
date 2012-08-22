@@ -44,13 +44,19 @@ class GenerateOutput(webapp.RequestHandler):
          
          #store the selected output format
          session['format'] = reportFormat
-
-      # if no stories were selected, assume all are desired and get all by the filter
-      if len(stories) == 0:
-         client = PivotalClient(token=apiToken, cache=None)
-         stories = [ str(story['id']) for story in client.stories.get_filter(projectId, filter, True )['stories'] ]
+         
+         # if no stories were selected, assume all are desired and get all by the filter
+         if len(stories) == 0:
+            client = PivotalClient(token=apiToken, cache=None)
+            stories = [ str(story['id']) for story in client.stories.get_filter(projectId, filter, True )['stories'] ]
+               
+         self.GeneratePdf( apiToken, projectId, stories, filename, reportFormat )
+      else :
             
-      self.GeneratePdf( apiToken, projectId, stories, filename, reportFormat )
+         template_values = {'Error' : 'An active session was not found. This web app requires cookies to store session information.'}
+         path = os.path.join(os.path.dirname(__file__), 'error.html')
+         self.response.out.write(template.render(path, template_values))        
+
 
    def get(self):
    

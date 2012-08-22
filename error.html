@@ -1,12 +1,64 @@
-  <head>
-    <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
-  </head>
-  <html>
-  <body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 
-A layout error occurred. This typically happens when a story description could not fit on to one page. The following story caused the problem:
-<br>
+<html><head>
+  
+  <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+  <title>sign_in.html</title>
 
-<b>{{storyName}}</b>
-  </body>
-</html>
+  
+  
+  <link type="text/css" rel="stylesheet" href="/stylesheets/main.css">
+
+</head>
+
+<body>
+
+<table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
+
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;"><!-- Spacer column - Left --> <br>
+      </td>
+      <td style="vertical-align: middle;"><!-- Main content column - Middle -->
+        <table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
+          <tbody>
+            <tr>
+              <td style="vertical-align: middle;">
+              <h1>Pivotal PDF</h1>
+              </td>
+              <td style="vertical-align: middle; text-align: right;">
+              <h2>A User Story Document Generator</h2>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="text-align: right;">{% if apiKey %}<a href="SignOut">Sign
+Out</a> {% endif %}<br>
+        </div>
+        <br>
+        <table style="text-align: left; height: 203px; width: 931px;" border="0" cellpadding="2" cellspacing="2">
+          <tbody>
+            <tr>
+              <td style="vertical-align: top; width: 402px;">
+              <h3 style="width: 464px;">Error</h3>
+              </td>
+            </tr>
+            <tr>
+              <td style="vertical-align: top; width: 402px;">
+              <div style="width: 464px;">{{ Error }}</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        
+      </td>
+      <td style="vertical-align: top;">
+      <p> </p>
+      <br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+</body></html>
+
