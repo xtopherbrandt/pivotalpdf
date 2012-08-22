@@ -464,6 +464,12 @@ class FullReportOutput():
             
             # Get the set of Activity notes for the story
             for note in storyInfo['story']['notes'] :
+               # ensure the note has the attributes we need for output
+               if not 'author' in note :
+                  note['author'] = 'Unknown'
+               if not 'noted_at' in note :
+                  note['noted_at'] = 'Unknown'
+                  
                try:
                   rawDescription.append(u"""_{1} - *{0}*_ : {2}""".format(note['author'], note['noted_at'].strftime(self.activityDateFormat), note['text']))
                except Exception as e:
