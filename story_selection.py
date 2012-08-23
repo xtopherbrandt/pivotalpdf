@@ -172,8 +172,12 @@ class OutputHTML ( webapp2.RequestHandler ):
          self.projectId = self.request.get('projects')
          session['projectId'] = self.projectId
 
-         # get all of the stories for the project
-         stories = client.stories.all( self.projectId )['stories']         
+         # get all of the stories for the project      
+         projectStories = client.stories.all( self.projectId )
+         
+         # if there are stories in the project then pull them out
+         if 'stories' in projectStories :
+            stories = projectStories['stories']
          
          # clear the labels
          self.labels = {}
