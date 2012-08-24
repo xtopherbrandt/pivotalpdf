@@ -24,11 +24,21 @@ class GenerateOutput(webapp.RequestHandler):
    
       session = get_current_session()
 
-      stories = self.request.get_all('stories')
+      stories = []
+      
+      # if there are stories then get them
+      if self.request.get_all('stories', default_value=None) != None :
+         stories = self.request.get_all('stories')
+         
       filter = ''         
       projectId = None
       filename =  """UserStories-{0}.pdf""".format(time.strftime(self.fileNameDateTimeFormat))
-      reportFormat = self.request.get('format')
+      
+      reportFormat = 'full'
+      
+      # if the format was included in the post, get it
+      if self.request.get_all('format', default_value=None) != None :
+         reportFormat = self.request.get('format')
       
       if session.is_active():
          apiToken = session['APIKey']
@@ -80,12 +90,15 @@ class GenerateOutput(webapp.RequestHandler):
             filter = session['filter']
          else :
             filter = ''         
+
+         # if there were stories saved in the session            
+         if 'stories' in session :
+            # the stories should have been saved on the inital post, so can get them from the session
+            stories = session['stories']
             
-         # the stories should have been saved on the inital post, so can get them from the session
-         stories = session['stories']
-            
-         # the report format should have been saved on the inital post, so can get it from the session
-         reportFormat = session['format']
+         if 'format' in session :
+            # the report format should have been saved on the inital post, so can get it from the session
+            reportFormat = session['format']
 
       # if no stories were selected, assume all are desired and get all by the filter
       if len(stories) == 0:
@@ -96,10 +109,12 @@ class GenerateOutput(webapp.RequestHandler):
    
    def GeneratePdf(self, apiToken, projectId, stories, filename, reportFormat ):
       
-      if reportFormat == 'full' :
-         report = FullReportOutput()
-      elif reportFormat == 'summary' :
+      # if they've specified summary then give them summary, 
+      if reportFormat == 'summary' :
          report = AbbreviatedReportOutput()
+      else :
+         # if we can't find a report format specified assume full.
+         report = FullReportOutput()
 
       report.GeneratePdf( self.response, apiToken, projectId, stories, filename )
       

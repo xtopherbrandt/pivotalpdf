@@ -59,8 +59,15 @@ class OutputHTML ( webapp2.RequestHandler ):
       else :
          return self.redirect('/SignIn')
             
+      projects = []
+      
+      # Connect to Pivotal Tracker and get the user's projects
       client = PivotalClient(token=self.apikey, cache=None)
-      projects = client.projects.all()['projects']
+      clientProjects = client.projects.all()
+      
+      # if there are any projects, get them
+      if 'projects' in clientProjects :
+         projects = clientProjects['projects']
       
       stories = []
 
@@ -90,8 +97,12 @@ class OutputHTML ( webapp2.RequestHandler ):
       session['filter'] = self.filter
        
       # if a project is selected, get it's stories
-      if self.projectId != None :         
-         stories = client.stories.get_filter(self.projectId, self.filter, True )['stories']         
+      if self.projectId != None :  
+         projectStories = client.stories.get_filter(self.projectId, self.filter, True )
+         
+         # if it has stories get them
+         if 'stories' in projectStories :
+            stories = ['stories']         
       
       template_values = {
                         'apiKey' : self.apikey,
@@ -155,9 +166,16 @@ class OutputHTML ( webapp2.RequestHandler ):
             
       else :
          return self.redirect('/SignIn')
-            
+
+      projects = []
+      
+      # Connect to Pivotal Tracker and get the user's projects
       client = PivotalClient(token=self.apikey, cache=None)
-      projects = client.projects.all()['projects']
+      clientProjects = client.projects.all()
+      
+      # if there are any projects, get them
+      if 'projects' in clientProjects :
+         projects = clientProjects['projects']
       
       stories = []
 
@@ -253,8 +271,11 @@ class OutputHTML ( webapp2.RequestHandler ):
       session['filter'] = self.filter
        
       # if a project is selected, get it's stories
-      if self.projectId != None :         
-         stories = client.stories.get_filter(self.projectId, self.filter, True )['stories']         
+      if self.projectId != None : 
+         projectStories = client.stories.get_filter(self.projectId, self.filter, True )
+         
+         if 'stories' in projectStories :
+            stories = projectStories['stories']         
       
       template_values = {
                         'apiKey' : self.apikey,
