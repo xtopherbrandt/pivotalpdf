@@ -632,11 +632,11 @@ class FullReportOutput():
          # add a chunk of text with mark up appropriate to the group it was found in
          if match.group('bold') != None :
             innerMarkUp = self.MarkDownToMarkUp ( match.group('bold') )
-            markedUpStrings.append ( """<b>{0}</b>""".format( innerMarkUp ) )
+            markedUpStrings.append ( u"""<b>{0}</b>""".format( innerMarkUp ) )
          
          if match.group('italicized') != None :
             innerMarkUp = self.MarkDownToMarkUp ( match.group('italicized') )
-            markedUpStrings.append ( """<i>{0}</i>""".format( innerMarkUp ) )
+            markedUpStrings.append ( u"""<i>{0}</i>""".format( innerMarkUp ) )
             
          regularTextIndex = match.end()
 
