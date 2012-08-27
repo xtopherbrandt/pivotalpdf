@@ -200,6 +200,7 @@ class FullReportOutput():
       
       #Add the Done Stories
       doneStories = self.GetDoneStories( stories, apiToken, projectId )
+      storyAcceptance = self.GetAcceptanceActivity ( stories, apiToken, projectId )
                   
       flowables.append( Paragraph ( 'Completed Work', self.styleSectionTitle ) )
       flowables.append( Spacer(0, self.titleSpace) )
@@ -212,7 +213,13 @@ class FullReportOutput():
          # Paragraphs can take HTML so the mark-up characters in the text must be escaped
          storyName = escape ( storyInfo['story']['name'] )
 
-         storyDescription = self.BuildDescription( storyInfo )
+         # Get the story acceptance info, if it exists
+         storyAcceptanceInfo = None
+         
+         if storyInfo['story']['id'] in storyAcceptance :
+            storyAcceptanceInfo = storyAcceptance[storyInfo['story']['id']]
+            
+         storyDescription = self.BuildDescription( storyInfo, storyAcceptanceInfo )
          
          storyBlock.append(Paragraph( storyName,self.styleName))
          
@@ -221,6 +228,7 @@ class FullReportOutput():
          detailRow = []
          
          #add some flowables
+         # add the date of story acceptance. The activity info returned has a limited history older stories will not have them
          detailRow.append("""Accepted: {0}""".format(storyInfo['story']['accepted_at'].strftime(self.iterationDateFormat)) )
          
          # add the owner if one exists
@@ -275,16 +283,27 @@ class FullReportOutput():
          
          # Paragraphs can take HTML so the mark-up characters in the text must be escaped
          storyName = escape ( storyInfo['story']['name'] )
+         
+         storyAcceptanceInfo = None
+         
+         if storyInfo['story']['id'] in storyAcceptance :
+            storyAcceptanceInfo = storyAcceptance[storyInfo['story']['id']]
 
-         storyDescription = self.BuildDescription( storyInfo )
+         storyDescription = self.BuildDescription( storyInfo, storyAcceptanceInfo )
          
          storyBlock.append(Paragraph( storyName,self.styleName))
          
          #Create a table row for our detail line
          tableData = []
          detailRow = []
+         
          #add some flowables
-         detailRow.append("In Progress" )
+         # if this story has been accepted then set the detail row appropriately
+         if storyInfo['story']['id'] in storyAcceptance :
+            detailRow.append("""Accepted: {0}""".format(storyInfo['story']['accepted_at'].strftime(self.iterationDateFormat)) )
+         else :
+            detailRow.append("In Progress" )
+            
          if 'owned_by' in storyInfo['story'] :
             detailRow.append(storyInfo['story']['owned_by'])
          else:
@@ -337,7 +356,7 @@ class FullReportOutput():
          # Paragraphs can take HTML so the mark-up characters in the text must be escaped
          storyName = escape ( storyInfo['story']['name'] )
 
-         storyDescription = self.BuildDescription( storyInfo )
+         storyDescription = self.BuildDescription( storyInfo, None )
          
          storyBlock.append(Paragraph( storyName,self.styleName))
          
@@ -394,7 +413,7 @@ class FullReportOutput():
          # Paragraphs can take HTML so the mark-up characters in the text must be escaped
          storyName = escape ( storyInfo['story']['name'] )
 
-         storyDescription = self.BuildDescription( storyInfo )
+         storyDescription = self.BuildDescription( storyInfo, None )
          
          storyBlock.append(Paragraph( storyName,self.styleName))
          
@@ -448,7 +467,7 @@ class FullReportOutput():
          httpResponse.headers['Content-Type'] = 'html'
          httpResponse.out.write(template.render(path, template_values))
 
-   def BuildDescription (self, storyInfo ) :
+   def BuildDescription (self, storyInfo, storyAcceptanceInfo ) :
    
          rawDescription = []
          
@@ -457,10 +476,11 @@ class FullReportOutput():
             rawDescription.append (storyInfo['story']['description'])
          else :
             rawDescription.append ( '' )
-            
-         # If there are Activity notes, start our list with a heading
+
+         # Add activity and acceptance notes            
+         notes = []
+         
          if 'notes' in storyInfo['story'] :
-            rawDescription.append('*Activity:*')
             
             # Get the set of Activity notes for the story
             for note in storyInfo['story']['notes'] :
@@ -471,11 +491,21 @@ class FullReportOutput():
                   note['noted_at'] = 'Unknown'
                   
                try:
-                  rawDescription.append(u"""_{1} - *{0}*_ : {2}""".format(note['author'], note['noted_at'].strftime(self.activityDateFormat), note['text']))
+                  notes.append(u"""_{1} - *{0}*_ : {2}""".format(note['author'], note['noted_at'].strftime(self.activityDateFormat), note['text']))
                except Exception as e:
-                  rawDescription.append("""_{1} - *{0}*_ : NOTE SKIPPED due to an exception interpreting the text: {1}""".format(note['author'], note['noted_at'].strftime(self.activityDateFormat), e ))
+                  notes.append("""_{1} - *{0}*_ : NOTE SKIPPED due to an exception interpreting the text: {1}""".format(note['author'], note['noted_at'].strftime(self.activityDateFormat), e ))
 
-               
+         if storyAcceptanceInfo != None :
+            notes.append("""_{1} - *{0}*_ : Accepted the story""".format(storyAcceptanceInfo['acceptorName'], storyAcceptanceInfo['acceptedDate'].strftime(self.activityDateFormat) ))
+
+         # if we have notes to add then add a header followed by the notes
+         if len(notes) > 0 :
+            rawDescription.append('\n')
+            rawDescription.append('*Activity:*')
+            
+            for note in notes :
+               rawDescription.append( note )
+            
          # Concatenate the story description with the activity notes
          description = '\n'.join(rawDescription )
                   
@@ -629,4 +659,44 @@ class FullReportOutput():
        # draw the page number
        canvas.drawRightString ( self.footerRightEdge, self.footerHeight, "Page {0}".format (doc.page) )
        canvas.restoreState()       
+       
+   
+   def GetAcceptanceActivity (self, filteredStories, apiToken, projectId) :
+   
+      acceptanceActivities = {}
+        
+      # Get the set of done iterations
+      client = PivotalClient(token=apiToken, cache=None)
+      project = client.projects.activities( projectId, limit=100 )
+      
+      # if the project has some done iterations
+      if 'activities' in project:
+         activities = project['activities']
+        
+         # Go through each activity and find the acceptance ones on stories that are in our set
+         for activity in activities:
+            if 'description' in activity :
+               # look for accepted in the description and pull out the name in front of it
+               acceptorName = re.match(r"""(?P<name>.*)\saccepted""",activity['description'], re.M)
+               
+               # if we found a name then get the stories affected
+               if acceptorName != None :
+                  if 'stories' in activity :
+                     activityStories = activity['stories']
+                     
+                     # go through each affected story and see if it's in our list of filtered stories
+                     for story in activityStories:
+                        for filteredStory in filteredStories: 
+                           if str(story['id']) == filteredStory:
+                              
+                              # if we have this story in our acceptance list already, update it if this activity has a later version id
+                              if story['id'] in acceptanceActivities :
+                                 if activity['version'] > acceptanceActivities[story['id']]['version'] :
+                                    acceptanceActivities[story['id']] = { 'version' : activity['version'], 'acceptorName' : acceptorName.group('name'), 'acceptedDate' : activity['occurred_at'] }
+                              else :  
+                                 acceptanceActivities[story['id']] = { 'version' : activity['version'], 'acceptorName' : acceptorName.group('name'), 'acceptedDate' : activity['occurred_at'] }
+                              break
+               
+      return acceptanceActivities
+       
 
