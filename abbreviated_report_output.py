@@ -209,239 +209,247 @@ class AbbreviatedReportOutput():
       
       #Add the Done Stories
       doneStories = self.GetDoneStories( stories, apiToken, projectId )
-                  
-      flowables.append( Paragraph ( 'Completed Work', self.styleSectionTitle ) )
-      flowables.append( Spacer(0, self.titleSpace) )
 
-      for storyInfo in doneStories :
-         
-         # put all of the story flowables in a list that will be kept together if possible
-         storyBlock = []
-         
-         # Paragraphs can take HTML so the mark-up characters in the text must be escaped
-         storyName = escape ( storyInfo['story']['name'] )
+      if len( doneStories ) > 0 :
+                        
+         flowables.append( Paragraph ( 'Completed Work', self.styleSectionTitle ) )
+         flowables.append( Spacer(0, self.titleSpace) )
 
-         storyDescription = self.BuildDescription( storyInfo )
-         
-         storyBlock.append(Paragraph( storyName,self.styleName))
-         
-         #Create a table row for our detail line
-         tableData = []
-         detailRow = []
-         
-         #add some flowables
-         detailRow.append("""Accepted: {0}""".format(storyInfo['story']['accepted_at'].strftime(self.iterationDateFormat)) )
-         
-         # add the owner if one exists
-         if 'owned_by' in storyInfo['story'] :
-            detailRow.append(storyInfo['story']['owned_by'])
-         else:
-            detailRow.append( "" )
+         for storyInfo in doneStories :
+            
+            # put all of the story flowables in a list that will be kept together if possible
+            storyBlock = []
+            
+            # Paragraphs can take HTML so the mark-up characters in the text must be escaped
+            storyName = escape ( storyInfo['story']['name'] )
 
-         # if the story has an estimate
-         if 'estimate' in storyInfo['story'] :
-            # and the estimate is not -1
-            if storyInfo['story']['estimate'] != -1 :
-               # add the size
-               detailRow.append("""Size: {0}""".format( storyInfo['story']['estimate'] ))
+            storyDescription = self.BuildDescription( storyInfo )
+            
+            storyBlock.append(Paragraph( storyName,self.styleName))
+            
+            #Create a table row for our detail line
+            tableData = []
+            detailRow = []
+            
+            #add some flowables
+            detailRow.append("""Accepted: {0}""".format(storyInfo['story']['accepted_at'].strftime(self.iterationDateFormat)) )
+            
+            # add the owner if one exists
+            if 'owned_by' in storyInfo['story'] :
+               detailRow.append(storyInfo['story']['owned_by'])
             else:
-               # if the estimate is -1 it is unestimated
-               detailRow.append("Unestimated" )
-         else:
-            # if there is no estimate, put the story type
-            detailRow.append( storyInfo['story']['story_type'].capitalize() )
+               detailRow.append( "" )
 
-         tableData.append ( detailRow )
+            # if the story has an estimate
+            if 'estimate' in storyInfo['story'] :
+               # and the estimate is not -1
+               if storyInfo['story']['estimate'] != -1 :
+                  # add the size
+                  detailRow.append("""Size: {0}""".format( storyInfo['story']['estimate'] ))
+               else:
+                  # if the estimate is -1 it is unestimated
+                  detailRow.append("Unestimated" )
+            else:
+               # if there is no estimate, put the story type
+               detailRow.append( storyInfo['story']['story_type'].capitalize() )
+
+            tableData.append ( detailRow )
+            
+            table = Table(tableData, colWidths=[2.33*inch,2.33*inch,2.33*inch] )  
+                     
+            table.setStyle( self.detailTableStyle )
+            
+            storyBlock.append(table)
+               
+            storyBlock.append(Spacer(0,self.intraStorySpace))
+                     
+            for paragraph in storyDescription:
+               storyBlock.append( paragraph )
+               
+            flowables.append( KeepTogether ( storyBlock ) )
+               
+            flowables.append(Spacer(0,self.interStorySpace))
          
-         table = Table(tableData, colWidths=[2.33*inch,2.33*inch,2.33*inch] )  
-                  
-         table.setStyle( self.detailTableStyle )
-         
-         storyBlock.append(table)
-            
-         storyBlock.append(Spacer(0,self.intraStorySpace))
-                  
-         for paragraph in storyDescription:
-            storyBlock.append( paragraph )
-            
-         flowables.append( KeepTogether ( storyBlock ) )
-            
-         flowables.append(Spacer(0,self.interStorySpace))
-      
-      # Add a page break before the next section
-      flowables.append( PageBreak() )
+         # Add a page break before the next section
+         flowables.append( PageBreak() )
       
       #Add the Current Stories
       currentStories = self.GetCurrentStories( stories, apiToken, projectId )
                   
-      flowables.append( Paragraph ( 'Current Work', self.styleSectionTitle ) )
-      flowables.append( Spacer(0, self.titleSpace) )
+      if len( currentStories ) > 0 :
       
-      for storyInfo in currentStories :
+         flowables.append( Paragraph ( 'Current Work', self.styleSectionTitle ) )
+         flowables.append( Spacer(0, self.titleSpace) )
          
-         # put all of the story flowables in a list that will be kept together if possible
-         storyBlock = []
-         
-         # Paragraphs can take HTML so the mark-up characters in the text must be escaped
-         storyName = escape ( storyInfo['story']['name'] )
+         for storyInfo in currentStories :
+            
+            # put all of the story flowables in a list that will be kept together if possible
+            storyBlock = []
+            
+            # Paragraphs can take HTML so the mark-up characters in the text must be escaped
+            storyName = escape ( storyInfo['story']['name'] )
 
-         storyDescription = self.BuildDescription( storyInfo )
-         
-         storyBlock.append(Paragraph( storyName,self.styleName))
-         
-         #Create a table row for our detail line
-         tableData = []
-         detailRow = []
-         #add some flowables
-         detailRow.append("In Progress" )
-         if 'owned_by' in storyInfo['story'] :
-            detailRow.append(storyInfo['story']['owned_by'])
-         else:
-            detailRow.append("" )
-         
-         # if the story has an estimate
-         if 'estimate' in storyInfo['story'] :
-            # and the estimate is not -1
-            if storyInfo['story']['estimate'] != -1 :
-               # add the size
-               detailRow.append("""Size: {0}""".format( storyInfo['story']['estimate'] ))
+            storyDescription = self.BuildDescription( storyInfo )
+            
+            storyBlock.append(Paragraph( storyName,self.styleName))
+            
+            #Create a table row for our detail line
+            tableData = []
+            detailRow = []
+            #add some flowables
+            detailRow.append("In Progress" )
+            if 'owned_by' in storyInfo['story'] :
+               detailRow.append(storyInfo['story']['owned_by'])
             else:
-               # if the estimate is -1 it is unestimated
-               detailRow.append("Unestimated" )
-         else:
-            # if there is no estimate, put the story type
-            detailRow.append( storyInfo['story']['story_type'].capitalize() )
+               detailRow.append("" )
+            
+            # if the story has an estimate
+            if 'estimate' in storyInfo['story'] :
+               # and the estimate is not -1
+               if storyInfo['story']['estimate'] != -1 :
+                  # add the size
+                  detailRow.append("""Size: {0}""".format( storyInfo['story']['estimate'] ))
+               else:
+                  # if the estimate is -1 it is unestimated
+                  detailRow.append("Unestimated" )
+            else:
+               # if there is no estimate, put the story type
+               detailRow.append( storyInfo['story']['story_type'].capitalize() )
 
-         tableData.append ( detailRow )
-         
-         table = Table(tableData, colWidths=[2.33*inch,2.33*inch,2.33*inch] )  
-         
-         table.setStyle( self.detailTableStyle )
-         
-         storyBlock.append(table)
+            tableData.append ( detailRow )
             
-         storyBlock.append(Spacer(0,self.intraStorySpace))
+            table = Table(tableData, colWidths=[2.33*inch,2.33*inch,2.33*inch] )  
+            
+            table.setStyle( self.detailTableStyle )
+            
+            storyBlock.append(table)
+               
+            storyBlock.append(Spacer(0,self.intraStorySpace))
+            
+            for paragraph in storyDescription:
+               storyBlock.append( paragraph )
+               
+            flowables.append( KeepTogether ( storyBlock ) )
+               
+            flowables.append(Spacer(0,self.interStorySpace))
          
-         for paragraph in storyDescription:
-            storyBlock.append( paragraph )
-            
-         flowables.append( KeepTogether ( storyBlock ) )
-            
-         flowables.append(Spacer(0,self.interStorySpace))
-      
-      # Add a page break before the next section
-      flowables.append( PageBreak() )
+         # Add a page break before the next section
+         flowables.append( PageBreak() )
       
       #Add the Backlog Stories
       backlogStories = self.GetFutureStories( stories, apiToken, projectId )
                   
-      flowables.append( Paragraph ( 'Upcoming Work', self.styleSectionTitle ) )
-      flowables.append( Spacer(0, self.titleSpace) )
+      if len( backlogStories ) > 0 :
       
-      for storyInfo in backlogStories :
+         flowables.append( Paragraph ( 'Upcoming Work', self.styleSectionTitle ) )
+         flowables.append( Spacer(0, self.titleSpace) )
          
-         # put all of the story flowables in a list that will be kept together if possible
-         storyBlock = []
-         
-         # Paragraphs can take HTML so the mark-up characters in the text must be escaped
-         storyName = escape ( storyInfo['story']['name'] )
+         for storyInfo in backlogStories :
+            
+            # put all of the story flowables in a list that will be kept together if possible
+            storyBlock = []
+            
+            # Paragraphs can take HTML so the mark-up characters in the text must be escaped
+            storyName = escape ( storyInfo['story']['name'] )
 
-         storyDescription = self.BuildDescription( storyInfo )
-         
-         storyBlock.append(Paragraph( storyName,self.styleName))
-         
-         #Create a table row for our detail line
-         tableData = []
-         detailRow = []
-         #add some flowables
-         detailRow.append("""Scheduled Sprint: {0}""".format(storyInfo['start'].strftime(self.iterationDateFormat)) )
+            storyDescription = self.BuildDescription( storyInfo )
+            
+            storyBlock.append(Paragraph( storyName,self.styleName))
+            
+            #Create a table row for our detail line
+            tableData = []
+            detailRow = []
+            #add some flowables
+            detailRow.append("""Scheduled Sprint: {0}""".format(storyInfo['start'].strftime(self.iterationDateFormat)) )
 
-         # if the story has an estimate
-         if 'estimate' in storyInfo['story'] :
-            # and the estimate is not -1
-            if storyInfo['story']['estimate'] != -1 :
-               # add the size
-               detailRow.append("""Size: {0}""".format( storyInfo['story']['estimate'] ))
+            # if the story has an estimate
+            if 'estimate' in storyInfo['story'] :
+               # and the estimate is not -1
+               if storyInfo['story']['estimate'] != -1 :
+                  # add the size
+                  detailRow.append("""Size: {0}""".format( storyInfo['story']['estimate'] ))
+               else:
+                  # if the estimate is -1 it is unestimated
+                  detailRow.append("Unestimated" )
             else:
-               # if the estimate is -1 it is unestimated
-               detailRow.append("Unestimated" )
-         else:
-            # if there is no estimate, put the story type
-            detailRow.append( storyInfo['story']['story_type'].capitalize() )
+               # if there is no estimate, put the story type
+               detailRow.append( storyInfo['story']['story_type'].capitalize() )
 
-         tableData.append ( detailRow )
-         
-         table = Table(tableData, colWidths=[3.5*inch,3.5*inch] )  
-                  
-         table.setStyle( self.detailTableStyle )
-         
-         storyBlock.append(table)
+            tableData.append ( detailRow )
             
-         storyBlock.append(Spacer(0,self.intraStorySpace))
+            table = Table(tableData, colWidths=[3.5*inch,3.5*inch] )  
+                     
+            table.setStyle( self.detailTableStyle )
+            
+            storyBlock.append(table)
+               
+            storyBlock.append(Spacer(0,self.intraStorySpace))
+            
+            for paragraph in storyDescription:
+               storyBlock.append( paragraph )
+               
+            flowables.append( KeepTogether ( storyBlock ) )
+               
+            flowables.append(Spacer(0,self.interStorySpace))
          
-         for paragraph in storyDescription:
-            storyBlock.append( paragraph )
-            
-         flowables.append( KeepTogether ( storyBlock ) )
-            
-         flowables.append(Spacer(0,self.interStorySpace))
-      
-      # Add a page break before the next section
-      flowables.append( PageBreak() )
+         # Add a page break before the next section
+         flowables.append( PageBreak() )
       
       #Add the Ice Box Stories
       iceboxStories = self.GetIceboxStories( stories, apiToken, projectId )
                   
-      flowables.append( Paragraph ( 'Unscheduled Work', self.styleSectionTitle ) )
-      flowables.append( Spacer(0, self.titleSpace) )
+      if len( iceboxStories ) > 0 :
       
-      for storyInfo in iceboxStories :
+         flowables.append( Paragraph ( 'Unscheduled Work', self.styleSectionTitle ) )
+         flowables.append( Spacer(0, self.titleSpace) )
          
-         # put all of the story flowables in a list that will be kept together if possible
-         storyBlock = []
-         
-         # Paragraphs can take HTML so the mark-up characters in the text must be escaped
-         storyName = escape ( storyInfo['story']['name'] )
+         for storyInfo in iceboxStories :
+            
+            # put all of the story flowables in a list that will be kept together if possible
+            storyBlock = []
+            
+            # Paragraphs can take HTML so the mark-up characters in the text must be escaped
+            storyName = escape ( storyInfo['story']['name'] )
 
-         storyDescription = self.BuildDescription( storyInfo )
-         
-         storyBlock.append(Paragraph( storyName,self.styleName))
-         
-         #Create a table row for our detail line
-         tableData = []
-         detailRow = []
-         #add some flowables
-         detailRow.append("In the Ice Box" )
+            storyDescription = self.BuildDescription( storyInfo )
+            
+            storyBlock.append(Paragraph( storyName,self.styleName))
+            
+            #Create a table row for our detail line
+            tableData = []
+            detailRow = []
+            #add some flowables
+            detailRow.append("In the Ice Box" )
 
-         # if the story has an estimate
-         if 'estimate' in storyInfo['story'] :
-            # and the estimate is not -1
-            if storyInfo['story']['estimate'] != -1 :
-               # add the size
-               detailRow.append("""Size: {0}""".format( storyInfo['story']['estimate'] ))
+            # if the story has an estimate
+            if 'estimate' in storyInfo['story'] :
+               # and the estimate is not -1
+               if storyInfo['story']['estimate'] != -1 :
+                  # add the size
+                  detailRow.append("""Size: {0}""".format( storyInfo['story']['estimate'] ))
+               else:
+                  # if the estimate is -1 it is unestimated
+                  detailRow.append("Unestimated" )
             else:
-               # if the estimate is -1 it is unestimated
-               detailRow.append("Unestimated" )
-         else:
-            # if there is no estimate, put the story type
-            detailRow.append( storyInfo['story']['story_type'].capitalize() )
-         
-         tableData.append ( detailRow )
-         
-         table = Table(tableData, colWidths=[3.5*inch,3.5*inch] )  
-         
-         table.setStyle( self.detailTableStyle )
-         
-         storyBlock.append(table)
+               # if there is no estimate, put the story type
+               detailRow.append( storyInfo['story']['story_type'].capitalize() )
             
-         storyBlock.append(Spacer(0,self.intraStorySpace))
-         
-         for paragraph in storyDescription:
-            storyBlock.append( paragraph )
+            tableData.append ( detailRow )
             
-         flowables.append( KeepTogether ( storyBlock ) )
+            table = Table(tableData, colWidths=[3.5*inch,3.5*inch] )  
             
-         flowables.append(Spacer(0,self.interStorySpace))
+            table.setStyle( self.detailTableStyle )
+            
+            storyBlock.append(table)
+               
+            storyBlock.append(Spacer(0,self.intraStorySpace))
+            
+            for paragraph in storyDescription:
+               storyBlock.append( paragraph )
+               
+            flowables.append( KeepTogether ( storyBlock ) )
+               
+            flowables.append(Spacer(0,self.interStorySpace))
       
       try :
          doc.build(flowables, onFirstPage = self.pageFooter, onLaterPages = self.pageFooter )
