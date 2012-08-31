@@ -7,6 +7,7 @@ import time
 import urllib
 import wsgiref.handlers
 import csv
+import os
 
 from google.appengine.ext import db
 from google.appengine.api import users
@@ -30,7 +31,9 @@ class SignIn(webapp2.RequestHandler):
       else :
          session.regenerate_id()
       
-      template_values = {'apiKey' : self.apikey}
+      template_values = {'apiKey' : self.apikey,
+                        'version' : os.environ.get('CURRENT_VERSION_ID')
+                        }
       path = os.path.join(os.path.dirname(__file__), 'sign_in.html')
       self.response.out.write(template.render(path, template_values))        
 

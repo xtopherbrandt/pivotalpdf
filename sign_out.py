@@ -7,6 +7,7 @@ import time
 import urllib
 import wsgiref.handlers
 import csv
+import os
 
 from google.appengine.ext import db
 from google.appengine.api import users
@@ -26,7 +27,7 @@ class SignOut(webapp2.RequestHandler):
       if session.is_active():
          session.terminate( clear_data=True )
       
-      template_values = {}
+      template_values = {'version' : os.environ.get('CURRENT_VERSION_ID')}
       path = os.path.join(os.path.dirname(__file__), 'sign_in.html')
       self.response.out.write(template.render(path, template_values))        
 
