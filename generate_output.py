@@ -100,12 +100,21 @@ class GenerateOutput(webapp.RequestHandler):
             # the report format should have been saved on the inital post, so can get it from the session
             reportFormat = session['format']
 
-      # if no stories were selected, assume all are desired and get all by the filter
-      if len(stories) == 0:
-         client = PivotalClient(token=apiToken, cache=None)
-         stories = [ str(story['id']) for story in client.stories.get_filter(projectId, filter, True )['stories'] ]
-            
-      self.GeneratePdf( apiToken, projectId, stories, filename, reportFormat )
+         # if no stories were selected, assume all are desired and get all by the filter
+         if len(stories) == 0:
+            client = PivotalClient(token=apiToken, cache=None)
+            stories = [ str(story['id']) for story in client.stories.get_filter(projectId, filter, True )['stories'] ]
+               
+         self.GeneratePdf( apiToken, projectId, stories, filename, reportFormat )
+
+      else :
+         # if the session isn't active, send them back to the sign in page
+         
+         template_values = {'version' : os.environ.get('CURRENT_VERSION_ID')}
+         path = os.path.join(os.path.dirname(__file__), 'sign_in.html')
+         self.response.out.write(template.render(path, template_values))        
+
+      
    
    def GeneratePdf(self, apiToken, projectId, stories, filename, reportFormat ):
       
