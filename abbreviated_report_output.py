@@ -171,7 +171,7 @@ class AbbreviatedReportOutput():
    footerRightEdge = 7.65 * inch # x-coordinate of the right side of the footer
    footerHeight = 0.75 * inch # y-coordinate of the footer
     
-   def GeneratePdf(self, httpResponse, apiToken, projectId, stories, filename ):
+   def GeneratePdf(self, httpResponse, apiToken, projectId, stories, filename, outputActivity ):
    
       # Get the project Name
       client = PivotalClient(token=apiToken, cache=None)

@@ -43,6 +43,7 @@ class OutputHTML ( webapp2.RequestHandler ):
       self.selectedLabel = ""
       self.labelFilter = ""
       self.labels = {}
+      self.outputActivityChecked = "checked='true'"
 
       session = get_current_session()
       
@@ -116,7 +117,8 @@ class OutputHTML ( webapp2.RequestHandler ):
                         'releases_checked' : self.releasesChecked,
                         'stories' : stories,
                         'labels' : self.labels,
-                        'selected_label' : self.selectedLabel
+                        'selected_label' : self.selectedLabel,
+                        'outputActivity_checked' : "checked='true'"
                         }
                         
       path = os.path.join(os.path.dirname(__file__), 'index.html')
@@ -135,6 +137,7 @@ class OutputHTML ( webapp2.RequestHandler ):
       self.selectedLabel = ""
       self.labelFilter = ""
       self.labels = {}
+      self.outputActivityChecked = "checked='true'"
 
       session = get_current_session()
 
@@ -277,7 +280,7 @@ class OutputHTML ( webapp2.RequestHandler ):
          
          if 'stories' in projectStories :
             stories = projectStories['stories']         
-      
+            
       template_values = {
                         'apiKey' : self.apikey,
                         'projects' : projects, 
@@ -290,7 +293,8 @@ class OutputHTML ( webapp2.RequestHandler ):
                         'stories' : stories,
                         'labels' : self.labels,
                         'selected_label' : self.selectedLabel,
-                        'version' : os.environ.get('CURRENT_VERSION_ID')
+                        'version' : os.environ.get('CURRENT_VERSION_ID'),
+                        'outputActivity_checked' : self.outputActivityChecked
                         }
                         
       path = os.path.join(os.path.dirname(__file__), 'index.html')

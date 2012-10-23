@@ -162,7 +162,7 @@ class FullReportOutput():
    footerRightEdge = 7.65 * inch # x-coordinate of the right side of the footer
    footerHeight = 0.75 * inch # y-coordinate of the footer
     
-   def GeneratePdf(self, httpResponse, apiToken, projectId, stories, filename ):
+   def GeneratePdf(self, httpResponse, apiToken, projectId, stories, filename, outputActivity ):
 
       # Get the project Name
       client = PivotalClient(token=apiToken, cache=None)
@@ -220,7 +220,7 @@ class FullReportOutput():
             if storyInfo['story']['id'] in storyAcceptance :
                storyAcceptanceInfo = storyAcceptance[storyInfo['story']['id']]
                
-            storyDescription = self.BuildDescription( storyInfo, storyAcceptanceInfo )
+            storyDescription = self.BuildDescription( storyInfo, storyAcceptanceInfo, outputActivity )
             
             storyBlock.append(Paragraph( storyName,self.styleName))
             
@@ -292,7 +292,7 @@ class FullReportOutput():
             if storyInfo['story']['id'] in storyAcceptance :
                storyAcceptanceInfo = storyAcceptance[storyInfo['story']['id']]
 
-            storyDescription = self.BuildDescription( storyInfo, storyAcceptanceInfo )
+            storyDescription = self.BuildDescription( storyInfo, storyAcceptanceInfo, outputActivity )
             
             storyBlock.append(Paragraph( storyName,self.styleName))
             
@@ -361,7 +361,7 @@ class FullReportOutput():
             # Paragraphs can take HTML so the mark-up characters in the text must be escaped
             storyName = escape ( storyInfo['story']['name'] )
 
-            storyDescription = self.BuildDescription( storyInfo, None )
+            storyDescription = self.BuildDescription( storyInfo, None, outputActivity )
             
             storyBlock.append(Paragraph( storyName,self.styleName))
             
@@ -420,7 +420,7 @@ class FullReportOutput():
             # Paragraphs can take HTML so the mark-up characters in the text must be escaped
             storyName = escape ( storyInfo['story']['name'] )
 
-            storyDescription = self.BuildDescription( storyInfo, None )
+            storyDescription = self.BuildDescription( storyInfo, None, outputActivity )
             
             storyBlock.append(Paragraph( storyName,self.styleName))
             
@@ -474,7 +474,7 @@ class FullReportOutput():
          httpResponse.headers['Content-Type'] = 'html'
          httpResponse.out.write(template.render(path, template_values))
 
-   def BuildDescription (self, storyInfo, storyAcceptanceInfo ) :
+   def BuildDescription (self, storyInfo, storyAcceptanceInfo, outputActivity ) :
    
          rawDescription = []
          
@@ -484,27 +484,14 @@ class FullReportOutput():
          else :
             rawDescription.append ( '' )
 
-         # Add activity and acceptance notes            
          notes = []
-         
-         if 'notes' in storyInfo['story'] :
+
+         # if we're to output the activity notes
+         if outputActivity == "checked='true'" :
             
-            # Get the set of Activity notes for the story
-            for note in storyInfo['story']['notes'] :
-               # ensure the note has the attributes we need for output
-               if not 'author' in note :
-                  note['author'] = 'Unknown'
-               if not 'noted_at' in note :
-                  note['noted_at'] = 'Unknown'
-                  
-               try:
-                  notes.append(u"""_{1} - *{0}*_ : {2}""".format(note['author'], note['noted_at'].strftime(self.activityDateFormat), note['text']))
-               except Exception as e:
-                  notes.append("""_{1} - *{0}*_ : NOTE SKIPPED due to an exception interpreting the text: {1}""".format(note['author'], note['noted_at'].strftime(self.activityDateFormat), e ))
-
-         if storyAcceptanceInfo != None :
-            notes.append("""_{1} - *{0}*_ : Accepted the story""".format(storyAcceptanceInfo['acceptorName'], storyAcceptanceInfo['acceptedDate'].strftime(self.activityDateFormat) ))
-
+            # Add activity and acceptance notes            
+            notes = self.GetActivityNotes ( storyInfo, storyAcceptanceInfo)
+            
          # if we have notes to add then add a header followed by the notes
          if len(notes) > 0 :
             rawDescription.append('\n')
@@ -526,6 +513,30 @@ class FullReportOutput():
             storyDescription.append( Paragraph( self.MarkDownToMarkUp ( paragraphMatch.group(0) ), self.styleNormal ) )
          
          return storyDescription
+   
+   def GetActivityNotes (self, storyInfo, storyAcceptanceInfo ) :
+         
+         notes = []
+         
+         if 'notes' in storyInfo['story'] :
+            
+            # Get the set of Activity notes for the story
+            for note in storyInfo['story']['notes'] :
+               # ensure the note has the attributes we need for output
+               if not 'author' in note :
+                  note['author'] = 'Unknown'
+               if not 'noted_at' in note :
+                  note['noted_at'] = 'Unknown'
+                  
+               try:
+                  notes.append(u"""_{1} - *{0}*_ : {2}""".format(note['author'], note['noted_at'].strftime(self.activityDateFormat), note['text']))
+               except Exception as e:
+                  notes.append("""_{1} - *{0}*_ : NOTE SKIPPED due to an exception interpreting the text: {1}""".format(note['author'], note['noted_at'].strftime(self.activityDateFormat), e ))
+
+         if storyAcceptanceInfo != None :
+            notes.append("""_{1} - *{0}*_ : Accepted the story""".format(storyAcceptanceInfo['acceptorName'], storyAcceptanceInfo['acceptedDate'].strftime(self.activityDateFormat) ))
+            
+         return notes
    
    def GetDoneStories (self, filteredStories, apiToken, projectId) :
    

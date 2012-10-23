@@ -35,10 +35,18 @@ class GenerateOutput(webapp.RequestHandler):
       filename =  """UserStories-{0}.pdf""".format(time.strftime(self.fileNameDateTimeFormat))
       
       reportFormat = 'full'
+      outputActivityChecked = ''
       
       # if the format was included in the post, get it
       if self.request.get_all('format', default_value=None) != None :
          reportFormat = self.request.get('format')
+      
+      # are we to output the user activity
+         
+      if self.request.get('outputActivityChecked') != '' :
+         outputActivityChecked = "checked='true'"
+         
+      session['outputActivityChecked'] = outputActivityChecked
       
       if session.is_active():
          apiToken = session['APIKey']
@@ -48,7 +56,7 @@ class GenerateOutput(webapp.RequestHandler):
              
          if session.has_key('filter') :
             filter = session['filter']
-      
+                   
          #store the selected story list
          session['stories'] = stories
          
@@ -60,7 +68,7 @@ class GenerateOutput(webapp.RequestHandler):
             client = PivotalClient(token=apiToken, cache=None)
             stories = [ str(story['id']) for story in client.stories.get_filter(projectId, filter, True )['stories'] ]
                
-         self.GeneratePdf( apiToken, projectId, stories, filename, reportFormat )
+         self.GeneratePdf( apiToken, projectId, stories, filename, reportFormat, outputActivityChecked )
       else :
             
          template_values = {'Error' : 'An active session was not found. This web app requires cookies to store session information.'}
@@ -77,6 +85,7 @@ class GenerateOutput(webapp.RequestHandler):
       projectId = None
       filename =  """UserStories-{0}.pdf""".format(time.strftime(self.fileNameDateTimeFormat))
       reportFormat = self.request.get('format')
+      outputActivity = "checked='true'"
       
       if session.is_active():
          apiToken = session['APIKey']
@@ -104,8 +113,12 @@ class GenerateOutput(webapp.RequestHandler):
          if len(stories) == 0:
             client = PivotalClient(token=apiToken, cache=None)
             stories = [ str(story['id']) for story in client.stories.get_filter(projectId, filter, True )['stories'] ]
+            
+         if 'outputActivityChecked' in session :
+            # the output activity flag should have been saved on the inital post, so can get it from the session
+            outputActivity = session['outputActivityChecked']
                
-         self.GeneratePdf( apiToken, projectId, stories, filename, reportFormat )
+         self.GeneratePdf( apiToken, projectId, stories, filename, reportFormat, outputActivity )
 
       else :
          # if the session isn't active, send them back to the sign in page
@@ -116,7 +129,7 @@ class GenerateOutput(webapp.RequestHandler):
 
       
    
-   def GeneratePdf(self, apiToken, projectId, stories, filename, reportFormat ):
+   def GeneratePdf(self, apiToken, projectId, stories, filename, reportFormat, outputActivity ):
       
       # if they've specified summary then give them summary, 
       if reportFormat == 'summary' :
@@ -125,7 +138,7 @@ class GenerateOutput(webapp.RequestHandler):
          # if we can't find a report format specified assume full.
          report = FullReportOutput()
 
-      report.GeneratePdf( self.response, apiToken, projectId, stories, filename )
+      report.GeneratePdf( self.response, apiToken, projectId, stories, filename, outputActivity )
       
       
 

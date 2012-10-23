@@ -29,7 +29,7 @@
                <td style="vertical-align: middle; text-align: right;">
                <h2 style="height: 10px;">A User Story Document Generator</h2>
                <p style="margin-top: 5px; height: 30px;">
-               Version: {{version|floatformat:1}}
+               Version: {{version|floatformat:0}}
                </td>
              </tr>
            </tbody>
@@ -122,6 +122,14 @@
                      <option value="{{story.id}}">{{story.name}}</option>
                   {% endfor %}
                   </select>
+                  </div>
+               </td>
+               <td style="vertical-align: middle;">
+                  <p/>
+               
+                  <div>
+                     <label for="outputActivityChecked">Include Activity</label>
+                     <input type="checkbox" id="outputActivityChecked" name="outputActivityChecked" {{outputActivity_checked}} />
                   </div>
                </td>
                <td style="vertical-align: middle;">
