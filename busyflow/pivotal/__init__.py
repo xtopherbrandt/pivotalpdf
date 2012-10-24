@@ -266,7 +266,7 @@ class StoryEndpoint(Endpoint):
 
     def get_filter(self, project_id, search_filter, include_done):
         if include_done:
-            filter_text = "{0} includedone:true".format( search_filter )
+            filter_text = u"{0} includedone:true".format( search_filter )
         else :
             filter_text = search_filter
             
@@ -377,7 +377,7 @@ class PivotalClient(object):
         url = '%s%s' % (self.base_url, endpoint)
         body = params.pop('body', '')
         _headers = params.pop('headers', {})
-        cleaned_params = dict([(k, v) for k, v in params.iteritems() if v])
+        cleaned_params = dict([(k, v.encode('utf-8')) for k, v in params.iteritems() if v])
 
         headers = {'X-TrackerToken': self.token}
         if method in ['POST', 'PUT'] and body:
