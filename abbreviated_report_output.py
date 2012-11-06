@@ -175,7 +175,7 @@ class AbbreviatedReportOutput():
    
       # Get the project Name
       client = PivotalClient(token=apiToken, cache=None)
-      projectName = client.projects.get( projectId )['project']['name']
+      projectName = escape( client.projects.get( projectId )['project']['name'] )
    
       # Set the http headers
       httpResponse.headers['Content-Type'] = 'application/pdf'
