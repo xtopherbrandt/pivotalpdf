@@ -22,12 +22,6 @@ class GetProjects(webapp2.RequestHandler):
 
       output = OutputHTML( self )
       output.post()  
-      
-class GetStories ( webapp2.RequestHandler ):
-   def post ( self ):
-      for story in stories:
-           self.response.out.write( story['name'] )
-           self.response.out.write("<p>")      
 
 class OutputHTML ( webapp2.RequestHandler ):
 
@@ -247,7 +241,7 @@ class OutputHTML ( webapp2.RequestHandler ):
          session['releasesChecked'] = self.releasesChecked
       
          if self.request.get('labels') != 'Label Filter' and self.request.get('labels') != '' :
-            self.labelFilter = 'label:"{0}" '.format( self.request.get('labels') )
+            self.labelFilter = u'label:"{0}" '.format( self.request.get('labels') )
             self.selectedLabel = self.request.get('labels')
          else :
             self.labelFilter = ""

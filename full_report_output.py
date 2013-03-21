@@ -230,7 +230,10 @@ class FullReportOutput():
             
             #add some flowables
             # add the date of story acceptance. The activity info returned has a limited history older stories will not have them
-            detailRow.append("""Accepted: {0}""".format(storyInfo['story']['accepted_at'].strftime(self.iterationDateFormat)) )
+            if 'accepted_at' in storyInfo['story'] :
+               detailRow.append("""Accepted: {0}""".format(storyInfo['story']['accepted_at'].strftime(self.iterationDateFormat)) )
+            else :
+               detailRow.append("""Accepted""" )
             
             # add the owner if one exists
             if 'owned_by' in storyInfo['story'] :
