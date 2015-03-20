@@ -1,4 +1,4 @@
-pivotalpdf
+Pivotal PDF
 ==========
 
-A PDF generator for Pivotaltracker stories
+A PDF document generator for Pivotal Tracker.
