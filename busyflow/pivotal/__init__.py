@@ -164,9 +164,9 @@ class ProjectEndpoint(Endpoint):
         return self._get("projects")
 
     def activities(self, project_id, limit=None, occurred_since_date=None, newer_than_version=None):
-        return self._get("projects/%s/activities" % project_id, limit=limit,
+        return self._get("projects/%s/activities" % project_id, limit=str(limit),
                          occurred_since_date=occurred_since_date,
-                         newer_than_version=newer_than_version)
+                         newer_than_version=str(newer_than_version))
 
     def make_post_xml(self, name, iteration_length, point_scale):
         project = XMLBuilder(format=True)
@@ -347,7 +347,7 @@ class EpicEndpoint(Endpoint):
 
     def get_filter(self, project_id, search_filter, include_done):
         if include_done:
-            filter_text = "{0} includedone:true".format( search_filter )
+            filter_text = u"{0} includedone:true".format( search_filter )
         else :
             filter_text = search_filter
             
@@ -377,6 +377,7 @@ class PivotalClient(object):
         url = '%s%s' % (self.base_url, endpoint)
         body = params.pop('body', '')
         _headers = params.pop('headers', {})
+
         cleaned_params = dict([(k, v.encode('utf-8')) for k, v in params.iteritems() if v])
 
         headers = {'X-TrackerToken': self.token}

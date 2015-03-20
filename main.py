@@ -16,11 +16,9 @@ from xml.sax.saxutils import escape
 from gaesessions import get_current_session
 
 from story_selection import *
-from get_stories import *
 from generate_output import *
 from sign_in import *
 from sign_out import *
-from content_options import *
 
 class MainPage(webapp2.RequestHandler):
 
@@ -28,7 +26,7 @@ class MainPage(webapp2.RequestHandler):
 
       # initialize the class properties
       self.projectId = None
-      self.filter = ''     
+      self.filter = u''     
       self.featuresChecked = "checked='true'"
       self.bugsChecked = "checked='true'"
       self.choresChecked = "checked='true'"
@@ -64,7 +62,7 @@ class MainPage(webapp2.RequestHandler):
   
       # set up the story filters
       # add the story types to the filter
-      typeFilter = ' type:none,'
+      typeFilter = u' type:none,'
 
       if self.featuresChecked != '' :
          typeFilter += 'feature,'
@@ -111,10 +109,9 @@ application = webapp2.WSGIApplication([
   ('/SignIn', SignIn),
   ('/SignOut', SignOut),
   ('/authenticate', OutputHTML),
-  ('/getStories', GetStories),
+  ('/getStories', OutputHTML),
   ('/filterStories', OutputHTML),
-  ('/generatePDF', GenerateOutput),
-  ('/options', ContentOptions)
+  ('/generatePDF', GenerateOutput)
   
 ], debug=True)
 

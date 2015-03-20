@@ -22,6 +22,12 @@ class GetProjects(webapp2.RequestHandler):
 
       output = OutputHTML( self )
       output.post()  
+      
+class GetStories ( webapp2.RequestHandler ):
+   def post ( self ):
+      for story in stories:
+           self.response.out.write( story['name'] )
+           self.response.out.write("<p>")      
 
 class OutputHTML ( webapp2.RequestHandler ):
 
@@ -123,7 +129,7 @@ class OutputHTML ( webapp2.RequestHandler ):
 
       # initialize the class properties
       self.projectId = None
-      self.filter = ''     
+      self.filter = u''     
       self.featuresChecked = "checked='true'"
       self.bugsChecked = "checked='true'"
       self.choresChecked = "checked='true'"

@@ -2,81 +2,20 @@
 <html><head>
 
   <link type="text/css" rel="stylesheet" href="/stylesheets/main.css">
-   <script>
-         var xmlhttp;
-         
-         function loadXMLDoc(url, callbackFunction)
-         {
-            
-            xmlhttp.onreadystatechange=callbackFunction;
-            xmlhttp.open("GET",url,true);
-            xmlhttp.send();
-         }       
-
-         function loadStories( projectId )
-         {  
-            url = "getStories?projectId=" + projectId;
-            
-            if (window.XMLHttpRequest)
-              {// code for IE7+, Firefox, Chrome, Opera, Safari
-               xmlhttp=new XMLHttpRequest();
-              }
-            else
-              {// code for IE6, IE5
-               xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-              }
-            
-            loadXMLDoc ( url, callback() );
-         }
-         
-         function callback() 
-         {
-            if (xmlhttp.readyState==4 && xmlhttp.status==200)
-             {
-                xmlDoc=xmlhttp.responseXML;
-                projectSelect = document.getElementById("Stories");
-                txt="";
-                x=xmlDoc.getElementsByTagName("ARTIST");
-                for (i=0;i<x.length;i++)
-                  {
-                     txt=txt + x[i].childNodes[0].nodeValue + "<br>";
-                  }
-                document.getElementById("myDiv").innerHTML=txt;
-             }
-         }
+   <script type="text/javascript">
+      function formSubmit()
+      {
+         document.getElementById("getStories").submit();
+      }
    </script>
+
 </head>
 <body>
 <table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
   <tbody>
+    <tr>
       <td style="vertical-align: top;">
       <!-- Spacer column - Left -->
-      </td>      
-      <td style="vertical-align: top;">
-      <!-- Navigation column - Left -->
-         <table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
-
-           <tbody>
-               <div>
-                  <h4 style="height: 200px;"></h4>
-               </div>
-            <tr>
-               <div>
-                  <b>Content Selection</b>
-               </div>
-            </tr>
-            <tr>
-               <div>
-                  <a href="options">Content Options</a>
-               </div>
-            </tr>
-            <tr>
-               <div style="text-align: left;">{% if not apiKey %} <a href="SignIn">SignIn</a>
-               {% else %} <a href="SignOut">Sign Out</a>{% endif %}
-               </div>
-            </tr>            
-           </tbody>
-         </table>
       </td>      
       <td style="vertical-align: middle;">
       <!-- Main content column - Middle -->
@@ -86,7 +25,6 @@
              <tr>
                <td style="vertical-align: middle;">
                <h1>Pivotal PDF</h1>
-               <h2>Content Selection</h2>
                </td>
                <td style="vertical-align: middle; text-align: right;">
                <h2 style="height: 10px;">A User Story Document Generator</h2>
@@ -97,6 +35,10 @@
            </tbody>
          </table>
 
+         <div style="text-align: right;">{% if not apiKey %} <a href="SignIn">SignIn</a>
+         {% else %} <a href="SignOut">Sign Out</a>{% endif %}
+         </div>
+
          <br>
          <table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
             <tbody>
@@ -104,7 +46,7 @@
                <form id="getStories" action="/getStories" method="post">             
                <td style="vertical-align: top;">
                   <div>
-                  <select name="projects" style="margin: 5px 0pt; width: 250px;" onchange="loadStories(this.value)" >
+                  <select name="projects" style="margin: 5px 0pt; width: 250px;" onchange="formSubmit()" >
                   {% if not apiKey %}
                      <option>User Not Authenticated</option>
                   {% else %}
@@ -183,6 +125,14 @@
                   </div>
                </td>
                <td style="vertical-align: middle;">
+                  <p/>
+               
+                  <div>
+                     <label for="outputActivityChecked">Include Activity</label>
+                     <input type="checkbox" id="outputActivityChecked" name="outputActivityChecked" {{outputActivity_checked}} />
+                  </div>
+               </td>
+               <td style="vertical-align: middle;">
                
                   <div>
                      <input type="radio" name="format" value="full" checked="True"/>Full Report<br/>
@@ -205,6 +155,7 @@
       </td>
       <td style="vertical-align: top;">
       </td>
+    </tr>
   </tbody>
 </table>
 

@@ -232,10 +232,7 @@ class AbbreviatedReportOutput():
             detailRow = []
             
             #add some flowables
-            if 'accepted_at' in storyInfo['story'] :
-               detailRow.append("""Accepted: {0}""".format(storyInfo['story']['accepted_at'].strftime(self.iterationDateFormat)) )
-            else :
-               detailRow.append("""Accepted""" )
+            detailRow.append("""Accepted: {0}""".format(storyInfo['story']['accepted_at'].strftime(self.iterationDateFormat)) )
             
             # add the owner if one exists
             if 'owned_by' in storyInfo['story'] :
@@ -612,7 +609,7 @@ class AbbreviatedReportOutput():
       
    def FindMarkedDownText (self, text) :
       # return the MatchObjects containing bold, underlined or bold underline text
-      return re.finditer(r"""(?:(?:(?:(?<=[\s^,(])|(?<=^))\*(?=\S)(?P<bold>.+?)(?<=\S)\*(?:(?=[\s$,.?!])|(?<=$)))|(?:(?:(?<=[\s^,(])|(?<=^))_(?=\S)(?P<italicized>.+?)(?<=\S)_(?:(?=[\s$,.?!])|(?<=$))))""",text, re.M)
+      return re.finditer(r"""(?:(?:(?:(?<=[\s^,(])|(?<=^))\*\*(?=\S)(?P<bold>.+?)(?<=\S)\*\*(?:(?=[\s$,.?!])|(?<=$)))|(?:(?:(?<=[\s^,(])|(?<=^))\*(?=\S)(?P<italicized>.+?)(?<=\S)\*(?:(?=[\s$,.?!])|(?<=$))))""",text, re.M)
                
             
    def pageFooter(self, canvas, doc):

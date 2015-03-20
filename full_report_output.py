@@ -102,10 +102,76 @@ class FullReportOutput():
                                  allowWidows=0,
                                  allowOrphans=0 )
                                  
-   styleNormal = ParagraphStyle( name='Normal',
-                                 fontName='Helvetica',
+   styleH1 = ParagraphStyle( name='H1',
+                                 fontName='Helvetica-Bold',
+                                 fontSize=13,
+                                 leading=15,
+                                 leftIndent=0,
+                                 rightIndent=0,
+                                 firstLineIndent=0,
+                                 alignment=TA_LEFT,
+                                 spaceBefore=0,
+                                 spaceAfter=4,
+                                 bulletFontName='Helvetica',
+                                 bulletFontSize=10,
+                                 textColor=colors.black,
+                                 backColor=None,
+                                 wordWrap=None,
+                                 borderWidth=0,
+                                 borderPadding=0,
+                                 borderColor=None,
+                                 borderRadius=None,
+                                 allowWidows=0,
+                                 allowOrphans=1 )
+                                
+   styleH2 = ParagraphStyle( name='H2',
+                                 fontName='Helvetica-Bold',
                                  fontSize=12,
                                  leading=14,
+                                 leftIndent=0,
+                                 rightIndent=0,
+                                 firstLineIndent=0,
+                                 alignment=TA_LEFT,
+                                 spaceBefore=0,
+                                 spaceAfter=4,
+                                 bulletFontName='Helvetica',
+                                 bulletFontSize=10,
+                                 textColor=colors.black,
+                                 backColor=None,
+                                 wordWrap=None,
+                                 borderWidth=0,
+                                 borderPadding=0,
+                                 borderColor=None,
+                                 borderRadius=None,
+                                 allowWidows=0,
+                                 allowOrphans=1 )
+                                
+   styleH3 = ParagraphStyle( name='H3',
+                                 fontName='Helvetica-Bold',
+                                 fontSize=11,
+                                 leading=13,
+                                 leftIndent=0,
+                                 rightIndent=0,
+                                 firstLineIndent=0,
+                                 alignment=TA_LEFT,
+                                 spaceBefore=0,
+                                 spaceAfter=4,
+                                 bulletFontName='Helvetica',
+                                 bulletFontSize=10,
+                                 textColor=colors.black,
+                                 backColor=None,
+                                 wordWrap=None,
+                                 borderWidth=0,
+                                 borderPadding=0,
+                                 borderColor=None,
+                                 borderRadius=None,
+                                 allowWidows=0,
+                                 allowOrphans=1 )
+                                 
+   styleNormal = ParagraphStyle( name='Normal',
+                                 fontName='Helvetica',
+                                 fontSize=10,
+                                 leading=12,
                                  leftIndent=0,
                                  rightIndent=0,
                                  firstLineIndent=0,
@@ -230,10 +296,7 @@ class FullReportOutput():
             
             #add some flowables
             # add the date of story acceptance. The activity info returned has a limited history older stories will not have them
-            if 'accepted_at' in storyInfo['story'] :
-               detailRow.append("""Accepted: {0}""".format(storyInfo['story']['accepted_at'].strftime(self.iterationDateFormat)) )
-            else :
-               detailRow.append("""Accepted""" )
+            detailRow.append("""Accepted: {0}""".format(storyInfo['story']['accepted_at'].strftime(self.iterationDateFormat)) )
             
             # add the owner if one exists
             if 'owned_by' in storyInfo['story'] :
@@ -505,15 +568,35 @@ class FullReportOutput():
             
          # Concatenate the story description with the activity notes
          description = '\n'.join(rawDescription )
-                  
+        
          # Need to separate out each paragraph in the story. The Paragraph flowable will remove all 
          # whitespace around end of line characters.
          paragraphMatches = re.finditer(r"""(^.*$)""", description, re.M)
          storyDescription = []
                   
+         headerExpression = re.compile(ur'(?:(?:(?<=[\s^,(])|(?<=^))#{1}(?=\S)(?!#)(?P<H1>.+?)(?<=$)|(?:(?<=[\s^,(])|(?<=^))#{2}(?=\S)(?!#)(?P<H2>.+?)(?<=$)|(?:(?<=[\s^,(])|(?<=^))#{3}(?=\S)(?!#)(?P<H3>.+?)(?<=$))', re.MULTILINE)
+         
          # Add each paragraph to a list of paragraph flowables that are then added to the table
          for paragraphMatch in paragraphMatches :
-            storyDescription.append( Paragraph( self.MarkDownToMarkUp ( paragraphMatch.group(0) ), self.styleNormal ) )
+                  
+            isHeader = False
+            
+            # Look for headers the text
+            headerMatches = re.finditer( headerExpression, paragraphMatch.group(0) )
+            # If this paragraph is a header style it appropriately
+            for header in headerMatches :
+               if header.lastgroup == 'H1' :
+                  storyDescription.append ( Paragraph ( header.groupdict()['H1'] , self.styleH1 ))
+                  isHeader = True
+               elif header.lastgroup == 'H2' :
+                  storyDescription.append ( Paragraph ( header.groupdict()['H2'] , self.styleH2 ))
+                  isHeader = True
+               elif header.lastgroup == 'H3' :
+                  storyDescription.append ( Paragraph ( header.groupdict()['H3'] , self.styleH3 ))
+                  isHeader = True
+
+            if isHeader == False :
+               storyDescription.append( Paragraph( self.MarkDownToMarkUp ( paragraphMatch.group(0) ), self.styleNormal ) )
          
          return storyDescription
    
@@ -532,12 +615,12 @@ class FullReportOutput():
                   note['noted_at'] = 'Unknown'
                   
                try:
-                  notes.append(u"""_{1} - *{0}*_ : {2}""".format(note['author'], note['noted_at'].strftime(self.activityDateFormat), note['text']))
+                  notes.append(u"""*{1} - **{0}*** : {2}""".format(note['author'], note['noted_at'].strftime(self.activityDateFormat), note['text']))
                except Exception as e:
-                  notes.append("""_{1} - *{0}*_ : NOTE SKIPPED due to an exception interpreting the text: {1}""".format(note['author'], note['noted_at'].strftime(self.activityDateFormat), e ))
+                  notes.append("""*{1} - **{0}*** : NOTE SKIPPED due to an exception interpreting the text: {1}""".format(note['author'], note['noted_at'].strftime(self.activityDateFormat), e ))
 
          if storyAcceptanceInfo != None :
-            notes.append("""_{1} - *{0}*_ : Accepted the story""".format(storyAcceptanceInfo['acceptorName'], storyAcceptanceInfo['acceptedDate'].strftime(self.activityDateFormat) ))
+            notes.append("""*{1} - **{0}*** : Accepted the story""".format(storyAcceptanceInfo['acceptorName'], storyAcceptanceInfo['acceptedDate'].strftime(self.activityDateFormat) ))
             
          return notes
    
@@ -658,7 +741,7 @@ class FullReportOutput():
          if match.group('italicized') != None :
             innerMarkUp = self.MarkDownToMarkUp ( match.group('italicized') )
             markedUpStrings.append ( u"""<i>{0}</i>""".format( innerMarkUp ) )
-            
+          
          regularTextIndex = match.end()
 
       # add the last bit of regular text from the last match to the end of the string
@@ -668,7 +751,8 @@ class FullReportOutput():
       
    def FindMarkedDownText (self, text) :
       # return the MatchObjects containing bold, underlined or bold underline text
-      return re.finditer(r"""(?:(?:(?:(?<=[\s^,(])|(?<=^))\*(?=\S)(?P<bold>.+?)(?<=\S)\*(?:(?=[\s$,.?!])|(?<=$)))|(?:(?:(?<=[\s^,(])|(?<=^))_(?=\S)(?P<italicized>.+?)(?<=\S)_(?:(?=[\s$,.?!])|(?<=$))))""",text, re.M)
+      # 
+      return re.finditer(r"""(?:(?:(?:(?<=[\s^,(])|(?<=^))\*\*(?=\S)(?P<bold>.+?)(?<=\S)\*\*(?:(?=[\s$,.?!])|(?<=$)))|(?:(?:(?<=[\s^,(])|(?<=^))\*(?=\S)(?P<italicized>.+?)(?<=\S)\*(?:(?=[\s$,.?!])|(?<=$))))""",text, re.M)
             
    def pageFooter(self, canvas, doc):
        canvas.saveState()
