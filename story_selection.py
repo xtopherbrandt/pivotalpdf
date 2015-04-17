@@ -8,6 +8,7 @@ import urllib
 import wsgiref.handlers
 import csv
 import os
+import logging
 
 from google.appengine.ext import db
 from google.appengine.api import users
@@ -24,10 +25,109 @@ class GetProjects(webapp2.RequestHandler):
       output.post()  
       
 class GetStories ( webapp2.RequestHandler ):
-   def post ( self ):
-      for story in stories:
-           self.response.out.write( story['name'] )
-           self.response.out.write("<p>")      
+
+   def get ( self, projectID ):
+
+      # initialize the class properties
+      self.projectId = projectID
+      self.filter = ''     
+      self.featuresChecked = "checked='true'"
+      self.bugsChecked = "checked='true'"
+      self.choresChecked = "checked='true'"
+      self.releasesChecked = ""
+      self.selectedLabel = ""
+      self.labelFilter = ""
+      self.labels = {}
+      self.outputActivityChecked = "checked='true'"
+
+      session = get_current_session()
+      
+      # if the session is active and it has an APIKey   
+      if session.is_active() and session.has_key('APIKey') :
+         
+         self.apikey = session['APIKey']
+         
+         if session.has_key('labelList') :
+            self.labels = session['labelList']
+            
+      else :
+         return self.redirect('/SignIn')
+            
+      session['projectId'] = projectID
+      
+      projects = []
+      
+      # Connect to Pivotal Tracker and get the user's projects
+      client = PivotalClient(token=self.apikey, cache=None)
+      clientProjects = client.projects.all()
+      
+      # if there are any projects, get them
+      if 'projects' in clientProjects :
+         projects = clientProjects['projects']
+      
+      stories = []
+
+      # if we havn't selected a project and there is at least 1, the select the first by default
+      if self.projectId == None and len(projects) > 0 :
+         self.projectId = projects[0]['id']
+  
+      # set up the story filters
+      # add the story types to the filter
+      typeFilter = ' type:none,'
+
+      if self.featuresChecked != '' :
+         typeFilter += 'feature,'
+
+      if self.bugsChecked != '' :
+         typeFilter += 'bug,'
+
+      if self.choresChecked != '' :
+         typeFilter += 'chore,'
+
+      if self.releasesChecked != '' :
+         typeFilter += 'release'
+      
+      self.filter += self.labelFilter
+      self.filter += typeFilter
+      
+      session['filter'] = self.filter
+       
+      # if a project is selected, get it's stories
+      if self.projectId != None :  
+         projectStories = client.stories.get_filter(self.projectId, self.filter, True )
+         
+         # if it has stories get them
+         if 'stories' in projectStories :
+            stories = projectStories['stories']         
+         
+         # clear the labels
+         self.labels = {}
+         
+         # go through the stories and pick out the labels
+         for story in stories :
+            if 'labels' in story :
+               for label in story['labels'] :
+                  self.labels[label] = label
+         
+         session['labelList'] = self.labels
+      
+      template_values = {
+                        'apiKey' : self.apikey,
+                        'projects' : projects, 
+                        'selected_project' : self.projectId, 
+                        'filter_text' : self.filter, 
+                        'features_checked' : self.featuresChecked, 
+                        'bugs_checked' : self.bugsChecked, 
+                        'chores_checked' : self.choresChecked, 
+                        'releases_checked' : self.releasesChecked,
+                        'stories' : stories,
+                        'labels' : self.labels,
+                        'selected_label' : self.selectedLabel,
+                        'outputActivity_checked' : "checked='true'"
+                        }
+                        
+      path = os.path.join(os.path.dirname(__file__), 'index.html')
+      self.response.out.write(template.render(path, template_values))        
 
 class OutputHTML ( webapp2.RequestHandler ):
 

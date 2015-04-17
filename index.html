@@ -3,7 +3,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/png" href="favicon.ico" />
+  <link rel="icon" type="image/png" href="/images/PivotalPDFIcon.png" />
   <title>Pivotal PDF</title>
   <meta name="description" content="A PDF document generator for Pivotal Tracker.">
     <!-- Bootstrap core CSS -->
@@ -19,6 +19,140 @@
 
 </head>
 <body>
+  
+   <!-- Include Facebook JS SDK -->
+   <div id="fb-root"></div>
+   <script>(function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id;
+      js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.0";
+      fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'facebook-jssdk'));</script>   
+   
+   <nav class="navbar navbar-default header">
+     <div class="container-fluid">
+       <div class="navbar-header">
+         <a class="navbar-brand header-logo" href="#">
+            <img alt="Brand" src="/images/PivotalPDFIcon.png" width="25px" height="25px">
+         </a>
+         <a class="navbar-brand" href="#">Pivotal PDF</a>
+       </div>
+
+       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+         <ul class="nav navbar-nav">
+           <li class="dropdown project-selector">
+             {% if apiKey %}
+             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+               {% if selected_project == None %}
+                 Project
+               {% else %}
+                 {% for project in projects %}
+                   {% if project.id == selected_project %}
+                     {{project.name}}
+                   {% endif %}
+                 {% endfor %}
+               {% endif %}
+               <span class="caret"></span></a>
+             <ul class="dropdown-menu" role="menu">
+               {% for project in projects %}
+                 <li><a href="getStories/{{project.id}}">{{project.name}}</a></li>
+               {% endfor %}
+             </ul>
+           {% endif %}
+           </li>
+         </ul>        
+        
+         <ul class="nav navbar-nav navbar-right">
+           <li class="nav-link"><a class="text-uppercase" href="SignOut"><strong>Sign Out</strong></a></li>
+         </ul>
+       </div>
+     </div>
+   </nav>    
+   <div class="site-wrapper container-fluid">
+      <div class="row">
+        <div class="col-md-12">
+         <form id="filterStories" action="/filterStories" method="post" class="form-inline">             
+            <div class="form-group">
+               <div class="checkbox">
+                  <label>
+                     <input class="form-control" type="checkbox" id="featuresChecked" name="featuresChecked" aria-label="Features" {{features_checked}}/>Features
+                  </label>
+               </div>
+               <div class="checkbox">
+                  <label>
+                     <input  class="form-control" type="checkbox" id="bugsChecked" name="bugsChecked" {{bugs_checked}} />Bug
+                  </label>
+               </div>
+               <div class="checkbox">
+                  <label>
+                     <input  class="form-control" type="checkbox" id="choresChecked" name="choresChecked" {{chores_checked}} />Chore
+                  </label>
+               </div>
+               <div class="checkbox">
+                  <label>
+                     <input  class="form-control" type="checkbox" id="releasesChecked" name="releasesChecked" {{releases_checked}} />Release
+                  </label>
+               </div>
+               
+                  <select class="form-control" name="labels">
+                     <option value="">Label Filter</option>
+                     {% for label in labels %}
+                        {% if label == selected_label %}
+                           <option selected="selected" value="{{label}}">{{label}}</option>
+                        {% else %}
+                           <option value="{{label}}">{{label}}</option>
+                        {% endif %}
+                     {% endfor %}
+                  </select>
+                  
+                  <div class="input-group">
+                     <span class="input-group-addon" aria-hidden="true">
+                       <span class="glyphicon glyphicon-search"></span>
+                    </span>
+                     <input class="form-control" name="filter" type="text" >
+                  </div>
+                  
+                  <input class="form-control" value="Filter" type="submit">
+            </div>
+               
+         </form>
+      </div>
+      <div class="row">
+         <div class="col-md-1">
+         </div>
+         <div class="col-md-10">            
+         </div>
+         <div class="col-md-1">
+         </div>
+      </div>
+
+      <div class="site-wrapper-inner">
+      </div> <!--site-wrapper-inner-->
+      
+      <div class="row footer">
+         <div class="col-md-1">
+         </div>
+         <div class="col-md-10">
+         </div>
+         <div class="col-md-1">
+         </div>
+      </div>
+      
+      <nav class="navbar navbar-default navbar-fixed-bottom footer">
+        <div class="container-fluid">
+          <div>
+            <ul class="nav navbar-nav navbar-left">
+              <small> <a href="https://www.pivotaltracker.com/projects/527625">PivotalTracker project</a></small>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+               <small>Version: {{version|floatformat:0}}</small>
+            </ul>
+          </div>
+        </div>
+      </nav>
+   </div> <!--site-wrapper-->
+   
 <table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
   <tbody>
     <tr>
@@ -27,92 +161,7 @@
       </td>      
       <td style="vertical-align: middle;">
       <!-- Main content column - Middle -->
-         <table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
 
-           <tbody>
-             <tr>
-               <td style="vertical-align: middle;">
-               <h1>Pivotal PDF</h1>
-               </td>
-               <td style="vertical-align: middle; text-align: right;">
-               <h2 style="height: 10px;">A User Story Document Generator</h2>
-               <p style="margin-top: 5px; height: 30px;">
-               Version: {{version|floatformat:0}}
-               </td>
-             </tr>
-           </tbody>
-         </table>
-
-         <div style="text-align: right;">{% if not apiKey %} <a href="SignIn">SignIn</a>
-         {% else %} <a href="SignOut">Sign Out</a>{% endif %}
-         </div>
-
-         <br>
-         <table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
-            <tbody>
-             <tr>
-               <form id="getStories" action="/getStories" method="post">             
-               <td style="vertical-align: top;">
-                  <div>
-                  <select name="projects" style="margin: 5px 0pt; width: 250px;" onchange="formSubmit()" >
-                  {% if not apiKey %}
-                     <option>User Not Authenticated</option>
-                  {% else %}
-                     {% for project in projects %}
-                        {% if project.id == selected_project %}
-                           <option selected="selected" value="{{project.id}}">{{project.name}}</option>
-                        {% else %}
-                           <option value="{{project.id}}">{{project.name}}</option>
-                        {% endif %}
-                     {% endfor %}
-                  {% endif %}
-                  </select>
-                  </div>
-               </td>
-               </form>
-            </tr>
-            <tr>
-               <form id="filterStories" action="/filterStories" method="post">             
-            
-               <td style="vertical-align: middle;">
-
-                  <div><label for="featuresChecked">Features</label><input type="checkbox" id="featuresChecked" name="featuresChecked" {{features_checked}}> 
-                  <label for="bugsChecked">Bug</label><input type="checkbox" id="bugsChecked" name="bugsChecked" {{bugs_checked}} > 
-                  <label for="choresChecked">Chore</label><input type="checkbox" id="choresChecked" name="choresChecked" {{chores_checked}} >
-                  <label for="releasesChecked">Release</label><input type="checkbox" id="releasesChecked" name="releasesChecked" {{releases_checked}} > </div>
-
-               
-               </td>
-               <td style="vertical-align: middle;">
-
-                  <div>
-                  <select name="labels" style="margin: 5px 0pt; width: 250px;">
-                  <option value="">Label Filter</option>
-                  {% for label in labels %}
-                     {% if label == selected_label %}
-                        <option selected="selected" value="{{label}}">{{label}}</option>
-                     {% else %}
-                        <option value="{{label}}">{{label}}</option>
-                     {% endif %}
-                  {% endfor %}
-                  </select>
-                  </div>
-               </td>
-               <td style="vertical-align: middle;">
-                  
-                  <div>Keyword Search <input name="filter" size="30" type="text"></div>
-               </td>
-               <td style="vertical-align: middle;">
-                  {% if not apiKey %}
-                     <div><input value="Set Search Filter" type="submit" disabled="true"></div>
-                  {% else %}
-                     <div><input value="Set Search Filter" type="submit"></div>
-                  {% endif %}
-               </td>
-               </form>
-             </tr>
-            </tbody>
-         </table>
 
          <p> </p>
          <table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
@@ -158,13 +207,21 @@
              </tr>
             </tbody>
          </table>
-         <p>Help advance the development of Pivotal PDF by contributing to stories at: <a href="https://www.pivotaltracker.com/projects/527625"> https://www.pivotaltracker.com/projects/527625</a></p>
-         <p>Questions or general comments can be sent to : xtopher.brandt@gmail.com</p>
       </td>
       <td style="vertical-align: top;">
       </td>
     </tr>
   </tbody>
 </table>
+
+    <script src="/js/main.js"></script>
+    <!-- Set the Javascript client endpoint security -->
+    <script src="https://apis.google.com/js/client.js?onload=init"></script>
+     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="/bootstrap/dist/js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="/js/ie10-viewport-bug-workaround.js"></script>
 
 </body></html>

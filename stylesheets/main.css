@@ -1,4 +1,48 @@
 body {
-  font-family: Verdana, Helvetica, sans-serif;
-  background-color: #DDDDDD;
+  background-color: #484F57;
+  color: #cccccc;
+}
+
+.header {
+   background-color: #278CBA;
+   border-color: #000000;
+}
+
+.footer {
+   background-color: #484F57;
+   border-color: #000000;
+}
+
+.footer .navbar-right {
+   padding-right: 15px;   
+}
+
+.navbar-default .navbar-brand {
+   color: #ffffff;     
+   font-size: 175%;
+   padding-top: 15px;
+
+}
+
+.header-logo {
+   position: relative;
+   top: -3px;
+}
+.navbar-default .navbar-nav>li>a {
+  color: #ffffff; 
+   
+}
+
+.navbar-brand .header-logo {
+   background-size: 25px 25px;
+   width: 25px;
+   height: 25px;
+   background-repeat: no-repeat;
+   position: relative;
+   left: 0px;
+   top: 15px;
+}
+
+.form-group .checkbox label {
+   margin-left: 5px;
 }

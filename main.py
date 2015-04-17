@@ -109,6 +109,7 @@ application = webapp2.WSGIApplication([
   ('/SignIn', SignIn),
   ('/SignOut', SignOut),
   ('/authenticate', OutputHTML),
+  ('/getStories/(\d+)', GetStories),
   ('/getStories', OutputHTML),
   ('/filterStories', OutputHTML),
   ('/generatePDF', GenerateOutput)

@@ -7,6 +7,7 @@ import time
 import urllib
 import wsgiref.handlers
 import csv
+import logging
 
 from google.appengine.ext import db
 from google.appengine.api import users
@@ -30,6 +31,8 @@ class GetStories ( webapp2.RequestHandler ):
 
 class OutputHTML ( webapp2.RequestHandler ):
 
+   def get ( self ):
+      
    def post ( self ):
 
       # initialize the class properties
@@ -42,6 +45,8 @@ class OutputHTML ( webapp2.RequestHandler ):
 
       session = get_current_session()
 
+      logging.info( " post ")
+      
       # if we're authenticating get the key from the input
       if self.request.get('APIKey', default_value=None) != None :
          self.apikey = self.request.get('APIKey')
