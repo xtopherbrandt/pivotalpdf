@@ -74,25 +74,29 @@
         <div class="col-md-12">
          <form id="filterStories" action="/filterStories" method="post" class="form-inline">             
             <div class="form-group">
-               <div class="checkbox">
-                  <label>
-                     <input class="form-control" type="checkbox" id="featuresChecked" name="featuresChecked" aria-label="Features" {{features_checked}}/>Features
-                  </label>
+               <div class="input-group">
+                  <span class="input-group-addon">
+                     <input type="checkbox" aria-label="Features" id="featuresChecked" name="featuresChecked" {{features_checked}} >
+                  </span>
+                  <p class="form-control" >Features</p>
                </div>
-               <div class="checkbox">
-                  <label>
-                     <input  class="form-control" type="checkbox" id="bugsChecked" name="bugsChecked" {{bugs_checked}} />Bug
-                  </label>
+               <div class="input-group">
+                  <span class="input-group-addon">
+                     <input type="checkbox" aria-label="Bugs" id="bugsChecked" name="bugsChecked" {{bugs_checked}} >
+                  </span>
+                  <p class="form-control" >Bugs</p>
                </div>
-               <div class="checkbox">
-                  <label>
-                     <input  class="form-control" type="checkbox" id="choresChecked" name="choresChecked" {{chores_checked}} />Chore
-                  </label>
+               <div class="input-group">
+                  <span class="input-group-addon">
+                     <input type="checkbox" aria-label="Chores" id="choresChecked" name="choresChecked" {{chores_checked}} >
+                  </span>
+                  <p class="form-control" >Chores</p>
                </div>
-               <div class="checkbox">
-                  <label>
-                     <input  class="form-control" type="checkbox" id="releasesChecked" name="releasesChecked" {{releases_checked}} />Release
-                  </label>
+               <div class="input-group">
+                  <span class="input-group-addon">
+                     <input type="checkbox" aria-label="Releases" id="releasesChecked" name="releasesChecked" {{releases_checked}} >
+                  </span>
+                  <p class="form-control" >Releases</p>
                </div>
                
                   <select class="form-control" name="labels">
