@@ -46,3 +46,11 @@ body {
 .form-group .checkbox label {
    margin-left: 5px;
 }
+
+.report-parameters {
+  padding-top: 100px;
+}
+
+.report-parameters .input-group {
+  padding-bottom: 5px;
+}

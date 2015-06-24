@@ -32,7 +32,7 @@ class SignIn(webapp2.RequestHandler):
          session.regenerate_id()
       
       template_values = {'apiKey' : self.apikey,
-                        'version' : os.environ.get('CURRENT_VERSION_ID')
+                        'version' : os.environ.get('CURRENT_VERSION_ID')[0:6]
                         }
       path = os.path.join(os.path.dirname(__file__), 'sign_in.html')
       self.response.out.write(template.render(path, template_values))        

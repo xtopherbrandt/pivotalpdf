@@ -97,7 +97,7 @@ class MainPage(webapp2.RequestHandler):
                         'stories' : stories,
                         'labels' : self.labels,
                         'selected_label' : self.selectedLabel,
-                        'version' : os.environ.get('CURRENT_VERSION_ID')
+                        'version' : os.environ.get('CURRENT_VERSION_ID')[0:6]
                         }
                         
       path = os.path.join(os.path.dirname(__file__), 'index.html')

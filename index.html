@@ -4,7 +4,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/png" href="/images/PivotalPDFIcon.png" />
-  <title>Pivotal PDF</title>
+  <title>Agile Docs</title>
   <meta name="description" content="A PDF document generator for Pivotal Tracker.">
     <!-- Bootstrap core CSS -->
   <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -36,7 +36,7 @@
          <a class="navbar-brand header-logo" href="#">
             <img alt="Brand" src="/images/PivotalPDFIcon.png" width="25px" height="25px">
          </a>
-         <a class="navbar-brand" href="#">Pivotal PDF</a>
+         <a class="navbar-brand" href="#">Agile Docs</a>
        </div>
 
        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
@@ -70,9 +70,11 @@
      </div>
    </nav>    
    <div class="site-wrapper container-fluid">
+     <form id="filterStories" action="/filterStories" method="post" class="form-inline">             
       <div class="row">
-        <div class="col-md-12">
-         <form id="filterStories" action="/filterStories" method="post" class="form-inline">             
+        <div class="col-md-1">
+        </div>
+        <div class="col-md-10">
             <div class="form-group">
                <div class="input-group">
                   <span class="input-group-addon">
@@ -119,17 +121,57 @@
                   
                   <input class="form-control" value="Filter" type="submit">
             </div>
-               
-         </form>
+        </div> 
+        <div class="col-md-1">
+        </div>
       </div>
+     </form>
+      <form id="generatePDF" action="/generatePDF" method="post">
       <div class="row">
          <div class="col-md-1">
          </div>
-         <div class="col-md-10">            
+         <div class="col-md-5">   
+
+                  <h3>Story List</h3>
+
+                  <div>
+                    <select class="form-control" name="stories" size="20" style="margin: 5px 0pt; width: 500px;" multiple="multiple">
+                      {% for story in stories %}
+                       <option value="{{story.id}}">{{story.name}}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
          </div>
-         <div class="col-md-1">
+           
+         <div class="col-md-4 report-parameters">   
+                  <div class="input-group">
+                    <span class="input-group-addon">
+                      <input type="checkbox" id="outputActivityChecked" name="outputActivityChecked" {{outputActivity_checked}} />
+                    </span>
+                    <p class="form-control" >Include Activity</p>
+                  </div>
+           
+                  <div class="input-group">
+                    <span class="input-group-addon">
+                     <input type="radio" name="format" value="full" checked="True"/>
+                    </span>
+                    <p class="form-control" >Full Report</p>
+                    <span class="input-group-addon">
+                     <input type="radio" name="format" value="summary"/>
+                    </span>
+                    <p class="form-control" >Summary Report</p>
+                  </div>
+                  {% if not apiKey %}
+                     <div><input class="btn btn-primary" name="outputType" value="Generate PDF" type="submit" disabled="true" ></div>      
+                  {% else %}
+                     <div><input class="btn btn-primary" name="outputType" value="Generate PDF" type="submit"></div>      
+                  {% endif %}
+
+         </div>
+         <div class="col-md-2">
          </div>
       </div>
+      </form>
 
       <div class="site-wrapper-inner">
       </div> <!--site-wrapper-inner-->
@@ -150,73 +192,12 @@
               <small> <a href="https://www.pivotaltracker.com/projects/527625">PivotalTracker project</a></small>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-               <small>Version: {{version|floatformat:0}}</small>
+               <small>Version: {{version}}</small>
             </ul>
           </div>
         </div>
       </nav>
    </div> <!--site-wrapper-->
-   
-<table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
-  <tbody>
-    <tr>
-      <td style="vertical-align: top;">
-      <!-- Spacer column - Left -->
-      </td>      
-      <td style="vertical-align: middle;">
-      <!-- Main content column - Middle -->
-
-
-         <p> </p>
-         <table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
-            <tbody>
-             <tr>
-               <td style="vertical-align: middle;">
-                 
-                  <form id="generatePDF" action="/generatePDF" method="post">
-
-                  <h3>Story List</h3>
-
-                  <div>
-                  <select name="stories" size="20" style="margin: 5px 0pt; width: 500px;" multiple="multiple">
-                  {% for story in stories %}
-                     <option value="{{story.id}}">{{story.name}}</option>
-                  {% endfor %}
-                  </select>
-                  </div>
-               </td>
-               <td style="vertical-align: middle;">
-                  <p/>
-               
-                  <div>
-                     <label for="outputActivityChecked">Include Activity</label>
-                     <input type="checkbox" id="outputActivityChecked" name="outputActivityChecked" {{outputActivity_checked}} />
-                  </div>
-               </td>
-               <td style="vertical-align: middle;">
-               
-                  <div>
-                     <input type="radio" name="format" value="full" checked="True"/>Full Report<br/>
-                     <input type="radio" name="format" value="summary"/>Summary Report<br/>
-                  </div>
-                  
-                  <p/>
-                  {% if not apiKey %}
-                     <div><input name="outputType" value="Generate PDF" type="submit" disabled="true" ></div>      
-                  {% else %}
-                     <div><input name="outputType" value="Generate PDF" type="submit"></div>      
-                  {% endif %}
-                  </form>
-               </td>
-             </tr>
-            </tbody>
-         </table>
-      </td>
-      <td style="vertical-align: top;">
-      </td>
-    </tr>
-  </tbody>
-</table>
 
     <script src="/js/main.js"></script>
     <!-- Set the Javascript client endpoint security -->

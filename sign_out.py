@@ -27,7 +27,7 @@ class SignOut(webapp2.RequestHandler):
       if session.is_active():
          session.terminate( clear_data=True )
       
-      template_values = {'version' : os.environ.get('CURRENT_VERSION_ID')}
+      template_values = {'version' : os.environ.get('CURRENT_VERSION_ID')[0:6]}
       path = os.path.join(os.path.dirname(__file__), 'sign_in.html')
       self.response.out.write(template.render(path, template_values))        
 
