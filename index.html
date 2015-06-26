@@ -56,7 +56,7 @@
                <span class="caret"></span></a>
              <ul class="dropdown-menu" role="menu">
                {% for project in projects %}
-                 <li><a href="getStories/{{project.id}}">{{project.name}}</a></li>
+                 <li><a href="/getStories/{{project.id}}">{{project.name}}</a></li>
                {% endfor %}
              </ul>
            {% endif %}

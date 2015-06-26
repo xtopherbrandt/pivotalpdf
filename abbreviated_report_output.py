@@ -4,6 +4,7 @@ sys.path.insert(0, 'reportlab.zip')
 import re
 import wsgiref.handlers
 import time
+import logging
 
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
@@ -486,9 +487,13 @@ class AbbreviatedReportOutput():
    
       doneStories = []
         
-      # Get the set of done iterations
-      client = PivotalClient(token=apiToken, cache=None)
-      project = client.iterations.done( projectId )
+      try :
+        # Get the set of done iterations
+        client = PivotalClient(token=apiToken, cache=None)
+        project = client.iterations.done( projectId )
+      except HTTPException as exception :
+        logging.error ("An HTTPException occurred in GetDoneStories.\nArgs: " + str( exception.args ))
+        return doneStories
       
       # if the project has some done iterations
       if 'iterations' in project:
@@ -512,9 +517,13 @@ class AbbreviatedReportOutput():
    
       currentStories = []
         
-      # Get the current iteration
-      client = PivotalClient(token=apiToken, cache=None)
-      project = client.iterations.current( projectId )
+      try :
+        # Get the current iteration
+        client = PivotalClient(token=apiToken, cache=None)
+        project = client.iterations.current( projectId )
+      except HTTPException as exception :
+        logging.error ("An HTTPException occurred in GetCurrentStories.\nArgs: " + str( exception.args ))
+        return currentStories
       
       # if the project has a current iteration
       if 'iterations' in project:
@@ -539,9 +548,13 @@ class AbbreviatedReportOutput():
    
       futureStories = []
         
-      # Get the set of future iterations
-      client = PivotalClient(token=apiToken, cache=None)
-      project = client.iterations.backlog( projectId )
+      try :
+        # Get the set of future iterations
+        client = PivotalClient(token=apiToken, cache=None)
+        project = client.iterations.backlog( projectId )
+      except HTTPException as exception :
+        logging.error ("An HTTPException occurred in GetFutureStories.\nArgs: " + str( exception.args ))
+        return futureStories
       
       # if the project has a current iteration
       if 'iterations' in project:
@@ -565,10 +578,14 @@ class AbbreviatedReportOutput():
    def GetIceboxStories (self, filteredStories, apiToken, projectId) :
    
       iceboxStories = []
-        
-      # Get the set of icebox stories
-      client = PivotalClient(token=apiToken, cache=None)
-      stories = client.stories.get_filter(projectId, 'state:unscheduled', True )['stories']
+
+      try :
+        # Get the set of icebox stories
+        client = PivotalClient(token=apiToken, cache=None)
+        stories = client.stories.get_filter(projectId, 'state:unscheduled', True )['stories']
+      except HTTPException as exception :
+        logging.error ("An HTTPException occurred in GetIceboxStories.\nArgs: " + str( exception.args ))
+        return iceboxStories
             
       for story in stories:
          for filteredStory in filteredStories:               

@@ -4,6 +4,7 @@ sys.path.insert(0, 'reportlab.zip')
 import re
 import wsgiref.handlers
 import time
+import logging
 
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
@@ -574,7 +575,7 @@ class FullReportOutput():
          paragraphMatches = re.finditer(r"""(^.*$)""", description, re.M)
          storyDescription = []
                   
-         headerExpression = re.compile(ur'(?:(?:(?<=[\s^,(])|(?<=^))#{1}(?=\S)(?!#)(?P<H1>.+?)(?<=$)|(?:(?<=[\s^,(])|(?<=^))#{2}(?=\S)(?!#)(?P<H2>.+?)(?<=$)|(?:(?<=[\s^,(])|(?<=^))#{3}(?=\S)(?!#)(?P<H3>.+?)(?<=$))', re.MULTILINE)
+         headerExpression = re.compile(ur'(?:(?:(?<=[\s^,(])|(?<=^))#{1}(?=[\w|\d])(?!#)(?P<H1>.+?)(?<=$)|(?:(?<=[\s^,(])|(?<=^))#{2}(?=[\w|\d])(?!#)(?P<H2>.+?)(?<=$)|(?:(?<=[\s^,(])|(?<=^))#{3}(?=[\w|\d])(?!#)(?P<H3>.+?)(?<=$))', re.MULTILINE)
          
          # Add each paragraph to a list of paragraph flowables that are then added to the table
          for paragraphMatch in paragraphMatches :
@@ -583,18 +584,23 @@ class FullReportOutput():
             
             # Look for headers the text
             headerMatches = re.finditer( headerExpression, paragraphMatch.group(0) )
+
             # If this paragraph is a header style it appropriately
             for header in headerMatches :
-               if header.lastgroup == 'H1' :
-                  storyDescription.append ( Paragraph ( header.groupdict()['H1'] , self.styleH1 ))
-                  isHeader = True
-               elif header.lastgroup == 'H2' :
-                  storyDescription.append ( Paragraph ( header.groupdict()['H2'] , self.styleH2 ))
-                  isHeader = True
-               elif header.lastgroup == 'H3' :
-                  storyDescription.append ( Paragraph ( header.groupdict()['H3'] , self.styleH3 ))
-                  isHeader = True
-
+              try:
+                 if header.lastgroup == 'H1' :
+                    storyDescription.append ( Paragraph ( header.groupdict()['H1'] , self.styleH1 ))
+                    isHeader = True
+                 elif header.lastgroup == 'H2' :
+                    storyDescription.append ( Paragraph ( header.groupdict()['H2'] , self.styleH2 ))
+                    isHeader = True
+                 elif header.lastgroup == 'H3' :
+                    storyDescription.append ( Paragraph ( header.groupdict()['H3'] , self.styleH3 ))
+                    isHeader = True
+              except ValueError as exception :
+                storyDescription.append ( Paragraph( """An error was encountered interpreting the header for this story.""", self.styleNormal ))
+                logging.error( "A ValueError occured while interpreing the header of a story. \n Header type: " + header.lastgroup + "\n Args: " + str(exception.args))
+              
             if isHeader == False :
                storyDescription.append( Paragraph( self.MarkDownToMarkUp ( paragraphMatch.group(0) ), self.styleNormal ) )
          
@@ -628,9 +634,13 @@ class FullReportOutput():
    
       doneStories = []
         
-      # Get the set of done iterations
-      client = PivotalClient(token=apiToken, cache=None)
-      project = client.iterations.done( projectId )
+      try :
+        # Get the set of done iterations
+        client = PivotalClient(token=apiToken, cache=None)
+        project = client.iterations.done( projectId )
+      except HTTPException as exception :
+        logging.error ("An HTTPException occurred in GetDoneStories.\nArgs: " + str( exception.args ))
+        return doneStories
       
       # if the project has some done iterations
       if 'iterations' in project:
@@ -654,10 +664,14 @@ class FullReportOutput():
    
       currentStories = []
         
-      # Get the current iteration
-      client = PivotalClient(token=apiToken, cache=None)
-      project = client.iterations.current( projectId )
-      
+      try:
+        # Get the current iteration
+        client = PivotalClient(token=apiToken, cache=None)
+        project = client.iterations.current( projectId )
+      except HTTPException as exception :
+        logging.error ("An HTTPException occurred in GetCurrentStories.\nArgs: " + str( exception.args ))
+        return currentStories
+
       # if the project has a current iteration
       if 'iterations' in project:
          iterations = project['iterations']
@@ -681,9 +695,13 @@ class FullReportOutput():
    
       futureStories = []
         
-      # Get the set of future iterations
-      client = PivotalClient(token=apiToken, cache=None)
-      project = client.iterations.backlog( projectId )
+      try:
+        # Get the set of future iterations
+        client = PivotalClient(token=apiToken, cache=None)
+        project = client.iterations.backlog( projectId )
+      except HTTPException as exception :
+        logging.error ("An HTTPException occurred in GetFutureStories.\nArgs: " + str( exception.args ))
+        return futureStories
       
       # if the project has a current iteration
       if 'iterations' in project:
@@ -708,9 +726,13 @@ class FullReportOutput():
    
       iceboxStories = []
         
-      # Get the set of icebox stories
-      client = PivotalClient(token=apiToken, cache=None)
-      stories = client.stories.get_filter(projectId, 'state:unscheduled', True )['stories']
+      try:
+        # Get the set of icebox stories
+        client = PivotalClient(token=apiToken, cache=None)
+        stories = client.stories.get_filter(projectId, 'state:unscheduled', True )['stories']
+      except HTTPException as exception :
+        logging.error ("An HTTPException occurred in GetIceboxStories.\nArgs: " + str( exception.args ))
+        return iceboxStories
             
       for story in stories:
          for filteredStory in filteredStories:               
