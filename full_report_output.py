@@ -638,7 +638,7 @@ class FullReportOutput():
         # Get the set of done iterations
         client = PivotalClient(token=apiToken, cache=None)
         project = client.iterations.done( projectId )
-      except HTTPException as exception :
+      except httplib.HTTPException as exception :
         logging.error ("An HTTPException occurred in GetDoneStories.\nArgs: " + str( exception.args ))
         return doneStories
       
@@ -668,7 +668,7 @@ class FullReportOutput():
         # Get the current iteration
         client = PivotalClient(token=apiToken, cache=None)
         project = client.iterations.current( projectId )
-      except HTTPException as exception :
+      except httplib.HTTPException as exception :
         logging.error ("An HTTPException occurred in GetCurrentStories.\nArgs: " + str( exception.args ))
         return currentStories
 
@@ -699,7 +699,7 @@ class FullReportOutput():
         # Get the set of future iterations
         client = PivotalClient(token=apiToken, cache=None)
         project = client.iterations.backlog( projectId )
-      except HTTPException as exception :
+      except httplib.HTTPException as exception :
         logging.error ("An HTTPException occurred in GetFutureStories.\nArgs: " + str( exception.args ))
         return futureStories
       
@@ -730,7 +730,7 @@ class FullReportOutput():
         # Get the set of icebox stories
         client = PivotalClient(token=apiToken, cache=None)
         stories = client.stories.get_filter(projectId, 'state:unscheduled', True )['stories']
-      except HTTPException as exception :
+      except httplib.HTTPException as exception :
         logging.error ("An HTTPException occurred in GetIceboxStories.\nArgs: " + str( exception.args ))
         return iceboxStories
             
