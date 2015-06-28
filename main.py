@@ -8,6 +8,7 @@ import urllib
 import wsgiref.handlers
 import csv
 import os
+import logging
 
 from google.appengine.ext import db
 from google.appengine.api import users
@@ -83,7 +84,12 @@ class MainPage(webapp2.RequestHandler):
        
       # if a project is selected, get it's stories
       if self.projectId != None :         
-         stories = client.stories.get_filter(self.projectId, self.filter, True )['stories']         
+        try :
+          stories = client.stories.get_filter(self.projectId, self.filter, True )['stories']
+        except KeyError as e :
+          logging.error ( "An exception occurred trying to retreive the stories for project: " + self.projectId)
+          logging.error ( "KeyError: " + str(e.args))
+          # just leave the stories as an empty list for now
       
       template_values = {
                         'apiKey' : self.apikey,
