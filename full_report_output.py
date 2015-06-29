@@ -5,6 +5,7 @@ import re
 import wsgiref.handlers
 import time
 import logging
+import httplib
 
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
