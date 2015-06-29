@@ -243,7 +243,7 @@ class FullReportOutput():
       httpResponse.headers['Accept-Ranges'] = 'bytes'
       httpResponse.headers['Expires'] = '0'
      
-      doc = SimpleDocTemplate( httpResponse.out, pagesize = letter, allowSplitting=1, title="""{0} User Stories""".format( projectName ), author='Pivotal PDF (http://pivotal-pdf.appspot.com)', leftMargin=0.75*inch, rightMargin=0.75*inch)
+      doc = SimpleDocTemplate( httpResponse.out, pagesize = letter, allowSplitting=1, title="""{0} User Stories""".format( projectName ), author='Agile Docs (http://pivotal-pdf.appspot.com)', leftMargin=0.75*inch, rightMargin=0.75*inch)
       
       #Create a list of flowables for the document
       flowables = []
@@ -606,6 +606,8 @@ class FullReportOutput():
          
          return storyDescription
    
+   def GetTasks (self, storyInfo ) :
+      
    def GetActivityNotes (self, storyInfo, storyAcceptanceInfo ) :
          
          notes = []
@@ -635,12 +637,12 @@ class FullReportOutput():
       doneStories = []
         
       try :
-        # Get the set of done iterations
-        client = PivotalClient(token=apiToken, cache=None)
-        project = client.iterations.done( projectId )
+         # Get the set of done iterations
+         client = PivotalClient(token=apiToken, cache=None)
+         project = client.iterations.done( projectId )
       except httplib.HTTPException as exception :
-        logging.error ("An HTTPException occurred in GetDoneStories.\nArgs: " + str( exception.args ))
-        return doneStories
+         logging.error ("An HTTPException occurred in GetDoneStories.\nArgs: " + str( exception.args ))
+         return doneStories
       
       # if the project has some done iterations
       if 'iterations' in project:
@@ -665,12 +667,12 @@ class FullReportOutput():
       currentStories = []
         
       try:
-        # Get the current iteration
-        client = PivotalClient(token=apiToken, cache=None)
-        project = client.iterations.current( projectId )
+         # Get the current iteration
+         client = PivotalClient(token=apiToken, cache=None)
+         project = client.iterations.current( projectId )
       except httplib.HTTPException as exception :
-        logging.error ("An HTTPException occurred in GetCurrentStories.\nArgs: " + str( exception.args ))
-        return currentStories
+         logging.error ("An HTTPException occurred in GetCurrentStories.\nArgs: " + str( exception.args ))
+         return currentStories
 
       # if the project has a current iteration
       if 'iterations' in project:
@@ -696,12 +698,12 @@ class FullReportOutput():
       futureStories = []
         
       try:
-        # Get the set of future iterations
-        client = PivotalClient(token=apiToken, cache=None)
-        project = client.iterations.backlog( projectId )
+         # Get the set of future iterations
+         client = PivotalClient(token=apiToken, cache=None)
+         project = client.iterations.backlog( projectId )
       except httplib.HTTPException as exception :
-        logging.error ("An HTTPException occurred in GetFutureStories.\nArgs: " + str( exception.args ))
-        return futureStories
+         logging.error ("An HTTPException occurred in GetFutureStories.\nArgs: " + str( exception.args ))
+         return futureStories
       
       # if the project has a current iteration
       if 'iterations' in project:
@@ -727,12 +729,12 @@ class FullReportOutput():
       iceboxStories = []
         
       try:
-        # Get the set of icebox stories
-        client = PivotalClient(token=apiToken, cache=None)
-        stories = client.stories.get_filter(projectId, 'state:unscheduled', True )['stories']
+         # Get the set of icebox stories
+         client = PivotalClient(token=apiToken, cache=None)
+         stories = client.stories.get_filter(projectId, 'state:unscheduled', True )['stories']
       except httplib.HTTPException as exception :
-        logging.error ("An HTTPException occurred in GetIceboxStories.\nArgs: " + str( exception.args ))
-        return iceboxStories
+         logging.error ("An HTTPException occurred in GetIceboxStories.\nArgs: " + str( exception.args ))
+         return iceboxStories
             
       for story in stories:
          for filteredStory in filteredStories:               

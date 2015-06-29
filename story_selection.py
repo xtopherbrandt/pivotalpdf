@@ -144,6 +144,7 @@ class OutputHTML ( webapp2.RequestHandler ):
       self.labelFilter = ""
       self.labels = {}
       self.outputActivityChecked = "checked='true'"
+      self.usageStatistics = None
 
       session = get_current_session()
       
@@ -162,6 +163,17 @@ class OutputHTML ( webapp2.RequestHandler ):
          return self.redirect('/SignIn')
             
       projects = []
+      
+      '''Get the user's usage stats'''
+      usageStatsKey = user_usage_stats_key( self.apiKey )
+      usageStatsQuery = UserUsageStatistics.query( UserUsageStatistics.key == usageStatsKey )
+      usageStatsQueryResult = usageStatsQuery.fetch()
+      
+      '''if this user doesn't have a statistics record yet, create one'''
+      if len( usageStatsQueryResult ) == 0 :
+         self.usageStatistics = UserUsageStatistics()
+         self.usageStatistics.key = user_usage_stats_key( self.apiKey )
+         self.usageStatistics.put()
       
       # Connect to Pivotal Tracker and get the user's projects
       client = PivotalClient(token=self.apikey, cache=None)
