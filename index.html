@@ -64,7 +64,7 @@
      </div>
    </nav>    
    <div class="site-wrapper container-fluid">
-     <form id="filterStories" action="/filterStories" method="post" class="form-inline">             
+     <form id="filterStories" action="/filterStories" method="post" class="form-inline" onsubmit="track_event('Filter Stories')">             
       <div class="row">
         <div class="col-md-1">
         </div>
@@ -120,7 +120,7 @@
         </div>
       </div>
      </form>
-      <form id="generatePDF" action="/generatePDF" method="post">
+      <form id="generatePDF" action="/generatePDF" method="post" onsubmit="track_event('Generate PDF')">
       <div class="row">
          <div class="col-md-1">
          </div>
