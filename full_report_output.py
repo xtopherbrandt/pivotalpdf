@@ -605,8 +605,6 @@ class FullReportOutput():
                storyDescription.append( Paragraph( self.MarkDownToMarkUp ( paragraphMatch.group(0) ), self.styleNormal ) )
          
          return storyDescription
-   
-   def GetTasks (self, storyInfo ) :
       
    def GetActivityNotes (self, storyInfo, storyAcceptanceInfo ) :
          

@@ -55,6 +55,21 @@ class MainPage(webapp2.RequestHandler):
       client = PivotalClient(token=self.apikey, cache=None)
       projects = client.projects.all()['projects']
       
+      '''Get the user's usage stats'''
+      usageStatsKey = user_usage_stats_key( self.apikey )
+      usageStats = usageStatsKey.get()
+            
+      '''if this user doesn't have a statistics record yet, create one'''
+      if usageStats == None :
+         usageStats = UserUsageStatistics( id=self.apikey )
+         usageStats.put()
+         logging.info ("New user added {0}".format(self.apikey))
+      else :
+         logging.info ("User {0} logged back in.".format(self.apikey))
+         
+      usageStats.project_count_at_last_use = len(projects)
+      usageStats.put()
+       
       stories = []
 
       # if we havn't selected a project and there is at least 1, the select the first by default
