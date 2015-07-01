@@ -55,27 +55,24 @@ class MainPage(webapp2.RequestHandler):
       client = PivotalClient(token=self.apikey, cache=None)
       projects = client.projects.all()['projects']
       
-      '''Get the user's usage stats'''
-      usageStatsKey = user_usage_stats_key( self.apikey )
-      usageStats = usageStatsKey.get()
+      '''Get the user's record'''
+      userKey = user_key( self.apikey )
+      user = userKey.get()
             
-      '''if this user doesn't have a statistics record yet, create one'''
-      if usageStats == None :
-         usageStats = UserUsageStatistics( id=self.apikey )
-         usageStats.put()
+      '''if this user doesn't have a record yet, create one'''
+      if user == None :
+         user = User( id=self.apikey )
+         user.put()
          logging.info ("New user added {0}".format(self.apikey))
       else :
          logging.info ("User {0} logged back in.".format(self.apikey))
-         
-      usageStats.project_count_at_last_use = len(projects)
-      usageStats.put()
-       
+
       stories = []
 
       # if we havn't selected a project and there is at least 1, the select the first by default
       if self.projectId == None and len(projects) > 0 :
          self.projectId = projects[0]['id']
-  
+
       # set up the story filters
       # add the story types to the filter
       typeFilter = u' type:none,'

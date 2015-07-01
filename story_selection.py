@@ -16,7 +16,7 @@ from busyflow.pivotal import PivotalClient
 from xml.sax.saxutils import escape
 from gaesessions import get_current_session
 
-from user_usage_statistics import *
+from user import *
         
 class GetProjects(webapp2.RequestHandler):
 
@@ -165,21 +165,18 @@ class OutputHTML ( webapp2.RequestHandler ):
             
       projects = []
       
-      '''Get the user's usage stats'''
-      usageStatsKey = user_usage_stats_key( self.apikey )
-      usageStats = usageStatsKey.get()
+      '''Get the user's record'''
+      userKey = user_key( self.apikey )
+      user = userKey.get()
             
-      '''if this user doesn't have a statistics record yet, create one'''
-      if usageStats == None :
-         usageStats = UserUsageStatistics( id=self.apikey )
-         usageStats.put()
+      '''if this user doesn't have a record yet, create one'''
+      if user == None :
+         user = User( id=self.apikey )
+         user.put()
          logging.info ("New user added {0}".format(self.apikey))
       else :
          logging.info ("User {0} logged back in.".format(self.apikey))
-         
-      usageStats.project_count_at_last_use = len(projects)
-      usageStats.put()
-       
+                
       # Connect to Pivotal Tracker and get the user's projects
       client = PivotalClient(token=self.apikey, cache=None)
       clientProjects = client.projects.all()
@@ -298,20 +295,17 @@ class OutputHTML ( webapp2.RequestHandler ):
       if 'projects' in clientProjects :
          projects = clientProjects['projects']
       
-      '''Get the user's usage stats'''
-      usageStatsKey = user_usage_stats_key( self.apikey )
-      usageStats = usageStatsKey.get()
+      '''Get the user's record'''
+      userKey = user_key( self.apikey )
+      user = userKey.get()
             
-      '''if this user doesn't have a statistics record yet, create one'''
-      if usageStats == None :
-         usageStats = UserUsageStatistics( id=self.apikey )
-         usageStats.put()
+      '''if this user doesn't have a record yet, create one'''
+      if user == None :
+         user = User( id=self.apikey )
+         user.put()
          logging.info ("New user added {0}".format(self.apikey))
       else :
          logging.info ("User {0} logged back in.".format(self.apikey))
-         
-      usageStats.project_count_at_last_use = len(projects)
-      usageStats.put()
       
       stories = []
 

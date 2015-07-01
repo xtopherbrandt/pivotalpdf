@@ -626,7 +626,7 @@ class AbbreviatedReportOutput():
       
    def FindMarkedDownText (self, text) :
       # return the MatchObjects containing bold, underlined or bold underline text
-      return re.finditer(r"""(?:(?:(?:(?<=[\s^,(])|(?<=^))\*\*(?=\S)(?P<bold>.+?)(?<=\S)\*\*(?:(?=[\s$,.?!])|(?<=$)))|(?:(?:(?<=[\s^,(])|(?<=^))\*(?=\S)(?P<italicized>.+?)(?<=\S)\*(?:(?=[\s$,.?!])|(?<=$))))""",text, re.M)
+      return re.finditer(r"""(?:(?:(?:(?<=[\s^,(])|(?<=^))\*\*(?=\S)(?P<bold>.+?)(?<=\S)\*\*(?:(?=[\s$,.?!])|(?<=$)))|(?:(?:(?<=[\s^,(])|(?<=^))_(?=\S)(?P<italicized>.+?)(?<=\S)_(?:(?=[\s$,.?!])|(?<=$))))""",text, re.M)
                
             
    def pageFooter(self, canvas, doc):
