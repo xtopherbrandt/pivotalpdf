@@ -563,7 +563,7 @@ class FullReportOutput():
          # if we have notes to add then add a header followed by the notes
          if len(notes) > 0 :
             rawDescription.append('\n')
-            rawDescription.append('*Activity:*')
+            rawDescription.append('**Activity:**')
             
             for note in notes :
                rawDescription.append( note )
@@ -622,12 +622,12 @@ class FullReportOutput():
                   note['noted_at'] = 'Unknown'
                   
                try:
-                  notes.append(u"""*{1} - **{0}*** : {2}""".format(note['author'], note['noted_at'].strftime(self.activityDateFormat), note['text']))
+                  notes.append(u"""**{1} - _{0}_** : {2}""".format(note['author'], note['noted_at'].strftime(self.activityDateFormat), note['text']))
                except Exception as e:
-                  notes.append("""*{1} - **{0}*** : NOTE SKIPPED due to an exception interpreting the text: {1}""".format(note['author'], note['noted_at'].strftime(self.activityDateFormat), e ))
+                  notes.append("""**{1} - _{0}_** : NOTE SKIPPED due to an exception interpreting the text: {1}""".format(note['author'], note['noted_at'].strftime(self.activityDateFormat), e ))
 
          if storyAcceptanceInfo != None :
-            notes.append("""*{1} - **{0}*** : Accepted the story""".format(storyAcceptanceInfo['acceptorName'], storyAcceptanceInfo['acceptedDate'].strftime(self.activityDateFormat) ))
+            notes.append("""**{1} - _{0}_** : Accepted the story""".format(storyAcceptanceInfo['acceptorName'], storyAcceptanceInfo['acceptedDate'].strftime(self.activityDateFormat) ))
             
          return notes
    
@@ -764,7 +764,7 @@ class FullReportOutput():
          if match.group('italicized') != None :
             innerMarkUp = self.MarkDownToMarkUp ( match.group('italicized') )
             markedUpStrings.append ( u"""<i>{0}</i>""".format( innerMarkUp ) )
-          
+
          regularTextIndex = match.end()
 
       # add the last bit of regular text from the last match to the end of the string
@@ -778,15 +778,15 @@ class FullReportOutput():
       return re.finditer(r"""(?:(?:(?:(?<=[\s^,(])|(?<=^))\*\*(?=\S)(?P<bold>.+?)(?<=\S)\*\*(?:(?=[\s$,.?!])|(?<=$)))|(?:(?:(?<=[\s^,(])|(?<=^))_(?=\S)(?P<italicized>.+?)(?<=\S)_(?:(?=[\s$,.?!])|(?<=$))))""",text, re.M)
             
    def pageFooter(self, canvas, doc):
-       canvas.saveState()
-       canvas.setFont( self.footerFontName, self.footerFontSize, self.footerFontLeading )
+      canvas.saveState()
+      canvas.setFont( self.footerFontName, self.footerFontSize, self.footerFontLeading )
+      
+      # draw the doc info
+      canvas.drawString ( self.footerLeftEdge, self.footerHeight, self.pageInfo )
        
-       # draw the doc info
-       canvas.drawString ( self.footerLeftEdge, self.footerHeight, self.pageInfo )
-       
-       # draw the page number
-       canvas.drawRightString ( self.footerRightEdge, self.footerHeight, "Page {0}".format (doc.page) )
-       canvas.restoreState()       
+      # draw the page number
+      canvas.drawRightString ( self.footerRightEdge, self.footerHeight, "Page {0}".format (doc.page) )
+      canvas.restoreState()       
        
    
    def GetAcceptanceActivity (self, filteredStories, apiToken, projectId) :
@@ -800,7 +800,7 @@ class FullReportOutput():
       # if the project has some done iterations
       if 'activities' in project:
          activities = project['activities']
-        
+
          # Go through each activity and find the acceptance ones on stories that are in our set
          for activity in activities:
             if 'description' in activity :
