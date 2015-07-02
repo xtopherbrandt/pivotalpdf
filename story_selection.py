@@ -12,7 +12,7 @@ import logging
 
 from google.appengine.ext import db
 from google.appengine.api import users
-from busyflow.pivotal import PivotalClient
+from pivotal_api_v5 import PivotalClient
 from xml.sax.saxutils import escape
 from gaesessions import get_current_session
 
@@ -60,11 +60,9 @@ class GetStories ( webapp2.RequestHandler ):
       
       # Connect to Pivotal Tracker and get the user's projects
       client = PivotalClient(token=self.apikey, cache=None)
-      clientProjects = client.projects.all()
+      projects = client.projects.all()
       
-      # if there are any projects, get them
-      if 'projects' in clientProjects :
-         projects = clientProjects['projects']
+      logging.info ("Retrieved {0} projects.".format(len(projects)))
       
       stories = []
 
@@ -179,11 +177,9 @@ class OutputHTML ( webapp2.RequestHandler ):
                 
       # Connect to Pivotal Tracker and get the user's projects
       client = PivotalClient(token=self.apikey, cache=None)
-      clientProjects = client.projects.all()
-      
-      # if there are any projects, get them
-      if 'projects' in clientProjects :
-         projects = clientProjects['projects']
+      projects = client.projects.all()
+       
+      logging.info ("Retrieved {0} projects.".format(len(projects)))
       
       stories = []
 
@@ -289,11 +285,9 @@ class OutputHTML ( webapp2.RequestHandler ):
       
       # Connect to Pivotal Tracker and get the user's projects
       client = PivotalClient(token=self.apikey, cache=None)
-      clientProjects = client.projects.all()
-      
-      # if there are any projects, get them
-      if 'projects' in clientProjects :
-         projects = clientProjects['projects']
+      projects = client.projects.all()
+            
+      logging.info ("Retrieved {0} projects.".format(len(projects)))
       
       '''Get the user's record'''
       userKey = user_key( self.apikey )

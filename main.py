@@ -12,7 +12,7 @@ import logging
 
 from google.appengine.ext import db
 from google.appengine.api import users
-from busyflow.pivotal import PivotalClient
+from pivotal_api_v5 import PivotalClient
 from xml.sax.saxutils import escape
 from gaesessions import get_current_session
 
