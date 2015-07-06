@@ -16,105 +16,100 @@ from pivotal_api_v5 import PivotalClient
 from xml.sax.saxutils import escape
 from gaesessions import get_current_session
 
+from selection_properties import *
 from story_selection import *
 from generate_output import *
 from sign_in import *
 from sign_out import *
 
+
 class MainPage(webapp2.RequestHandler):
 
    def get ( self ):
 
-      # initialize the class properties
-      self.projectId = None
-      self.filter = u''     
-      self.featuresChecked = "checked='true'"
-      self.bugsChecked = "checked='true'"
-      self.choresChecked = "checked='true'"
-      self.releasesChecked = ""
-      self.selectedLabel = ""
-      self.labelFilter = ""
-      self.labels = {}
+      selectionProperties = SelectionProperties()
 
       session = get_current_session()
+      
+      logging.info ( "MainPage.get()" )
       
       # if the session is active and it has an APIKey   
       if session.is_active() and session.has_key('APIKey') :
          
-         self.apikey = session['APIKey']
+         selectionProperties.apikey = session['APIKey']
          
          if session.has_key('projectId') :
-            self.projectId = session['projectId']            
+            selectionProperties.projectId = session['projectId']            
          
          if session.has_key('labelList') :
-            self.labels = session['labelList']
+            selectionProperties.labels = session['labelList']
             
       else :
-         return self.redirect('/SignIn')
+         return selectionProperties.redirect('/SignIn')
             
-      client = PivotalClient(token=self.apikey, cache=None)
-      projects = client.projects.all()['projects']
+      client = PivotalClient(token=selectionProperties.apikey, cache=None)
+      projects = client.projects.all()
       
       '''Get the user's record'''
-      userKey = user_key( self.apikey )
+      userKey = user_key( selectionProperties.apikey )
       user = userKey.get()
             
       '''if this user doesn't have a record yet, create one'''
       if user == None :
-         user = User( id=self.apikey )
+         user = User( id=selectionProperties.apikey )
          user.put()
-         logging.info ("New user added {0}".format(self.apikey))
+         logging.info ("New user added {0}".format(selectionProperties.apikey))
       else :
-         logging.info ("User {0} logged back in.".format(self.apikey))
+         logging.info ("User {0} logged back in.".format(selectionProperties.apikey))
 
       stories = []
 
       # if we havn't selected a project and there is at least 1, the select the first by default
-      if self.projectId == None and len(projects) > 0 :
-         self.projectId = projects[0]['id']
+      if selectionProperties.projectId == None and len(projects) > 0 :
+         selectionProperties.projectId = projects[0]['id']
 
       # set up the story filters
       # add the story types to the filter
       typeFilter = u' type:none,'
 
-      if self.featuresChecked != '' :
+      if selectionProperties.featuresChecked != '' :
          typeFilter += 'feature,'
 
-      if self.bugsChecked != '' :
+      if selectionProperties.bugsChecked != '' :
          typeFilter += 'bug,'
 
-      if self.choresChecked != '' :
+      if selectionProperties.choresChecked != '' :
          typeFilter += 'chore,'
 
-      if self.releasesChecked != '' :
+      if selectionProperties.releasesChecked != '' :
          typeFilter += 'release'
       
-      self.filter += self.labelFilter
-      self.filter += typeFilter
+      selectionProperties.filter += selectionProperties.labelFilter
+      selectionProperties.filter += typeFilter
       
-      session['filter'] = self.filter
+      session['filter'] = selectionProperties.filter
        
       # if a project is selected, get it's stories
-      if self.projectId != None :         
+      if selectionProperties.projectId != None :         
         try :
-          stories = client.stories.get_filter(self.projectId, self.filter, True )['stories']
+          stories = client.stories.get_filter(selectionProperties.projectId, selectionProperties.filter, True )
         except KeyError as e :
-          logging.error ( "An exception occurred trying to retreive the stories for project: " + self.projectId)
+          logging.error ( "An exception occurred trying to retreive the stories for project: " + selectionProperties.projectId)
           logging.error ( "KeyError: " + str(e.args))
           # just leave the stories as an empty list for now
       
       template_values = {
-                        'apiKey' : self.apikey,
+                        'apiKey' : selectionProperties.apikey,
                         'projects' : projects, 
-                        'selected_project' : self.projectId, 
-                        'filter_text' : self.filter, 
-                        'features_checked' : self.featuresChecked, 
-                        'bugs_checked' : self.bugsChecked, 
-                        'chores_checked' : self.choresChecked, 
-                        'releases_checked' : self.releasesChecked,
+                        'selected_project' : selectionProperties.projectId, 
+                        'filter_text' : selectionProperties.filter, 
+                        'features_checked' : selectionProperties.featuresChecked, 
+                        'bugs_checked' : selectionProperties.bugsChecked, 
+                        'chores_checked' : selectionProperties.choresChecked, 
+                        'releases_checked' : selectionProperties.releasesChecked,
                         'stories' : stories,
-                        'labels' : self.labels,
-                        'selected_label' : self.selectedLabel,
+                        'labels' : selectionProperties.labels,
+                        'selected_label' : selectionProperties.selectedLabel,
                         'version' : os.environ.get('CURRENT_VERSION_ID')[0:6]
                         }
                         

@@ -10,7 +10,7 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import run_wsgi_app
 from gaesessions import get_current_session
-from busyflow.pivotal import PivotalClient
+from pivotal_api_v5 import PivotalClient
 
 from full_report_output import *
 from abbreviated_report_output import *

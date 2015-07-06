@@ -11,8 +11,6 @@ import os
 
 from google.appengine.ext import db
 from google.appengine.api import users
-from busyflow.pivotal import PivotalClient
-from xml.sax.saxutils import escape
 from gaesessions import get_current_session
 
 class SignIn(webapp2.RequestHandler):

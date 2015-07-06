@@ -22,7 +22,7 @@ from reportlab.lib.units import inch
 from reportlab.lib import colors
 from reportlab.pdfbase import pdfmetrics
 from xml.sax.saxutils import escape 
-from busyflow.pivotal import PivotalClient
+from pivotal_api_v5 import PivotalClient
 
     
 class FullReportOutput():
@@ -243,7 +243,7 @@ class FullReportOutput():
       httpResponse.headers['Content-Disposition'] = """inline; filename='{0}'""".format(filename)
       httpResponse.headers['Accept-Ranges'] = 'bytes'
       httpResponse.headers['Expires'] = '0'
-     
+
       doc = SimpleDocTemplate( httpResponse.out, pagesize = letter, allowSplitting=1, title="""{0} User Stories""".format( projectName ), author='Agile Docs (http://pivotal-pdf.appspot.com)', leftMargin=0.75*inch, rightMargin=0.75*inch)
       
       #Create a list of flowables for the document

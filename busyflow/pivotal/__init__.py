@@ -164,7 +164,7 @@ class ProjectEndpoint(Endpoint):
         return self._get("projects")
 
     def activities(self, project_id, limit=None, occurred_since_date=None, newer_than_version=None):
-        return self._get("projects/%s/activities" % project_id, limit=str(limit),
+        return self._get("projects/%s/activity" % project_id, limit=str(limit),
                          occurred_since_date=occurred_since_date,
                          newer_than_version=str(newer_than_version))
 
@@ -358,7 +358,7 @@ class EpicEndpoint(Endpoint):
 class PivotalClient(object):
 
     def __init__(self, token,
-                 base_url="https://www.pivotaltracker.com/services/v3/",
+                 base_url="https://www.pivotaltracker.com/services/v5/",
                  parse_xml=True, cache=None, timeout=None, proxy_info=None):
         self.token = token
         self.base_url = base_url

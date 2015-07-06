@@ -22,7 +22,7 @@ from reportlab.lib.units import inch
 from reportlab.lib import colors
 from reportlab.pdfbase import pdfmetrics
 from xml.sax.saxutils import escape 
-from busyflow.pivotal import PivotalClient
+from pivotal_api_v5 import PivotalClient
 
     
 class AbbreviatedReportOutput():

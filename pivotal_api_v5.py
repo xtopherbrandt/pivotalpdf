@@ -128,32 +128,6 @@ class ActivityEndpoint(Endpoint):
 
 class StoryEndpoint(Endpoint):
 
-   def make_story_xml(self, name=None, description=None, story_type=None,
-                       owned_by=None, requested_by=None, estimate=None, current_state=None, labels=None):
-      story = XMLBuilder(format=True)
-      with story.story:
-         if name is not None:
-            story << ('name', name)
-         if description is not None:
-            story << ('description', description)
-         if requested_by is not None:
-            story << ('requested_by', requested_by)
-         if owned_by is not None:
-            story << ('owned_by', owned_by)
-         if story_type is not None:
-            story << ('story_type', story_type)
-         if estimate is not None:
-            story << ('estimate', str(estimate), {'type': 'integer'})
-         if current_state is not None:
-            story << ('current_state', current_state)
-         if labels is not None:
-            label_string = ','
-            if labels:
-               label_string = ','.join(labels)
-            story << ('labels', label_string)
-
-      return str(story)
-
    def all(self, project_id, query=None, limit=None, offset=None):
       return self._get("projects/%s/stories" % project_id, query=query, limit=limit, offset=offset)
 
