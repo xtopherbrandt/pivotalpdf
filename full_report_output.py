@@ -298,8 +298,11 @@ class FullReportOutput():
             
             #add some flowables
             # add the date of story acceptance. The activity info returned has a limited history older stories will not have them
-            detailRow.append("""Accepted: {0}""".format(storyInfo['story']['accepted_at'].strftime(self.iterationDateFormat)) )
-            
+            if 'accepted_at' in storyInfo['story'] :
+               detailRow.append("""Accepted: {0}""".format(storyInfo['story']['accepted_at'].strftime(self.iterationDateFormat)) )
+            else :
+               detailRow.append("""Accepted""")            
+               
             # add the owner if one exists
             if 'owned_by' in storyInfo['story'] :
                detailRow.append(storyInfo['story']['owned_by'])
@@ -371,7 +374,10 @@ class FullReportOutput():
             #add some flowables
             # if this story has been accepted then set the detail row appropriately
             if storyInfo['story']['id'] in storyAcceptance :
-               detailRow.append("""Accepted: {0}""".format(storyInfo['story']['accepted_at'].strftime(self.iterationDateFormat)) )
+               if 'accepted_at' in storyInfo['story'] :
+                  detailRow.append("""Accepted: {0}""".format(storyInfo['story']['accepted_at'].strftime(self.iterationDateFormat)) )
+               else:
+                  detailRow.append( """Accepted""" )
             else :
                detailRow.append("In Progress" )
                
@@ -570,7 +576,7 @@ class FullReportOutput():
             
          # Concatenate the story description with the activity notes
          description = '\n'.join(rawDescription )
-        
+
          # Need to separate out each paragraph in the story. The Paragraph flowable will remove all 
          # whitespace around end of line characters.
          paragraphMatches = re.finditer(r"""(^.*$)""", description, re.M)
@@ -588,20 +594,20 @@ class FullReportOutput():
 
             # If this paragraph is a header style it appropriately
             for header in headerMatches :
-              try:
-                 if header.lastgroup == 'H1' :
-                    storyDescription.append ( Paragraph ( header.groupdict()['H1'] , self.styleH1 ))
-                    isHeader = True
-                 elif header.lastgroup == 'H2' :
-                    storyDescription.append ( Paragraph ( header.groupdict()['H2'] , self.styleH2 ))
-                    isHeader = True
-                 elif header.lastgroup == 'H3' :
-                    storyDescription.append ( Paragraph ( header.groupdict()['H3'] , self.styleH3 ))
-                    isHeader = True
-              except ValueError as exception :
-                storyDescription.append ( Paragraph( """An error was encountered interpreting the header for this story.""", self.styleNormal ))
-                logging.error( "A ValueError occured while interpreing the header of a story. \n Header type: " + header.lastgroup + "\n Args: " + str(exception.args))
-              
+               try:
+                  if header.lastgroup == 'H1' :
+                     storyDescription.append ( Paragraph ( header.groupdict()['H1'] , self.styleH1 ))
+                     isHeader = True
+                  elif header.lastgroup == 'H2' :
+                     storyDescription.append ( Paragraph ( header.groupdict()['H2'] , self.styleH2 ))
+                     isHeader = True
+                  elif header.lastgroup == 'H3' :
+                     storyDescription.append ( Paragraph ( header.groupdict()['H3'] , self.styleH3 ))
+                     isHeader = True
+               except ValueError as exception :
+                  storyDescription.append ( Paragraph( """An error was encountered interpreting the header for this story.""", self.styleNormal ))
+                  logging.error( "A ValueError occured while interpreing the header of a story. \n Header type: {0}\n Args: {1}".format(header.lastgroup, str(exception.args)))
+
             if isHeader == False :
                storyDescription.append( Paragraph( self.MarkDownToMarkUp ( paragraphMatch.group(0) ), self.styleNormal ) )
          
@@ -646,7 +652,7 @@ class FullReportOutput():
       # if the project has some done iterations
       if 'iterations' in project:
          iterations = project['iterations']
-        
+
          # Go through each iteration and find the stories that are in our set
          for iteration in iterations:
             stories = iteration['stories']
@@ -676,7 +682,7 @@ class FullReportOutput():
       # if the project has a current iteration
       if 'iterations' in project:
          iterations = project['iterations']
-        
+   
          # Go through each iteration and find the stories that are in our set
          for iteration in iterations:
             stories = iteration['stories']
@@ -707,7 +713,7 @@ class FullReportOutput():
       # if the project has a current iteration
       if 'iterations' in project:
          iterations = project['iterations']
-        
+   
          # Go through each iteration and find the stories that are in our set
          for iteration in iterations:
             stories = iteration['stories']
@@ -780,7 +786,7 @@ class FullReportOutput():
    def pageFooter(self, canvas, doc):
       canvas.saveState()
       canvas.setFont( self.footerFontName, self.footerFontSize, self.footerFontLeading )
-      
+
       # draw the doc info
       canvas.drawString ( self.footerLeftEdge, self.footerHeight, self.pageInfo )
        
