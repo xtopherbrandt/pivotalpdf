@@ -233,7 +233,10 @@ class AbbreviatedReportOutput():
             detailRow = []
             
             #add some flowables
-            detailRow.append("""Accepted: {0}""".format(storyInfo['story']['accepted_at'].strftime(self.iterationDateFormat)) )
+            if 'accepted_at' in storyInfo['story'] :
+               detailRow.append("""Accepted: {0}""".format(storyInfo['story']['accepted_at'].strftime(self.iterationDateFormat)) )
+            else :
+               detailRow.append("""Accepted""")
             
             # add the owner if one exists
             if 'owned_by' in storyInfo['story'] :
@@ -488,17 +491,17 @@ class AbbreviatedReportOutput():
       doneStories = []
         
       try :
-        # Get the set of done iterations
-        client = PivotalClient(token=apiToken, cache=None)
-        project = client.iterations.done( projectId )
+         # Get the set of done iterations
+         client = PivotalClient(token=apiToken, cache=None)
+         project = client.iterations.done( projectId )
       except httplib.HTTPException as exception :
-        logging.error ("An HTTPException occurred in GetDoneStories.\nArgs: " + str( exception.args ))
-        return doneStories
+         logging.error ("An HTTPException occurred in GetDoneStories.\nArgs: " + str( exception.args ))
+         return doneStories
       
       # if the project has some done iterations
       if 'iterations' in project:
          iterations = project['iterations']
-        
+
          # Go through each iteration and find the stories that are in our set
          for iteration in iterations:
             stories = iteration['stories']
@@ -518,17 +521,17 @@ class AbbreviatedReportOutput():
       currentStories = []
         
       try :
-        # Get the current iteration
-        client = PivotalClient(token=apiToken, cache=None)
-        project = client.iterations.current( projectId )
+         # Get the current iteration
+         client = PivotalClient(token=apiToken, cache=None)
+         project = client.iterations.current( projectId )
       except httplib.HTTPException as exception :
-        logging.error ("An HTTPException occurred in GetCurrentStories.\nArgs: " + str( exception.args ))
-        return currentStories
+         logging.error ("An HTTPException occurred in GetCurrentStories.\nArgs: " + str( exception.args ))
+         return currentStories
       
       # if the project has a current iteration
       if 'iterations' in project:
          iterations = project['iterations']
-        
+
          # Go through each iteration and find the stories that are in our set
          for iteration in iterations:
             stories = iteration['stories']
@@ -549,17 +552,17 @@ class AbbreviatedReportOutput():
       futureStories = []
         
       try :
-        # Get the set of future iterations
-        client = PivotalClient(token=apiToken, cache=None)
-        project = client.iterations.backlog( projectId )
+         # Get the set of future iterations
+         client = PivotalClient(token=apiToken, cache=None)
+         project = client.iterations.backlog( projectId )
       except httplib.HTTPException as exception :
-        logging.error ("An HTTPException occurred in GetFutureStories.\nArgs: " + str( exception.args ))
-        return futureStories
+         logging.error ("An HTTPException occurred in GetFutureStories.\nArgs: " + str( exception.args ))
+         return futureStories
       
       # if the project has a current iteration
       if 'iterations' in project:
          iterations = project['iterations']
-        
+
          # Go through each iteration and find the stories that are in our set
          for iteration in iterations:
             stories = iteration['stories']
@@ -580,13 +583,13 @@ class AbbreviatedReportOutput():
       iceboxStories = []
 
       try :
-        # Get the set of icebox stories
-        client = PivotalClient(token=apiToken, cache=None)
-        stories = client.stories.get_filter(projectId, 'state:unscheduled', True )['stories']
+         # Get the set of icebox stories
+         client = PivotalClient(token=apiToken, cache=None)
+         stories = client.stories.get_filter(projectId, 'state:unscheduled', True )['stories']
       except httplib.HTTPException as exception :
-        logging.error ("An HTTPException occurred in GetIceboxStories.\nArgs: " + str( exception.args ))
-        return iceboxStories
-            
+         logging.error ("An HTTPException occurred in GetIceboxStories.\nArgs: " + str( exception.args ))
+         return iceboxStories
+
       for story in stories:
          for filteredStory in filteredStories:               
             if str(story['id']) == filteredStory:
@@ -630,13 +633,13 @@ class AbbreviatedReportOutput():
                
             
    def pageFooter(self, canvas, doc):
-       canvas.saveState()
-       canvas.setFont( self.footerFontName, self.footerFontSize, self.footerFontLeading )
+      canvas.saveState()
+      canvas.setFont( self.footerFontName, self.footerFontSize, self.footerFontLeading )
        
-       # draw the doc info
-       canvas.drawString ( self.footerLeftEdge, self.footerHeight, self.pageInfo )
+      # draw the doc info
+      canvas.drawString ( self.footerLeftEdge, self.footerHeight, self.pageInfo )
        
-       # draw the page number
-       canvas.drawRightString ( self.footerRightEdge, self.footerHeight, "Page {0}".format (doc.page) )
-       canvas.restoreState()       
+      # draw the page number
+      canvas.drawRightString ( self.footerRightEdge, self.footerHeight, "Page {0}".format (doc.page) )
+      canvas.restoreState()       
 
