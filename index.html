@@ -129,7 +129,7 @@
                   <h3>Story List</h3>
 
                   <div>
-                    <select class="form-control" name="stories" size="20" style="margin: 5px 0pt; width: 500px;" multiple="multiple">
+                    <select class="form-control" name="stories" id="stories" size="20" style="margin: 5px 0pt; width: 500px;" multiple="multiple">
                       {% for story in stories %}
                        <option value="{{story.id}}">{{story.name}}</option>
                       {% endfor %}

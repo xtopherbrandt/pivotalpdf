@@ -30,16 +30,90 @@ class GetProjects(webapp2.RequestHandler):
       
 class GetStories ( webapp2.RequestHandler ):
 
-   def get ( self, projectID ):
+   def get ( self, projectID = 'None' ):
 
       logging.info ( "GetStories.get()" )
 
       session = get_current_session()
             
-      session['projectId'] = projectID
+      if projectID != 'None' :
+         session['projectId'] = projectID
       
       output = OutputHTML( self )
       output.post()  
+      
+   def post ( self, projectID ) :
+
+      logging.info ( "GetStories.post()" )
+
+      selectionProperties = SelectionProperties()
+      session = get_current_session()
+      response_json = {}
+      
+      # if we don't have an active session or there isn't an APIKey   
+      if ! ( session.is_active() and session.has_key('APIKey') ) :
+         self.response.write( json.dumps(response_json) )
+         return
+      
+      selectionProperties.apikey = session['APIKey']
+
+      #if the project ID was specified use it
+      if projectID != 'None' :
+         session['projectId'] = projectID
+         selectionProperties.projectId = projectID
+      # otherwise try the session
+      elif session.has_key('projectId') :
+         selectionProperties.projectId = session['projectId']
+      # if we can't find a project ID exit
+      else :
+         self.response.write( json.dumps(response_json) )
+         return
+
+      
+      if session.has_key('labelList') :
+         selectionProperties.labels = session['labelList']
+
+      selectionProperties.filter = self.request.get('filter')
+      session['filter'] = selectionProperties.filter
+         
+      selectionProperties.featuresChecked = self.request.get('featuresChecked')
+      session['featuresChecked'] = selectionProperties.featuresChecked
+         
+      selectionProperties.bugsChecked = self.request.get('bugsChecked')            
+      session['bugsChecked'] = selectionProperties.bugsChecked
+         
+      selectionProperties.choresChecked = self.request.get('choresChecked')            
+      session['choresChecked'] = selectionProperties.choresChecked
+         
+      selectionProperties.releasesChecked = self.request.get('releasesChecked')            
+      session['releasesChecked'] = selectionProperties.releasesChecked
+      
+      # set up the story filters
+      # add the story types to the filter
+      typeFilter = ' type:none,'
+
+      if selectionProperties.featuresChecked != '' :
+         typeFilter += 'feature,'
+
+      if selectionProperties.bugsChecked != '' :
+         typeFilter += 'bug,'
+
+      if selectionProperties.choresChecked != '' :
+         typeFilter += 'chore,'
+
+      if selectionProperties.releasesChecked != '' :
+         typeFilter += 'release'
+      
+      selectionProperties.filter += selectionProperties.labelFilter
+      selectionProperties.filter += typeFilter
+      
+      session['filter'] = selectionProperties.filter
+       
+      projectStories = client.stories.get_filter(selectionProperties.projectId, selectionProperties.filter, True )
+      logging.info ( projectStories )
+
+      #respond with a list of story names and IDs
+      
 
 class OutputHTML ( webapp2.RequestHandler ):
    
@@ -52,6 +126,7 @@ class OutputHTML ( webapp2.RequestHandler ):
       session = get_current_session()
 
       # if the request has an API Key then set it in our session
+      # this would be the case after authentication
       if self.request.get('APIKey') != '' :
          session['APIKey'] = self.request.get('APIKey')
 
