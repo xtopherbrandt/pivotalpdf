@@ -20,6 +20,7 @@ from story_selection import *
 from generate_output import *
 from sign_in import *
 from sign_out import *
+from generate_pdf_2 import *
 
 class MainPage(webapp2.RequestHandler):
 
@@ -130,7 +131,8 @@ application = webapp2.WSGIApplication([
   ('/getStories/(\d+)', GetStories),
   ('/getStories', OutputHTML),
   ('/filterStories', OutputHTML),
-  ('/generatePDF', GenerateOutput)
+  ('/generatePDF', GenerateOutput),
+  ('/v2/generatePDF', GeneratePDF_2)
   
 ], debug=True)
 
