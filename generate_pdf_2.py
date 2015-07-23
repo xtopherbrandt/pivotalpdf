@@ -1,10 +1,14 @@
 import json
 import time
+import datetime
 from busyflow.pivotal import PivotalClient
 import webapp2
 from full_report_output import *
 from abbreviated_report_output import *
 import logging
+from google.appengine.api import users
+from google.appengine.ext import db
+from user import *
 
 class GeneratePDF_2 (webapp2.RequestHandler):
    
@@ -30,13 +34,30 @@ class GeneratePDF_2 (webapp2.RequestHandler):
 
       filename =  """UserStories-{0}.pdf""".format(time.strftime(self.fileNameDateTimeFormat))
       
+      '''Get the user's record'''
+      userKey = user_key( request['apiKey'] )
+      user = userKey.get()
+            
+      '''if this user doesn't have a record yet, create one'''
+      if user == None :
+         user = User( id=request['apiKey'] )
+         logging.info ("New extension user added {0}".format(request['apiKey']))
+      else :
+         user.last_usage_date = datetime.datetime.today()
+         logging.info ("User {0} made a request from the extension.".format(request['apiKey']))
+      
       # if they've specified summary then give them summary, 
       if 'format' in request and request['format'] == 'summaryDocument' :
          report = AbbreviatedReportOutput()
+         user.summary_document_count = user.summary_document_count + 1
       else :
          # if we can't find a report format specified assume full.
          report = FullReportOutput()
+         user.full_document_count = user.full_document_count + 1
 
+      '''Save the user info'''
+      user.put()
+         
       if 'activities' in request and request['activities'] == False :
          outputActivity = "checked='false'"
       else :

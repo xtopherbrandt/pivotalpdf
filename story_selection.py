@@ -305,6 +305,8 @@ class OutputHTML ( webapp2.RequestHandler ):
          user.put()
          logging.info ("New user added {0}".format(self.apikey))
       else :
+         user.last_usage_date = datetime.datetime.today()
+         user.put()         
          logging.info ("User {0} logged back in.".format(self.apikey))
       
       stories = []
