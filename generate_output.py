@@ -150,11 +150,11 @@ class GenerateOutput(webapp.RequestHandler):
       # if they've specified summary then give them summary, 
       if reportFormat == 'summary' :
          report = AbbreviatedReportOutput()
-         user.summary_document_count = user.summary_document_count + 1
+         user.summary_document_count = (user.summary_document_count + 1) if ( user.summary_document_count != None ) else 1
       else :
          # if we can't find a report format specified assume full.
          report = FullReportOutput()
-         user.full_document_count = user.full_document_count + 1
+         user.full_document_count = (user.full_document_count + 1) if ( user.full_document_count != None ) else 1
 
       '''Save the user info'''
       user.put()
