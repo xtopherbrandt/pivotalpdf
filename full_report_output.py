@@ -36,7 +36,7 @@ class FullReportOutput():
    titleSpace = 0.25*inch
    interStorySpace = 0.25*inch
    intraStorySpace = 0.125*inch
-   pageInfo = "Pivotal PDF"
+   pageInfo = "Agile Docs"
 
    styleDocTitle = ParagraphStyle( name='DocumentTitle',
                                  fontName='Helvetica-Bold',
