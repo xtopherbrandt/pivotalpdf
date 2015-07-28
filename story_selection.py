@@ -51,7 +51,7 @@ class GetStories ( webapp2.RequestHandler ):
       response_json = {}
       
       # if we don't have an active session or there isn't an APIKey   
-      if ! ( session.is_active() and session.has_key('APIKey') ) :
+      if not ( session.is_active() and session.has_key('APIKey') ) :
          self.response.write( json.dumps(response_json) )
          return
       
