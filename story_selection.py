@@ -17,16 +17,7 @@ from xml.sax.saxutils import escape
 from gaesessions import get_current_session
 
 from selection_properties import *
-from user import *
-        
-class GetProjects(webapp2.RequestHandler):
-
-   def post(self):
-
-      logging.info ( "GetProjects.post()" )
-      
-      output = OutputHTML( self )
-      output.post()  
+from user import *        
       
 class GetStories ( webapp2.RequestHandler ):
 
@@ -39,12 +30,11 @@ class GetStories ( webapp2.RequestHandler ):
       if projectID != 'None' :
          session['projectId'] = projectID
       
-      output = OutputHTML( self )
-      output.post()  
+      self.post()  
       
    def post ( self, projectID ) :
 
-      logging.info ( "GetStories.post()" )
+      logging.info ( "GetStories.post(projectID)" )
 
       selectionProperties = SelectionProperties()
       session = get_current_session()
@@ -114,14 +104,11 @@ class GetStories ( webapp2.RequestHandler ):
 
       #respond with a list of story names and IDs
       
-
-class OutputHTML ( webapp2.RequestHandler ):
-   
    def post ( self ):
 
       selectionProperties = SelectionProperties()
 
-      logging.info ( "OutputHTML.post()" )
+      logging.info ( "GetStories.post()" )
       
       session = get_current_session()
 
@@ -223,7 +210,7 @@ class OutputHTML ( webapp2.RequestHandler ):
       # if a project is selected, get it's stories
       if selectionProperties.projectId != None : 
          projectStories = client.stories.get_filter(selectionProperties.projectId, selectionProperties.filter, True )
-         logging.info ( projectStories )
+         logging.info ( projects )
             
       template_values = {
                         'apiKey' : selectionProperties.apikey,
@@ -243,6 +230,9 @@ class OutputHTML ( webapp2.RequestHandler ):
                         
       path = os.path.join(os.path.dirname(__file__), 'index.html')
       self.response.out.write(template.render(path, template_values))        
+
+
+   
     
 
 

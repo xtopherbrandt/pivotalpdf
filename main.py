@@ -45,7 +45,7 @@ class MainPage(webapp2.RequestHandler):
             selectionProperties.labels = session['labelList']
             
       else :
-         return selectionProperties.redirect('/SignIn')
+         return self.redirect('/SignIn')
             
       client = PivotalClient(token=selectionProperties.apikey, cache=None)
       projects = client.projects.all()
@@ -121,10 +121,10 @@ application = webapp2.WSGIApplication([
   ('/', MainPage),
   ('/SignIn', SignIn),
   ('/SignOut', SignOut),
-  ('/authenticate', OutputHTML),
+  ('/authenticate', GetStories),
   ('/getStories/(\d+)', GetStories),
   ('/getStories', GetStories),
-  ('/filterStories', OutputHTML),
+  ('/filterStories', GetStories),
   ('/generatePDF', GenerateOutput)
   
 ], debug=True)
