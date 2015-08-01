@@ -44,10 +44,13 @@
                  Project
                {% else %}
                  {% for project in projects %}
+                   
                    {% if project.id == selected_project %}
-                     {{project.name}}
+                      {{project.name}}   
                    {% endif %}
+                
                  {% endfor %}
+                  
                {% endif %}
                <span class="caret"></span></a>
              <ul class="dropdown-menu" role="menu">
@@ -100,10 +103,10 @@
                   <select class="form-control" name="labels">
                      <option value="">Label Filter</option>
                      {% for label in labels %}
-                        {% if label == selected_label %}
-                           <option selected="selected" value="{{label}}">{{label}}</option>
+                        {% if label.name == selected_label %}
+                           <option selected="selected" value="{{label.name}}">{{label.name}}</option>
                         {% else %}
-                           <option value="{{label}}">{{label}}</option>
+                           <option value="{{label.name}}">{{label.name}}</option>
                         {% endif %}
                      {% endfor %}
                   </select>

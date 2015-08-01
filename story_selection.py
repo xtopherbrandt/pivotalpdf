@@ -31,79 +31,7 @@ class GetStories ( webapp2.RequestHandler ):
          session['projectId'] = projectID
       
       self.post()  
-      
-   def post ( self, projectID ) :
-
-      logging.info ( "GetStories.post(projectID)" )
-
-      selectionProperties = SelectionProperties()
-      session = get_current_session()
-      response_json = {}
-      
-      # if we don't have an active session or there isn't an APIKey   
-      if not ( session.is_active() and session.has_key('APIKey') ) :
-         self.response.write( json.dumps(response_json) )
-         return
-      
-      selectionProperties.apikey = session['APIKey']
-
-      #if the project ID was specified use it
-      if projectID != 'None' :
-         session['projectId'] = projectID
-         selectionProperties.projectId = projectID
-      # otherwise try the session
-      elif session.has_key('projectId') :
-         selectionProperties.projectId = session['projectId']
-      # if we can't find a project ID exit
-      else :
-         self.response.write( json.dumps(response_json) )
-         return
-
-      
-      if session.has_key('labelList') :
-         selectionProperties.labels = session['labelList']
-
-      selectionProperties.filter = self.request.get('filter')
-      session['filter'] = selectionProperties.filter
-         
-      selectionProperties.featuresChecked = self.request.get('featuresChecked')
-      session['featuresChecked'] = selectionProperties.featuresChecked
-         
-      selectionProperties.bugsChecked = self.request.get('bugsChecked')            
-      session['bugsChecked'] = selectionProperties.bugsChecked
-         
-      selectionProperties.choresChecked = self.request.get('choresChecked')            
-      session['choresChecked'] = selectionProperties.choresChecked
-         
-      selectionProperties.releasesChecked = self.request.get('releasesChecked')            
-      session['releasesChecked'] = selectionProperties.releasesChecked
-      
-      # set up the story filters
-      # add the story types to the filter
-      typeFilter = ' type:none,'
-
-      if selectionProperties.featuresChecked != '' :
-         typeFilter += 'feature,'
-
-      if selectionProperties.bugsChecked != '' :
-         typeFilter += 'bug,'
-
-      if selectionProperties.choresChecked != '' :
-         typeFilter += 'chore,'
-
-      if selectionProperties.releasesChecked != '' :
-         typeFilter += 'release'
-      
-      selectionProperties.filter += selectionProperties.labelFilter
-      selectionProperties.filter += typeFilter
-      
-      session['filter'] = selectionProperties.filter
-       
-      projectStories = client.stories.get_filter(selectionProperties.projectId, selectionProperties.filter, True )
-      logging.info ( projectStories )
-
-      #respond with a list of story names and IDs
-      
+            
    def post ( self ):
 
       selectionProperties = SelectionProperties()
@@ -127,10 +55,7 @@ class GetStories ( webapp2.RequestHandler ):
          
          if session.has_key('projectId') :
             selectionProperties.projectId = session['projectId']            
-         
-         if session.has_key('labelList') :
-            selectionProperties.labels = session['labelList']
-            
+             
       else :
          return self.redirect('/SignIn')
 
@@ -139,9 +64,7 @@ class GetStories ( webapp2.RequestHandler ):
       # Connect to Pivotal Tracker and get the user's projects
       client = PivotalClient(token=selectionProperties.apikey, cache=None)
       projects = client.projects.all()
-            
-      logging.info ("Retrieved {0} projects.".format(len(projects)))
-      
+       
       '''Get the user's record'''
       userKey = user_key( selectionProperties.apikey )
       user = userKey.get()
@@ -155,12 +78,15 @@ class GetStories ( webapp2.RequestHandler ):
          logging.info ("User {0} logged back in.".format(selectionProperties.apikey))
       
       stories = []
+      labels = []
 
       # if we havn't selected a project and there is at least 1, the select the first by default
       if selectionProperties.projectId == None and len(projects) > 0 :
          selectionProperties.projectId = projects[0]['id']
          session['projectId'] = selectionProperties.projectId
-                     
+
+      labels = client.projects.labels( selectionProperties.projectId )
+
       # if we're filtering the stories
       if self.request.get('filter', default_value=None) != None :
          
@@ -210,19 +136,18 @@ class GetStories ( webapp2.RequestHandler ):
       # if a project is selected, get it's stories
       if selectionProperties.projectId != None : 
          projectStories = client.stories.get_filter(selectionProperties.projectId, selectionProperties.filter, True )
-         logging.info ( projects )
             
       template_values = {
                         'apiKey' : selectionProperties.apikey,
                         'projects' : projects, 
-                        'selected_project' : selectionProperties.projectId, 
+                        'selected_project' : int(selectionProperties.projectId), 
                         'filter_text' : selectionProperties.filter, 
                         'features_checked' : selectionProperties.featuresChecked, 
                         'bugs_checked' : selectionProperties.bugsChecked, 
                         'chores_checked' : selectionProperties.choresChecked, 
                         'releases_checked' : selectionProperties.releasesChecked,
                         'stories' : projectStories,
-                        'labels' : selectionProperties.labels,
+                        'labels' : labels,
                         'selected_label' : selectionProperties.selectedLabel,
                         'version' : os.environ.get('CURRENT_VERSION_ID'),
                         'outputActivity_checked' : selectionProperties.outputActivityChecked

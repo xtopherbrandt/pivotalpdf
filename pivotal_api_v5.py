@@ -97,7 +97,8 @@ class ProjectEndpoint(Endpoint):
                       occurred_since_date=occurred_since_date,
                       newer_than_version=str(newer_than_version))
 
-
+   def labels( self, project_id ):
+      return self._get("projects/%s/labels" % project_id)
 
 class IterationEndpoint(Endpoint):
 

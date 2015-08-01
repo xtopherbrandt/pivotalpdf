@@ -40,9 +40,6 @@ class MainPage(webapp2.RequestHandler):
          
          if session.has_key('projectId') :
             selectionProperties.projectId = session['projectId']            
-         
-         if session.has_key('labelList') :
-            selectionProperties.labels = session['labelList']
             
       else :
          return self.redirect('/SignIn')
