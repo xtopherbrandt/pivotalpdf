@@ -60,10 +60,13 @@ class MainPage(webapp2.RequestHandler):
          logging.info ("User {0} logged back in.".format(selectionProperties.apikey))
 
       stories = []
+      labels = []
 
       # if we havn't selected a project and there is at least 1, the select the first by default
       if selectionProperties.projectId == None and len(projects) > 0 :
          selectionProperties.projectId = projects[0]['id']
+
+      labels = client.projects.labels( selectionProperties.projectId )
 
       # set up the story filters
       # add the story types to the filter
@@ -88,24 +91,24 @@ class MainPage(webapp2.RequestHandler):
        
       # if a project is selected, get it's stories
       if selectionProperties.projectId != None :         
-        try :
-          stories = client.stories.get_filter(selectionProperties.projectId, selectionProperties.filter, True )
-        except KeyError as e :
-          logging.error ( "An exception occurred trying to retreive the stories for project: " + selectionProperties.projectId)
-          logging.error ( "KeyError: " + str(e.args))
-          # just leave the stories as an empty list for now
+         try :
+            stories = client.stories.get_filter(selectionProperties.projectId, selectionProperties.filter, True )
+         except KeyError as e :
+            logging.error ( "An exception occurred trying to retreive the stories for project: " + selectionProperties.projectId)
+            logging.error ( "KeyError: " + str(e.args))
+            # just leave the stories as an empty list for now
       
       template_values = {
                         'apiKey' : selectionProperties.apikey,
                         'projects' : projects, 
-                        'selected_project' : selectionProperties.projectId, 
+                        'selected_project' : int(selectionProperties.projectId), 
                         'filter_text' : selectionProperties.filter, 
                         'features_checked' : selectionProperties.featuresChecked, 
                         'bugs_checked' : selectionProperties.bugsChecked, 
                         'chores_checked' : selectionProperties.choresChecked, 
                         'releases_checked' : selectionProperties.releasesChecked,
                         'stories' : stories,
-                        'labels' : selectionProperties.labels,
+                        'labels' : labels,
                         'selected_label' : selectionProperties.selectedLabel,
                         'version' : os.environ.get('CURRENT_VERSION_ID')[0:6]
                         }

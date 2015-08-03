@@ -106,19 +106,19 @@ class IterationEndpoint(Endpoint):
       return self._get("projects/%s/iterations" % project_id, limit=limit, offset=offset)
 
    def done(self, project_id, limit=None, offset=None):
-      return self._get("projects/%s/iterations/done" % project_id, limit=limit, offset=offset)
+      return self._get("projects/%s/iterations" % project_id, scope='done', limit=limit, offset=offset)
 
-   def done_filtered(self, project_id, limit=None, offset=None, search_filter=None):
-      return self._get("projects/%s/iterations/done" % project_id, limit=limit, offset=offset, filter=search_filter)
+   def done_filtered(self, project_id, scope='done', limit=None, offset=None, search_filter=None):
+      return self._get("projects/%s/iterations" % project_id, limit=limit, offset=offset, filter=search_filter)
 
    def current(self, project_id, limit=None, offset=None):
-      return self._get("projects/%s/iterations/current" % project_id, limit=limit, offset=offset)
+      return self._get("projects/%s/iterations" % project_id, scope='current', limit=limit, offset=offset)
 
    def backlog(self, project_id, limit=None, offset=None):
-      return self._get("projects/%s/iterations/backlog" % project_id, limit=limit, offset=offset)
+      return self._get("projects/%s/iterations" % project_id, scope='backlog', limit=limit, offset=offset)
 
    def current_backlog(self, project_id, limit=None, offset=None):
-      return self._get("projects/%s/iterations/current_backlog" % project_id, limit=limit, offset=offset)
+      return self._get("projects/%s/iterations" % project_id, scope='current_backlog',  limit=limit, offset=offset)
 
 class ActivityEndpoint(Endpoint):
 

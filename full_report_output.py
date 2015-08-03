@@ -234,7 +234,8 @@ class FullReportOutput():
 
       # Get the project Name
       client = PivotalClient(token=apiToken, cache=None)
-      projectName = escape( client.projects.get( projectId )['project']['name'] )
+
+      projectName = escape( client.projects.get( projectId )['name'] )
    
       # Set the http headers
       httpResponse.headers['Content-Type'] = 'application/pdf'
@@ -795,7 +796,7 @@ class FullReportOutput():
         
       # Get the set of done iterations
       client = PivotalClient(token=apiToken, cache=None)
-      project = client.projects.activities( projectId, limit=100 )
+      project = client.projects.activity( projectId, limit=100 )
       
       # if the project has some done iterations
       if 'activities' in project:

@@ -149,7 +149,7 @@ class GetStories ( webapp2.RequestHandler ):
                         'stories' : projectStories,
                         'labels' : labels,
                         'selected_label' : selectionProperties.selectedLabel,
-                        'version' : os.environ.get('CURRENT_VERSION_ID'),
+                        'version' : os.environ.get('CURRENT_VERSION_ID')[0:6],
                         'outputActivity_checked' : selectionProperties.outputActivityChecked
                         }
                         
