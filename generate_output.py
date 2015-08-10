@@ -66,8 +66,8 @@ class GenerateOutput(webapp.RequestHandler):
          # if no stories were selected, assume all are desired and get all by the filter
          if len(stories) == 0:
             client = PivotalClient(token=apiToken, cache=None)
-            stories = [ str(story['id']) for story in client.stories.get_filter(projectId, filter, True )['stories'] ]
-               
+            stories = [ str(story['id']) for story in client.stories.get_filter(projectId, filter, True ) ]
+
          self.GeneratePdf( apiToken, projectId, stories, filename, reportFormat, outputActivityChecked )
       else :
             
@@ -112,8 +112,8 @@ class GenerateOutput(webapp.RequestHandler):
          # if no stories were selected, assume all are desired and get all by the filter
          if len(stories) == 0:
             client = PivotalClient(token=apiToken, cache=None)
-            stories = [ str(story['id']) for story in client.stories.get_filter(projectId, filter, True )['stories'] ]
-            
+            stories = [ str(story['id']) for story in client.stories.get_filter(projectId, filter, True )]
+
          if 'outputActivityChecked' in session :
             # the output activity flag should have been saved on the inital post, so can get it from the session
             outputActivity = session['outputActivityChecked']

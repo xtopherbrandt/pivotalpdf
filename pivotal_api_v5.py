@@ -92,10 +92,8 @@ class ProjectEndpoint(Endpoint):
    def all(self):
       return self._get("projects")
 
-   def activity(self, project_id, limit=None, occurred_since_date=None, newer_than_version=None):
-      return self._get("projects/%s/activity" % project_id, limit=str(limit),
-                      occurred_since_date=occurred_since_date,
-                      newer_than_version=str(newer_than_version))
+   def activity(self, project_id, limit=None ):
+      return self._get("projects/%s/activity" % project_id, limit=str(limit) )
 
    def labels( self, project_id ):
       return self._get("projects/%s/labels" % project_id)

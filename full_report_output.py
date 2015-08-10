@@ -571,7 +571,7 @@ class FullReportOutput():
             
          # Concatenate the story description with the activity notes
          description = '\n'.join(rawDescription )
-        
+
          # Need to separate out each paragraph in the story. The Paragraph flowable will remove all 
          # whitespace around end of line characters.
          paragraphMatches = re.finditer(r"""(^.*$)""", description, re.M)
@@ -589,20 +589,20 @@ class FullReportOutput():
 
             # If this paragraph is a header style it appropriately
             for header in headerMatches :
-              try:
-                 if header.lastgroup == 'H1' :
-                    storyDescription.append ( Paragraph ( header.groupdict()['H1'] , self.styleH1 ))
-                    isHeader = True
-                 elif header.lastgroup == 'H2' :
-                    storyDescription.append ( Paragraph ( header.groupdict()['H2'] , self.styleH2 ))
-                    isHeader = True
-                 elif header.lastgroup == 'H3' :
-                    storyDescription.append ( Paragraph ( header.groupdict()['H3'] , self.styleH3 ))
-                    isHeader = True
-              except ValueError as exception :
-                storyDescription.append ( Paragraph( """An error was encountered interpreting the header for this story.""", self.styleNormal ))
-                logging.error( "A ValueError occured while interpreing the header of a story. \n Header type: " + header.lastgroup + "\n Args: " + str(exception.args))
-              
+               try:
+                  if header.lastgroup == 'H1' :
+                     storyDescription.append ( Paragraph ( header.groupdict()['H1'] , self.styleH1 ))
+                     isHeader = True
+                  elif header.lastgroup == 'H2' :
+                     storyDescription.append ( Paragraph ( header.groupdict()['H2'] , self.styleH2 ))
+                     isHeader = True
+                  elif header.lastgroup == 'H3' :
+                     storyDescription.append ( Paragraph ( header.groupdict()['H3'] , self.styleH3 ))
+                     isHeader = True
+               except ValueError as exception :
+                  storyDescription.append ( Paragraph( """An error was encountered interpreting the header for this story.""", self.styleNormal ))
+                  logging.error( "A ValueError occured while interpreing the header of a story. \n Header type: " + header.lastgroup + "\n Args: " + str(exception.args))
+                  
             if isHeader == False :
                storyDescription.append( Paragraph( self.MarkDownToMarkUp ( paragraphMatch.group(0) ), self.styleNormal ) )
          
@@ -639,26 +639,22 @@ class FullReportOutput():
       try :
          # Get the set of done iterations
          client = PivotalClient(token=apiToken, cache=None)
-         project = client.iterations.done( projectId )
+         iterations = client.iterations.done( projectId )
       except httplib.HTTPException as exception :
          logging.error ("An HTTPException occurred in GetDoneStories.\nArgs: " + str( exception.args ))
          return doneStories
       
-      # if the project has some done iterations
-      if 'iterations' in project:
-         iterations = project['iterations']
-        
-         # Go through each iteration and find the stories that are in our set
-         for iteration in iterations:
-            stories = iteration['stories']
-            found = False
-            for story in stories:
-               for filteredStory in filteredStories: 
-                  if str(story['id']) == filteredStory:
-                     storyInfo = { 'story' : story, 'start' : iteration['start'], 'finish' : iteration['finish'] }
-                     doneStories.append ( storyInfo )
-                     found = True
-                     break
+      # Go through each iteration and find the stories that are in our set
+      for iteration in iterations:
+         stories = iteration['stories']
+         found = False
+         for story in stories:
+            for filteredStory in filteredStories: 
+               if str(story['id']) == filteredStory:
+                  storyInfo = { 'story' : story, 'start' : iteration['start'], 'finish' : iteration['finish'] }
+                  doneStories.append ( storyInfo )
+                  found = True
+                  break
                
       return doneStories
 
@@ -669,27 +665,23 @@ class FullReportOutput():
       try:
          # Get the current iteration
          client = PivotalClient(token=apiToken, cache=None)
-         project = client.iterations.current( projectId )
+         iterations = client.iterations.current( projectId )
       except httplib.HTTPException as exception :
          logging.error ("An HTTPException occurred in GetCurrentStories.\nArgs: " + str( exception.args ))
          return currentStories
 
-      # if the project has a current iteration
-      if 'iterations' in project:
-         iterations = project['iterations']
-        
-         # Go through each iteration and find the stories that are in our set
-         for iteration in iterations:
-            stories = iteration['stories']
+      # Go through each iteration and find the stories that are in our set
+      for iteration in iterations:
+         stories = iteration['stories']
             
-            found = False
-            for story in stories:
-               for filteredStory in filteredStories:               
-                  if str(story['id']) == filteredStory:
-                     storyInfo = { 'story' : story, 'start' : iteration['start'], 'finish' : iteration['finish'] }
-                     currentStories.append ( storyInfo )
-                     found = True
-                     break
+         found = False
+         for story in stories:
+            for filteredStory in filteredStories:               
+               if str(story['id']) == filteredStory:
+                  storyInfo = { 'story' : story, 'start' : iteration['start'], 'finish' : iteration['finish'] }
+                  currentStories.append ( storyInfo )
+                  found = True
+                  break
                
       return currentStories
 
@@ -700,27 +692,23 @@ class FullReportOutput():
       try:
          # Get the set of future iterations
          client = PivotalClient(token=apiToken, cache=None)
-         project = client.iterations.backlog( projectId )
+         iterations = client.iterations.backlog( projectId )
       except httplib.HTTPException as exception :
          logging.error ("An HTTPException occurred in GetFutureStories.\nArgs: " + str( exception.args ))
          return futureStories
       
-      # if the project has a current iteration
-      if 'iterations' in project:
-         iterations = project['iterations']
-        
-         # Go through each iteration and find the stories that are in our set
-         for iteration in iterations:
-            stories = iteration['stories']
-            
-            found = False
-            for story in stories:
-               for filteredStory in filteredStories:               
-                  if str(story['id']) == filteredStory:
-                     storyInfo = { 'story' : story, 'start' : iteration['start'], 'finish' : iteration['finish'] }
-                     futureStories.append ( storyInfo )
-                     found = True
-                     break
+      # Go through each iteration and find the stories that are in our set
+      for iteration in iterations:
+         stories = iteration['stories']
+         
+         found = False
+         for story in stories:
+            for filteredStory in filteredStories:               
+               if str(story['id']) == filteredStory:
+                  storyInfo = { 'story' : story, 'start' : iteration['start'], 'finish' : iteration['finish'] }
+                  futureStories.append ( storyInfo )
+                  found = True
+                  break
                
       return futureStories
 
@@ -731,7 +719,7 @@ class FullReportOutput():
       try:
          # Get the set of icebox stories
          client = PivotalClient(token=apiToken, cache=None)
-         stories = client.stories.get_filter(projectId, 'state:unscheduled', True )['stories']
+         stories = client.stories.get_filter(projectId, 'state:unscheduled', True )
       except httplib.HTTPException as exception :
          logging.error ("An HTTPException occurred in GetIceboxStories.\nArgs: " + str( exception.args ))
          return iceboxStories
