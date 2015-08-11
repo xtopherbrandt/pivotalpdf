@@ -637,22 +637,22 @@ class FullReportOutput():
       
    def GetComments (self, apiToken, projectId, storyInfo, storyAcceptanceInfo ) :
          
-      comments = []
+      formatted_comments = []
          
       storyId = storyInfo['story']['id']
       
       try :
          # Get the set of done iterations
          client = PivotalClient(token=apiToken, cache=None)
-         comments = client.stories.get_comments( projectId, storyId )
+         story_comments = client.stories.get_comments( projectId, storyId )
       except httplib.HTTPException as exception :
          logging.error ("An HTTPException occurred in GetComments for story: {0}.\nArgs: {1}").format( storyId, str( exception.args ))
-         return comments
+         return formatted_comments
          
-      if len(comments) > 0 :
+      if len(story_comments) > 0 :
             
          # Get the set of comments for the story
-         for comment in comments :
+         for comment in story_comments :
             # ensure the comment has the attributes we need for output
             if not 'author' in comment :
                comment['author'] = 'Unknown'
@@ -660,14 +660,14 @@ class FullReportOutput():
                comment['created_at'] = 'Unknown'
                   
             try:
-               comments.append(u"""**{1} - _{0}_** : {2}""".format(comment['author'], datetime.datetime.strptime( comment['created_at'], self.iso8601DateFormat ).strftime(self.activityDateFormat), comment['text']))
+               formatted_comments.append(u"""**{1} - _{0}_** : {2}""".format(comment['author'], datetime.datetime.strptime( comment['created_at'], self.iso8601DateFormat ).strftime(self.activityDateFormat), comment['text']))
             except Exception as e:
-               comments.append("""**{1} - _{0}_** : COMMENT SKIPPED due to an exception interpreting the text: {1}""".format(comment['author'], datetime.datetime.strptime( comment['created_at'], self.iso8601DateFormat if comment['created_at'] == 'Unknown' else 'Unknown' ).strftime(self.activityDateFormat), e ))
+               formatted_comments.append("""**{1} - _{0}_** : COMMENT SKIPPED due to an exception interpreting the text: {1}""".format(comment['author'], datetime.datetime.strptime( comment['created_at'], self.iso8601DateFormat if comment['created_at'] == 'Unknown' else 'Unknown' ).strftime(self.activityDateFormat), e ))
 
       if storyAcceptanceInfo != None :
-         comments.append("""**{1} - _{0}_** : Accepted the story""".format(storyAcceptanceInfo['acceptorName'], datetime.datetime.strptime( storyAcceptanceInfo['acceptedDate'], self.iso8601DateFormat ).strftime(self.activityDateFormat) ))
+         formatted_comments.append("""**{1} - _{0}_** : Accepted the story""".format(storyAcceptanceInfo['acceptorName'], datetime.datetime.strptime( storyAcceptanceInfo['acceptedDate'], self.iso8601DateFormat ).strftime(self.activityDateFormat) ))
             
-      return comments
+      return formatted_comments
    
    def GetDoneStories (self, filteredStories, apiToken, projectId) :
    

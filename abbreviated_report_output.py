@@ -491,28 +491,24 @@ class AbbreviatedReportOutput():
       doneStories = []
         
       try :
-        # Get the set of done iterations
-        client = PivotalClient(token=apiToken, cache=None)
-        project = client.iterations.done( projectId )
+         # Get the set of done iterations
+         client = PivotalClient(token=apiToken, cache=None)
+         iterations = client.iterations.done( projectId )
       except httplib.HTTPException as exception :
-        logging.error ("An HTTPException occurred in GetDoneStories.\nArgs: " + str( exception.args ))
-        return doneStories
-      
-      # if the project has some done iterations
-      if 'iterations' in project:
-         iterations = project['iterations']
-        
-         # Go through each iteration and find the stories that are in our set
-         for iteration in iterations:
-            stories = iteration['stories']
-            found = False
-            for story in stories:
-               for filteredStory in filteredStories: 
-                  if str(story['id']) == filteredStory:
-                     storyInfo = { 'story' : story, 'start' : iteration['start'], 'finish' : iteration['finish'] }
-                     doneStories.append ( storyInfo )
-                     found = True
-                     break
+         logging.error ("An HTTPException occurred in GetDoneStories.\nArgs: " + str( exception.args ))
+         return doneStories
+
+      # Go through each iteration and find the stories that are in our set
+      for iteration in iterations:
+         stories = iteration['stories']
+         found = False
+         for story in stories:
+            for filteredStory in filteredStories: 
+               if str(story['id']) == filteredStory:
+                  storyInfo = { 'story' : story, 'start' : iteration['start'], 'finish' : iteration['finish'] }
+                  doneStories.append ( storyInfo )
+                  found = True
+                  break
                
       return doneStories
 
@@ -521,29 +517,25 @@ class AbbreviatedReportOutput():
       currentStories = []
         
       try :
-        # Get the current iteration
-        client = PivotalClient(token=apiToken, cache=None)
-        project = client.iterations.current( projectId )
+         # Get the current iteration
+         client = PivotalClient(token=apiToken, cache=None)
+         iterations = client.iterations.current( projectId )
       except httplib.HTTPException as exception :
-        logging.error ("An HTTPException occurred in GetCurrentStories.\nArgs: " + str( exception.args ))
-        return currentStories
-      
-      # if the project has a current iteration
-      if 'iterations' in project:
-         iterations = project['iterations']
-        
-         # Go through each iteration and find the stories that are in our set
-         for iteration in iterations:
-            stories = iteration['stories']
-            
-            found = False
-            for story in stories:
-               for filteredStory in filteredStories:               
-                  if str(story['id']) == filteredStory:
-                     storyInfo = { 'story' : story, 'start' : iteration['start'], 'finish' : iteration['finish'] }
-                     currentStories.append ( storyInfo )
-                     found = True
-                     break
+         logging.error ("An HTTPException occurred in GetCurrentStories.\nArgs: " + str( exception.args ))
+         return currentStories
+
+      # Go through each iteration and find the stories that are in our set
+      for iteration in iterations:
+         stories = iteration['stories']
+         
+         found = False
+         for story in stories:
+            for filteredStory in filteredStories:               
+               if str(story['id']) == filteredStory:
+                  storyInfo = { 'story' : story, 'start' : iteration['start'], 'finish' : iteration['finish'] }
+                  currentStories.append ( storyInfo )
+                  found = True
+                  break
                
       return currentStories
 
@@ -552,29 +544,25 @@ class AbbreviatedReportOutput():
       futureStories = []
         
       try :
-        # Get the set of future iterations
-        client = PivotalClient(token=apiToken, cache=None)
-        project = client.iterations.backlog( projectId )
+         # Get the set of future iterations
+         client = PivotalClient(token=apiToken, cache=None)
+         iterations = client.iterations.backlog( projectId )
       except httplib.HTTPException as exception :
-        logging.error ("An HTTPException occurred in GetFutureStories.\nArgs: " + str( exception.args ))
-        return futureStories
-      
-      # if the project has a current iteration
-      if 'iterations' in project:
-         iterations = project['iterations']
-        
-         # Go through each iteration and find the stories that are in our set
-         for iteration in iterations:
-            stories = iteration['stories']
+         logging.error ("An HTTPException occurred in GetFutureStories.\nArgs: " + str( exception.args ))
+         return futureStories
+
+      # Go through each iteration and find the stories that are in our set
+      for iteration in iterations:
+         stories = iteration['stories']
             
-            found = False
-            for story in stories:
-               for filteredStory in filteredStories:               
-                  if str(story['id']) == filteredStory:
-                     storyInfo = { 'story' : story, 'start' : iteration['start'], 'finish' : iteration['finish'] }
-                     futureStories.append ( storyInfo )
-                     found = True
-                     break
+         found = False
+         for story in stories:
+            for filteredStory in filteredStories:               
+               if str(story['id']) == filteredStory:
+                  storyInfo = { 'story' : story, 'start' : iteration['start'], 'finish' : iteration['finish'] }
+                  futureStories.append ( storyInfo )
+                  found = True
+                  break
                
       return futureStories
 
@@ -583,12 +571,12 @@ class AbbreviatedReportOutput():
       iceboxStories = []
 
       try :
-        # Get the set of icebox stories
-        client = PivotalClient(token=apiToken, cache=None)
-        stories = client.stories.get_filter(projectId, 'state:unscheduled', True )['stories']
+         # Get the set of icebox stories
+         client = PivotalClient(token=apiToken, cache=None)
+         stories = client.stories.get_filter(projectId, 'state:unscheduled', True )
       except httplib.HTTPException as exception :
-        logging.error ("An HTTPException occurred in GetIceboxStories.\nArgs: " + str( exception.args ))
-        return iceboxStories
+         logging.error ("An HTTPException occurred in GetIceboxStories.\nArgs: " + str( exception.args ))
+         return iceboxStories
             
       for story in stories:
          for filteredStory in filteredStories:               
