@@ -4,6 +4,7 @@ sys.path.insert(0, 'reportlab.zip')
 import re
 import wsgiref.handlers
 import time
+import datetime
 import logging
 import httplib
 
@@ -30,6 +31,7 @@ class AbbreviatedReportOutput():
    PAGE_HEIGHT=defaultPageSize[1]; PAGE_WIDTH=defaultPageSize[0]
    styles = getSampleStyleSheet()
    iterationDateFormat = "%B %d, %Y"
+   iso8601DateFormat = "%Y-%m-%dT%H:%M:%SZ"
    generatedDateFormat = "%A %B %d, %Y"
    activityDateFormat = "%b %d, %Y"
    fileNameDateTimeFormat = "%Y%m%d%H%M%S"
@@ -234,7 +236,7 @@ class AbbreviatedReportOutput():
             detailRow = []
             
             #add some flowables
-            detailRow.append("""Accepted: {0}""".format(storyInfo['story']['accepted_at'].strftime(self.iterationDateFormat)) )
+            detailRow.append("""Accepted: {0}""".format(datetime.datetime.strptime( storyInfo['story']['accepted_at'], self.iso8601DateFormat ).strftime(self.iterationDateFormat)) )
             
             # add the owner if one exists
             if 'owned_by' in storyInfo['story'] :
@@ -362,7 +364,7 @@ class AbbreviatedReportOutput():
             tableData = []
             detailRow = []
             #add some flowables
-            detailRow.append("""Scheduled Sprint: {0}""".format(storyInfo['start'].strftime(self.iterationDateFormat)) )
+            detailRow.append("""Scheduled Sprint: {0}""".format(datetime.datetime.strptime( storyInfo['start'], self.iso8601DateFormat ).strftime(self.iterationDateFormat)) )
 
             # if the story has an estimate
             if 'estimate' in storyInfo['story'] :

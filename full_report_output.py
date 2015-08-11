@@ -4,6 +4,7 @@ sys.path.insert(0, 'reportlab.zip')
 import re
 import wsgiref.handlers
 import time
+import datetime
 import logging
 import httplib
 
@@ -30,6 +31,7 @@ class FullReportOutput():
    PAGE_HEIGHT=defaultPageSize[1]; PAGE_WIDTH=defaultPageSize[0]
    styles = getSampleStyleSheet()
    iterationDateFormat = "%B %d, %Y"
+   iso8601DateFormat = "%Y-%m-%dT%H:%M:%SZ"
    generatedDateFormat = "%A %B %d, %Y"
    activityDateFormat = "%b %d, %Y"
    fileNameDateTimeFormat = "%Y%m%d%H%M%S"
@@ -289,7 +291,15 @@ class FullReportOutput():
             if storyInfo['story']['id'] in storyAcceptance :
                storyAcceptanceInfo = storyAcceptance[storyInfo['story']['id']]
                
-            storyDescription = self.BuildDescription( storyInfo, storyAcceptanceInfo, outputActivity )
+            comments = []
+
+            # if we're to output the activity notes
+            if outputActivity == "checked='true'" :
+            
+               # Add activity and acceptance notes            
+               comments = self.GetComments ( apiToken, projectId, storyInfo, storyAcceptanceInfo )
+
+            storyDescription = self.BuildDescription( storyInfo, comments )
             
             storyBlock.append(Paragraph( storyName,self.styleName))
             
@@ -299,7 +309,7 @@ class FullReportOutput():
             
             #add some flowables
             # add the date of story acceptance. The activity info returned has a limited history older stories will not have them
-            detailRow.append("""Accepted: {0}""".format(storyInfo['story']['accepted_at'].strftime(self.iterationDateFormat)) )
+            detailRow.append("""Accepted: {0}""".format(datetime.datetime.strptime( storyInfo['story']['accepted_at'], self.iso8601DateFormat).strftime(self.iterationDateFormat)) )
             
             # add the owner if one exists
             if 'owned_by' in storyInfo['story'] :
@@ -360,8 +370,16 @@ class FullReportOutput():
             
             if storyInfo['story']['id'] in storyAcceptance :
                storyAcceptanceInfo = storyAcceptance[storyInfo['story']['id']]
+               
+            comments = []
 
-            storyDescription = self.BuildDescription( storyInfo, storyAcceptanceInfo, outputActivity )
+            # if we're to output the activity notes
+            if outputActivity == "checked='true'" :
+            
+               # Add activity and acceptance notes            
+               comments = self.GetComments ( apiToken, projectId, storyInfo, storyAcceptanceInfo )
+
+            storyDescription = self.BuildDescription( storyInfo, comments )
             
             storyBlock.append(Paragraph( storyName,self.styleName))
             
@@ -372,7 +390,7 @@ class FullReportOutput():
             #add some flowables
             # if this story has been accepted then set the detail row appropriately
             if storyInfo['story']['id'] in storyAcceptance :
-               detailRow.append("""Accepted: {0}""".format(storyInfo['story']['accepted_at'].strftime(self.iterationDateFormat)) )
+               detailRow.append("""Accepted: {0}""".format(datetime.datetime.strptime(storyInfo['story']['accepted_at'],self.iso8601DateFormat).strftime(self.iterationDateFormat)) )
             else :
                detailRow.append("In Progress" )
                
@@ -429,8 +447,16 @@ class FullReportOutput():
             
             # Paragraphs can take HTML so the mark-up characters in the text must be escaped
             storyName = escape ( storyInfo['story']['name'] )
+               
+            comments = []
 
-            storyDescription = self.BuildDescription( storyInfo, None, outputActivity )
+            # if we're to output the activity notes
+            if outputActivity == "checked='true'" :
+            
+               # Add activity and acceptance notes            
+               comments = self.GetComments ( apiToken, projectId, storyInfo, None )
+
+            storyDescription = self.BuildDescription( storyInfo, comments )
             
             storyBlock.append(Paragraph( storyName,self.styleName))
             
@@ -438,7 +464,7 @@ class FullReportOutput():
             tableData = []
             detailRow = []
             #add some flowables
-            detailRow.append("""Scheduled Sprint: {0}""".format(storyInfo['start'].strftime(self.iterationDateFormat)) )
+            detailRow.append("""Scheduled Sprint: {0}""".format(datetime.datetime.strptime( storyInfo['start'], self.iso8601DateFormat ).strftime(self.iterationDateFormat)) )
 
             # if the story has an estimate
             if 'estimate' in storyInfo['story'] :
@@ -488,8 +514,16 @@ class FullReportOutput():
             
             # Paragraphs can take HTML so the mark-up characters in the text must be escaped
             storyName = escape ( storyInfo['story']['name'] )
+               
+            comments = []
 
-            storyDescription = self.BuildDescription( storyInfo, None, outputActivity )
+            # if we're to output the activity notes
+            if outputActivity == "checked='true'" :
+            
+               # Add activity and acceptance notes            
+               comments = self.GetComments ( apiToken, projectId, storyInfo, None )
+
+            storyDescription = self.BuildDescription( storyInfo, comments )
             
             storyBlock.append(Paragraph( storyName,self.styleName))
             
@@ -543,7 +577,8 @@ class FullReportOutput():
          httpResponse.headers['Content-Type'] = 'html'
          httpResponse.out.write(template.render(path, template_values))
 
-   def BuildDescription (self, storyInfo, storyAcceptanceInfo, outputActivity ) :
+   #Build the Description for a single story
+   def BuildDescription (self, storyInfo, comments ) :
    
          rawDescription = []
          
@@ -553,21 +588,13 @@ class FullReportOutput():
          else :
             rawDescription.append ( '' )
 
-         notes = []
-
-         # if we're to output the activity notes
-         if outputActivity == "checked='true'" :
-            
-            # Add activity and acceptance notes            
-            notes = self.GetActivityNotes ( storyInfo, storyAcceptanceInfo)
-            
          # if we have notes to add then add a header followed by the notes
-         if len(notes) > 0 :
+         if len( comments ) > 0 :
             rawDescription.append('\n')
             rawDescription.append('**Activity:**')
             
-            for note in notes :
-               rawDescription.append( note )
+            for comment in comments :
+               rawDescription.append( comment )
             
          # Concatenate the story description with the activity notes
          description = '\n'.join(rawDescription )
@@ -608,29 +635,39 @@ class FullReportOutput():
          
          return storyDescription
       
-   def GetActivityNotes (self, storyInfo, storyAcceptanceInfo ) :
+   def GetComments (self, apiToken, projectId, storyInfo, storyAcceptanceInfo ) :
          
-         notes = []
+      comments = []
          
-         if 'notes' in storyInfo['story'] :
+      storyId = storyInfo['story']['id']
+      
+      try :
+         # Get the set of done iterations
+         client = PivotalClient(token=apiToken, cache=None)
+         comments = client.stories.get_comments( projectId, storyId )
+      except httplib.HTTPException as exception :
+         logging.error ("An HTTPException occurred in GetComments for story: {0}.\nArgs: {1}").format( storyId, str( exception.args ))
+         return comments
+         
+      if len(comments) > 0 :
             
-            # Get the set of Activity notes for the story
-            for note in storyInfo['story']['notes'] :
-               # ensure the note has the attributes we need for output
-               if not 'author' in note :
-                  note['author'] = 'Unknown'
-               if not 'noted_at' in note :
-                  note['noted_at'] = 'Unknown'
+         # Get the set of comments for the story
+         for comment in comments :
+            # ensure the comment has the attributes we need for output
+            if not 'author' in comment :
+               comment['author'] = 'Unknown'
+            if not 'created_at' in comment :
+               comment['created_at'] = 'Unknown'
                   
-               try:
-                  notes.append(u"""**{1} - _{0}_** : {2}""".format(note['author'], note['noted_at'].strftime(self.activityDateFormat), note['text']))
-               except Exception as e:
-                  notes.append("""**{1} - _{0}_** : NOTE SKIPPED due to an exception interpreting the text: {1}""".format(note['author'], note['noted_at'].strftime(self.activityDateFormat), e ))
+            try:
+               comments.append(u"""**{1} - _{0}_** : {2}""".format(comment['author'], datetime.datetime.strptime( comment['created_at'], self.iso8601DateFormat ).strftime(self.activityDateFormat), comment['text']))
+            except Exception as e:
+               comments.append("""**{1} - _{0}_** : COMMENT SKIPPED due to an exception interpreting the text: {1}""".format(comment['author'], datetime.datetime.strptime( comment['created_at'], self.iso8601DateFormat if comment['created_at'] == 'Unknown' else 'Unknown' ).strftime(self.activityDateFormat), e ))
 
-         if storyAcceptanceInfo != None :
-            notes.append("""**{1} - _{0}_** : Accepted the story""".format(storyAcceptanceInfo['acceptorName'], storyAcceptanceInfo['acceptedDate'].strftime(self.activityDateFormat) ))
+      if storyAcceptanceInfo != None :
+         comments.append("""**{1} - _{0}_** : Accepted the story""".format(storyAcceptanceInfo['acceptorName'], datetime.datetime.strptime( storyAcceptanceInfo['acceptedDate'], self.iso8601DateFormat ).strftime(self.activityDateFormat) ))
             
-         return notes
+      return comments
    
    def GetDoneStories (self, filteredStories, apiToken, projectId) :
    

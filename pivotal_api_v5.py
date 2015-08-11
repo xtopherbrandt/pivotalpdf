@@ -141,6 +141,8 @@ class StoryEndpoint(Endpoint):
             
       return self._get("projects/{0}/stories".format( project_id ), filter=filter_text )
                
+   def get_comments( self, project_id, story_id ):
+      return self._get( "projects/%s/stories/%s/comments" % (project_id, story_id))
 
 class EpicEndpoint(Endpoint):
 
