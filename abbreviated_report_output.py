@@ -86,7 +86,7 @@ class AbbreviatedReportOutput():
       
    styleName = ParagraphStyle( name='Name',
                                  fontName='Helvetica-Bold',
-                                 fontSize=14,
+                                 fontSize=16,
                                  leading=16,
                                  leftIndent=0,
                                  rightIndent=0,
@@ -607,6 +607,10 @@ class AbbreviatedReportOutput():
          if match.group('italicized') != None :
             innerMarkUp = self.MarkDownToMarkUp ( match.group('italicized') )
             markedUpStrings.append ( """<i>{0}</i>""".format( innerMarkUp ) )
+         
+         if match.group('italicized2') != None :
+            innerMarkUp = self.MarkDownToMarkUp ( match.group('italicized2') )
+            markedUpStrings.append ( u"""<i>{0}</i>""".format( innerMarkUp ) )
             
          regularTextIndex = match.end()
 
@@ -617,7 +621,7 @@ class AbbreviatedReportOutput():
       
    def FindMarkedDownText (self, text) :
       # return the MatchObjects containing bold, underlined or bold underline text
-      return re.finditer(r"""(?:(?:(?:(?<=[\s^,(])|(?<=^))\*\*(?=\S)(?P<bold>.+?)(?<=\S)\*\*(?:(?=[\s$,.?!])|(?<=$)))|(?:(?:(?<=[\s^,(])|(?<=^))_(?=\S)(?P<italicized>.+?)(?<=\S)_(?:(?=[\s$,.?!])|(?<=$))))""",text, re.M)
+      return re.finditer(r"""(?:(?:(?:(?<=[\s^,(])|(?<=^))\*\*(?=\S)(?P<bold>.+?)(?<=\S)\*\*(?:(?=[\s$,.?!])|(?<=$)))|(?:(?:(?<=[\s^,(])|(?<=^))_(?=\S)(?P<italicized>.+?)(?<=\S)_(?:(?=[\s$,.?!])|(?<=$)))|(?:(?:(?<=[\s^,(])|(?<=^))\*(?=\S)(?P<italicized2>.+?)(?<=\S)\*(?:(?=[\s$,.?!])|(?<=$))))""",text, re.M)
                
             
    def pageFooter(self, canvas, doc):

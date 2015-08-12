@@ -86,7 +86,7 @@ class FullReportOutput():
       
    styleName = ParagraphStyle( name='Name',
                                  fontName='Helvetica-Bold',
-                                 fontSize=14,
+                                 fontSize=16,
                                  leading=16,
                                  leftIndent=0,
                                  rightIndent=0,
@@ -108,7 +108,7 @@ class FullReportOutput():
                                  
    styleH1 = ParagraphStyle( name='H1',
                                  fontName='Helvetica-Bold',
-                                 fontSize=13,
+                                 fontSize=14,
                                  leading=15,
                                  leftIndent=0,
                                  rightIndent=0,
@@ -130,7 +130,7 @@ class FullReportOutput():
                                 
    styleH2 = ParagraphStyle( name='H2',
                                  fontName='Helvetica-Bold',
-                                 fontSize=12,
+                                 fontSize=13,
                                  leading=14,
                                  leftIndent=0,
                                  rightIndent=0,
@@ -152,6 +152,28 @@ class FullReportOutput():
                                 
    styleH3 = ParagraphStyle( name='H3',
                                  fontName='Helvetica-Bold',
+                                 fontSize=12,
+                                 leading=13,
+                                 leftIndent=0,
+                                 rightIndent=0,
+                                 firstLineIndent=0,
+                                 alignment=TA_LEFT,
+                                 spaceBefore=0,
+                                 spaceAfter=4,
+                                 bulletFontName='Helvetica',
+                                 bulletFontSize=10,
+                                 textColor=colors.black,
+                                 backColor=None,
+                                 wordWrap=None,
+                                 borderWidth=0,
+                                 borderPadding=0,
+                                 borderColor=None,
+                                 borderRadius=None,
+                                 allowWidows=0,
+                                 allowOrphans=1 )
+                                
+   styleH4 = ParagraphStyle( name='H4',
+                                 fontName='Helvetica-Bold',
                                  fontSize=11,
                                  leading=13,
                                  leftIndent=0,
@@ -163,6 +185,28 @@ class FullReportOutput():
                                  bulletFontName='Helvetica',
                                  bulletFontSize=10,
                                  textColor=colors.black,
+                                 backColor=None,
+                                 wordWrap=None,
+                                 borderWidth=0,
+                                 borderPadding=0,
+                                 borderColor=None,
+                                 borderRadius=None,
+                                 allowWidows=0,
+                                 allowOrphans=1 )
+                                
+   styleH5 = ParagraphStyle( name='H5',
+                                 fontName='Helvetica-Bold',
+                                 fontSize=11,
+                                 leading=13,
+                                 leftIndent=0,
+                                 rightIndent=0,
+                                 firstLineIndent=0,
+                                 alignment=TA_LEFT,
+                                 spaceBefore=0,
+                                 spaceAfter=4,
+                                 bulletFontName='Helvetica',
+                                 bulletFontSize=10,
+                                 textColor=colors.grey,
                                  backColor=None,
                                  wordWrap=None,
                                  borderWidth=0,
@@ -604,7 +648,7 @@ class FullReportOutput():
          paragraphMatches = re.finditer(r"""(^.*$)""", description, re.M)
          storyDescription = []
                   
-         headerExpression = re.compile(ur'(?:(?:(?<=[\s^,(])|(?<=^))#{1}(?=[\w|\d])(?!#)(?P<H1>.+?)(?<=$)|(?:(?<=[\s^,(])|(?<=^))#{2}(?=[\w|\d])(?!#)(?P<H2>.+?)(?<=$)|(?:(?<=[\s^,(])|(?<=^))#{3}(?=[\w|\d])(?!#)(?P<H3>.+?)(?<=$))', re.MULTILINE)
+         headerExpression = re.compile(ur'(?:^\s*#{1}(?!#)(?P<H1>.+?)(?<=$)|(?:^\s*)#{2}(?!#)(?P<H2>.+?)(?<=$)|(?:^\s*)#{3}(?!#)(?P<H3>.+?)(?<=$)|(?:^\s*)#{4}(?!#)(?P<H4>.+?)(?<=$)|(?:^\s*)#{5}(?!#)(?P<H5>.+?)(?<=$))', re.MULTILINE)
          
          # Add each paragraph to a list of paragraph flowables that are then added to the table
          for paragraphMatch in paragraphMatches :
@@ -625,6 +669,12 @@ class FullReportOutput():
                      isHeader = True
                   elif header.lastgroup == 'H3' :
                      storyDescription.append ( Paragraph ( header.groupdict()['H3'] , self.styleH3 ))
+                     isHeader = True
+                  elif header.lastgroup == 'H4' :
+                     storyDescription.append ( Paragraph ( header.groupdict()['H4'] , self.styleH4 ))
+                     isHeader = True
+                  elif header.lastgroup == 'H5' :
+                     storyDescription.append ( Paragraph ( header.groupdict()['H5'] , self.styleH5 ))
                      isHeader = True
                except ValueError as exception :
                   storyDescription.append ( Paragraph( """An error was encountered interpreting the header for this story.""", self.styleNormal ))
@@ -662,8 +712,7 @@ class FullReportOutput():
             try:
                formatted_comments.append(u"""**{1} - _{0}_** : {2}""".format(comment['author'], datetime.datetime.strptime( comment['created_at'], self.iso8601DateFormat ).strftime(self.activityDateFormat), comment['text']))
             except Exception as e:
-               formatted_comments.append("""**{1} - _{0}_** : COMMENT SKIPPED due to an exception interpreting the text: {1}""".format(comment['author'], datetime.datetime.strptime( comment['created_at'], self.iso8601DateFormat if comment['created_at'] == 'Unknown' else 'Unknown' ).strftime(self.activityDateFormat), e ))
-
+               formatted_comments.append("""**{1} - _{0}_** : COMMENT SKIPPED due to an exception interpreting the text: {1}""".format(comment['author'], datetime.datetime.strptime( comment['created_at'], self.iso8601DateFormat ).strftime(self.activityDateFormat) if comment['created_at'] != 'Unknown' else 'Unknown', e ))
       if storyAcceptanceInfo != None :
          formatted_comments.append("""**{1} - _{0}_** : Accepted the story""".format(storyAcceptanceInfo['acceptorName'], datetime.datetime.strptime( storyAcceptanceInfo['acceptedDate'], self.iso8601DateFormat ).strftime(self.activityDateFormat) ))
             
@@ -790,6 +839,10 @@ class FullReportOutput():
          if match.group('italicized') != None :
             innerMarkUp = self.MarkDownToMarkUp ( match.group('italicized') )
             markedUpStrings.append ( u"""<i>{0}</i>""".format( innerMarkUp ) )
+         
+         if match.group('italicized2') != None :
+            innerMarkUp = self.MarkDownToMarkUp ( match.group('italicized2') )
+            markedUpStrings.append ( u"""<i>{0}</i>""".format( innerMarkUp ) )
 
          regularTextIndex = match.end()
 
@@ -801,7 +854,7 @@ class FullReportOutput():
    def FindMarkedDownText (self, text) :
       # return the MatchObjects containing bold, underlined or bold underline text
       # 
-      return re.finditer(r"""(?:(?:(?:(?<=[\s^,(])|(?<=^))\*\*(?=\S)(?P<bold>.+?)(?<=\S)\*\*(?:(?=[\s$,.?!])|(?<=$)))|(?:(?:(?<=[\s^,(])|(?<=^))_(?=\S)(?P<italicized>.+?)(?<=\S)_(?:(?=[\s$,.?!])|(?<=$))))""",text, re.M)
+      return re.finditer(r"""(?:(?:(?:(?<=[\s^,(])|(?<=^))\*\*(?=\S)(?P<bold>.+?)(?<=\S)\*\*(?:(?=[\s$,.?!])|(?<=$)))|(?:(?:(?<=[\s^,(])|(?<=^))_(?=\S)(?P<italicized>.+?)(?<=\S)_(?:(?=[\s$,.?!])|(?<=$)))|(?:(?:(?<=[\s^,(])|(?<=^))\*(?=\S)(?P<italicized2>.+?)(?<=\S)\*(?:(?=[\s$,.?!])|(?<=$))))""",text, re.M)
             
    def pageFooter(self, canvas, doc):
       canvas.saveState()
