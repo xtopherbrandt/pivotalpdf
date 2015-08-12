@@ -42,7 +42,7 @@ class FullReportOutput():
 
    styleDocTitle = ParagraphStyle( name='DocumentTitle',
                                  fontName='Helvetica-Bold',
-                                 fontSize=20,
+                                 fontSize=22,
                                  leading=20,
                                  leftIndent=0,
                                  rightIndent=0,

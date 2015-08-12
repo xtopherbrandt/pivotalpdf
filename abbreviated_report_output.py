@@ -42,7 +42,7 @@ class AbbreviatedReportOutput():
 
    styleDocTitle = ParagraphStyle( name='DocumentTitle',
                                  fontName='Helvetica-Bold',
-                                 fontSize=20,
+                                 fontSize=22,
                                  leading=20,
                                  leftIndent=0,
                                  rightIndent=0,
@@ -108,8 +108,8 @@ class AbbreviatedReportOutput():
                                  
    styleNormal = ParagraphStyle( name='Normal',
                                  fontName='Helvetica',
-                                 fontSize=12,
-                                 leading=14,
+                                 fontSize=11,
+                                 leading=12,
                                  leftIndent=0,
                                  rightIndent=0,
                                  firstLineIndent=0,
