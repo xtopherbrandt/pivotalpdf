@@ -38,7 +38,7 @@ class AbbreviatedReportOutput():
    titleSpace = 0.25*inch
    interStorySpace = 0.25*inch
    intraStorySpace = 0.125*inch
-   pageInfo = "Pivotal PDF"
+   pageInfo = "Agile Docs"
 
    styleDocTitle = ParagraphStyle( name='DocumentTitle',
                                  fontName='Helvetica-Bold',
@@ -236,8 +236,11 @@ class AbbreviatedReportOutput():
             detailRow = []
             
             #add some flowables
-            detailRow.append("""Accepted: {0}""".format(datetime.datetime.strptime( storyInfo['story']['accepted_at'], self.iso8601DateFormat ).strftime(self.iterationDateFormat)) )
-            
+            if 'accepted_at' in storyInfo['story'] :
+               detailRow.append("""Accepted: {0}""".format(datetime.datetime.strptime( storyInfo['story']['accepted_at'], self.iso8601DateFormat ).strftime(self.iterationDateFormat)) )
+            else :
+               detailRow.append("""Accepted""")
+
             # add the owner if one exists
             if 'owned_by' in storyInfo['story'] :
                detailRow.append(storyInfo['story']['owned_by'])
@@ -563,6 +566,7 @@ class AbbreviatedReportOutput():
                   futureStories.append ( storyInfo )
                   found = True
                   break
+
                
       return futureStories
 
@@ -625,13 +629,13 @@ class AbbreviatedReportOutput():
                
             
    def pageFooter(self, canvas, doc):
-       canvas.saveState()
-       canvas.setFont( self.footerFontName, self.footerFontSize, self.footerFontLeading )
+      canvas.saveState()
+      canvas.setFont( self.footerFontName, self.footerFontSize, self.footerFontLeading )
        
-       # draw the doc info
-       canvas.drawString ( self.footerLeftEdge, self.footerHeight, self.pageInfo )
+      # draw the doc info
+      canvas.drawString ( self.footerLeftEdge, self.footerHeight, self.pageInfo )
        
-       # draw the page number
-       canvas.drawRightString ( self.footerRightEdge, self.footerHeight, "Page {0}".format (doc.page) )
-       canvas.restoreState()       
+      # draw the page number
+      canvas.drawRightString ( self.footerRightEdge, self.footerHeight, "Page {0}".format (doc.page) )
+      canvas.restoreState()       
 

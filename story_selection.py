@@ -75,6 +75,8 @@ class GetStories ( webapp2.RequestHandler ):
          user.put()
          logging.info ("New user added {0}".format(selectionProperties.apikey))
       else :
+         user.last_usage_date = datetime.datetime.today()
+         user.put()         
          logging.info ("User {0} logged back in.".format(selectionProperties.apikey))
       
       stories = []

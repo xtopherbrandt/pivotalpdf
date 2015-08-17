@@ -21,6 +21,7 @@ from story_selection import *
 from generate_output import *
 from sign_in import *
 from sign_out import *
+from generate_pdf_2 import *
 
 
 class MainPage(webapp2.RequestHandler):
@@ -57,7 +58,9 @@ class MainPage(webapp2.RequestHandler):
          user.put()
          logging.info ("New user added {0}".format(selectionProperties.apikey))
       else :
-         logging.info ("User {0} logged back in.".format(selectionProperties.apikey))
+         user.last_usage_date = datetime.datetime.today()
+         user.put()
+         logging.info ("User {0} logged back in.".format(self.apikey))
 
       stories = []
       labels = []
@@ -125,7 +128,8 @@ application = webapp2.WSGIApplication([
   ('/getStories/(\d+)', GetStories),
   ('/getStories', GetStories),
   ('/filterStories', GetStories),
-  ('/generatePDF', GenerateOutput)
+  ('/generatePDF', GenerateOutput),
+  ('/v2/generatePDF', GeneratePDF_2)
   
 ], debug=True)
 

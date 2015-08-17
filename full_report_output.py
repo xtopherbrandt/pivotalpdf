@@ -38,7 +38,7 @@ class FullReportOutput():
    titleSpace = 0.25*inch
    interStorySpace = 0.25*inch
    intraStorySpace = 0.125*inch
-   pageInfo = "Pivotal PDF"
+   pageInfo = "Agile Docs"
 
    styleDocTitle = ParagraphStyle( name='DocumentTitle',
                                  fontName='Helvetica-Bold',
@@ -353,8 +353,11 @@ class FullReportOutput():
             
             #add some flowables
             # add the date of story acceptance. The activity info returned has a limited history older stories will not have them
-            detailRow.append("""Accepted: {0}""".format(datetime.datetime.strptime( storyInfo['story']['accepted_at'], self.iso8601DateFormat).strftime(self.iterationDateFormat)) )
-            
+            if 'accepted_at' in storyInfo['story'] :
+               detailRow.append("""Accepted: {0}""".format(datetime.datetime.strptime( storyInfo['story']['accepted_at'], self.iso8601DateFormat).strftime(self.iterationDateFormat)) )
+            else :
+               detailRow.append("""Accepted""")            
+               
             # add the owner if one exists
             if 'owned_by' in storyInfo['story'] :
                detailRow.append(storyInfo['story']['owned_by'])
@@ -434,7 +437,10 @@ class FullReportOutput():
             #add some flowables
             # if this story has been accepted then set the detail row appropriately
             if storyInfo['story']['id'] in storyAcceptance :
-               detailRow.append("""Accepted: {0}""".format(datetime.datetime.strptime(storyInfo['story']['accepted_at'],self.iso8601DateFormat).strftime(self.iterationDateFormat)) )
+               if 'accepted_at' in storyInfo['story'] :
+                  detailRow.append("""Accepted: {0}""".format(datetime.datetime.strptime(storyInfo['story']['accepted_at'],self.iso8601DateFormat).strftime(self.iterationDateFormat)) )
+               else:
+                  detailRow.append( """Accepted""" )
             else :
                detailRow.append("In Progress" )
                
@@ -662,23 +668,23 @@ class FullReportOutput():
             for header in headerMatches :
                try:
                   if header.lastgroup == 'H1' :
-                     storyDescription.append ( Paragraph ( header.groupdict()['H1'] , self.styleH1 ))
+                     storyDescription.append ( Paragraph (  self.MarkDownToMarkUp ( header.groupdict()['H1'] ) , self.styleH1 ))
                      isHeader = True
                   elif header.lastgroup == 'H2' :
-                     storyDescription.append ( Paragraph ( header.groupdict()['H2'] , self.styleH2 ))
+                     storyDescription.append ( Paragraph (  self.MarkDownToMarkUp ( header.groupdict()['H2'] ) , self.styleH2 ))
                      isHeader = True
                   elif header.lastgroup == 'H3' :
-                     storyDescription.append ( Paragraph ( header.groupdict()['H3'] , self.styleH3 ))
+                     storyDescription.append ( Paragraph (  self.MarkDownToMarkUp ( header.groupdict()['H3'] ), self.styleH3 ))
                      isHeader = True
                   elif header.lastgroup == 'H4' :
-                     storyDescription.append ( Paragraph ( header.groupdict()['H4'] , self.styleH4 ))
+                     storyDescription.append ( Paragraph (  self.MarkDownToMarkUp ( header.groupdict()['H4'] ), self.styleH4 ))
                      isHeader = True
                   elif header.lastgroup == 'H5' :
-                     storyDescription.append ( Paragraph ( header.groupdict()['H5'] , self.styleH5 ))
+                     storyDescription.append ( Paragraph ( self.MarkDownToMarkUp ( header.groupdict()['H5'] ), self.styleH5 ))
                      isHeader = True
                except ValueError as exception :
                   storyDescription.append ( Paragraph( """An error was encountered interpreting the header for this story.""", self.styleNormal ))
-                  logging.error( "A ValueError occured while interpreing the header of a story. \n Header type: " + header.lastgroup + "\n Args: " + str(exception.args))
+                  logging.error( "A ValueError occured while interpreing the header of a story. \n Header type: {0}\n Args: {1}".format(header.lastgroup, str(exception.args)))
                   
             if isHeader == False :
                storyDescription.append( Paragraph( self.MarkDownToMarkUp ( paragraphMatch.group(0) ), self.styleNormal ) )
@@ -855,11 +861,11 @@ class FullReportOutput():
       # return the MatchObjects containing bold, underlined or bold underline text
       # 
       return re.finditer(r"""(?:(?:(?:(?<=[\s^,(])|(?<=^))\*\*(?=\S)(?P<bold>.+?)(?<=\S)\*\*(?:(?=[\s$,.?!])|(?<=$)))|(?:(?:(?<=[\s^,(])|(?<=^))_(?=\S)(?P<italicized>.+?)(?<=\S)_(?:(?=[\s$,.?!])|(?<=$)))|(?:(?:(?<=[\s^,(])|(?<=^))\*(?=\S)(?P<italicized2>.+?)(?<=\S)\*(?:(?=[\s$,.?!])|(?<=$))))""",text, re.M)
-            
+
    def pageFooter(self, canvas, doc):
       canvas.saveState()
       canvas.setFont( self.footerFontName, self.footerFontSize, self.footerFontLeading )
-      
+
       # draw the doc info
       canvas.drawString ( self.footerLeftEdge, self.footerHeight, self.pageInfo )
        

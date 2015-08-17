@@ -4,6 +4,7 @@ sys.path.insert(0, 'reportlab.zip')
 import re
 import wsgiref.handlers
 import time
+import datetime
 # see: http://effbot.org/zone/import-confusion.htm
 
 from google.appengine.ext import webapp
@@ -14,6 +15,9 @@ from pivotal_api_v5 import PivotalClient
 
 from full_report_output import *
 from abbreviated_report_output import *
+from google.appengine.api import users
+from google.appengine.ext import db
+from user import *
 
 class GenerateOutput(webapp.RequestHandler):
 
@@ -36,7 +40,7 @@ class GenerateOutput(webapp.RequestHandler):
       
       reportFormat = 'full'
       outputActivityChecked = ''
-      
+
       # if the format was included in the post, get it
       if self.request.get_all('format', default_value=None) != None :
          reportFormat = self.request.get('format')
@@ -131,12 +135,29 @@ class GenerateOutput(webapp.RequestHandler):
    
    def GeneratePdf(self, apiToken, projectId, stories, filename, reportFormat, outputActivity ):
       
+      '''Get the user's record'''
+      userKey = user_key( apiToken )
+      user = userKey.get()
+            
+      '''if this user doesn't have a record yet, create one'''
+      if user == None :
+         user = User( id=apiToken )
+         logging.info ("New site user added {0}".format(apiToken))
+      else :
+         user.last_usage_date = datetime.datetime.today()
+         logging.info ("User {0} made a request from the site.".format(apiToken))
+      
       # if they've specified summary then give them summary, 
       if reportFormat == 'summary' :
          report = AbbreviatedReportOutput()
+         user.summary_document_count = (user.summary_document_count + 1) if ( user.summary_document_count != None ) else 1
       else :
          # if we can't find a report format specified assume full.
          report = FullReportOutput()
+         user.full_document_count = (user.full_document_count + 1) if ( user.full_document_count != None ) else 1
+
+      '''Save the user info'''
+      user.put()
 
       report.GeneratePdf( self.response, apiToken, projectId, stories, filename, outputActivity )
       
