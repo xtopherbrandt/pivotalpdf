@@ -1,7 +1,7 @@
 import json
 import time
 import datetime
-from busyflow.pivotal import PivotalClient
+from pivotal_api_v5 import PivotalClient
 import webapp2
 from full_report_output import *
 from abbreviated_report_output import *
