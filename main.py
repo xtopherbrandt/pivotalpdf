@@ -60,7 +60,7 @@ class MainPage(webapp2.RequestHandler):
       else :
          user.last_usage_date = datetime.datetime.today()
          user.put()
-         logging.info ("User {0} logged back in.".format(self.apikey))
+         logging.info ("User {0} logged back in.".format(selectionProperties.apikey))
 
       stories = []
       labels = []
