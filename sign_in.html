@@ -1,104 +1,106 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link rel="icon" type="image/png" href="/images/PivotalPDFIcon.png" />
+      <title>Agile Docs</title>
+      <meta name="description" content="A PDF document generator for Pivotal Tracker.">
+      <!-- Bootstrap core CSS -->
+      <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 
-<html><head>
-  
-  <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
-  <title>sign_in.html</title>
+      <link type="text/css" rel="stylesheet" href="/stylesheets/main.css">
+      <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->    
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 
-  
-  
-  <link type="text/css" rel="stylesheet" href="/stylesheets/main.css">
+   </head>
+   <body>
+     
+   <nav class="navbar navbar-default header">
+     <div class="container-fluid">
+       <div class="navbar-header">
+         <a class="navbar-brand header-logo" href="#">
+            <img alt="Brand" src="/images/PivotalPDFIcon.png" width="25px" height="25px">
+         </a>
+         <a class="navbar-brand" href="#">Agile Docs</a>
+       </div>
 
-</head>
-
-<body>
-
-<script type="text/javascript" src="https://www.accountchooser.com/ac.js"> loginUrl: '/authenticate'</script>
-
-<table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
-
-  <tbody>
-    <tr>
-      <td style="vertical-align: top;"><!-- Spacer column - Left --> <br>
-      </td>
-      <td style="vertical-align: middle;"><!-- Main content column - Middle -->
-      <form action="/authenticate" method="post"><br>
-        <table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
-          <tbody>
-            <tr>
-              <td style="vertical-align: middle;">
-              <p style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 36px;font-weight: 500;">Agile Docs</p>
-              </td>
-              <td style="vertical-align: middle; text-align: right;">
-               <p style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 20px;font-weight: 500;">A User Story Document Generator</p>
-               <p style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 10px;font-weight: 500;">
-               Version: {{version}}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <div style="text-align: right;">{% if apiKey %}<a href="SignOut">Sign
-Out</a> {% endif %}<br>
-        </div>
-        <br>
-        <table style="text-align: center; height: 203px; width: 931px;" border="0" cellpadding="2" cellspacing="2">
-          <tbody>
-            <tr>
-              <td style="vertical-align: top; width: 402px;">
-              <h3 style="width: 464px;"></h3>
-              </td>
-              <td style="vertical-align: top; width: 413px;">
-              <h3 style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 20px;font-weight: 500; width: 452px;">Pivotal Tracker Credentials</h3>
-              </td>
-            </tr>
-            <tr>
-              <td style="vertical-align: top; width: 402px;">
-              <table style="text-align: left; height: 72px; width: 424px;" border="0" cellpadding="0" cellspacing="0">
-                <tbody>
-                  <tr>
-                    <td style="vertical-align: top; width: 301px;">
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="vertical-align: top; width: 301px;">
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              </td>
-              <td style="vertical-align: top; width: 413px;">
-              <table style="text-align: left; height: 32px; width: 394px;" border="0" cellpadding="5" cellspacing="5">
-                <tbody>
-                  <tr>
-                    <td style="vertical-align: top; width: 66px;">
-                    <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 15px;font-weight: 500;width: 79px;">API Key:&nbsp;</div>
-                    </td>
-                    <td style="vertical-align: top; width: 297px;">
-                       <input name="APIKey" size="30" type="text">
-                    </td>
-                    <td style="vertical-align: top;">
-                       <input value="Sign In" type="submit">
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <br>
-</td>
-            </tr>
-          </tbody>
-        </table>
+       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
         
-        
+         <ul class="nav navbar-nav navbar-right">
+           <li class="nav-link"><a class="text-uppercase" href="/SignIn"><strong>Sign In</strong></a></li>
+         </ul>
+       </div>
+     </div>
+   </nav>    
+   <div class="site-wrapper container-fluid">
+      <form id="authenticate" action="/authenticate" method="post" onsubmit="track_event('Authenticate')">
+      <div class="row">
+         <div class="col-md-1">
+         </div>
+         <div class="col-md-5">   
+            <p class="lead">Agile Docs creates printable output from Pivotal Tracker stories.</p>
+            <p>
+               Agile Docs creates well formatted PDF documents from a selection of Pivotal Tracker user stories. Sign in with your <a class="link" href="https://www.pivotaltracker.com/profile#api" target="_blank">Pivotal Tracker API Token</a>. Once authenticated select your project and the stories you want to include then hit Generate PDF. 
+            </p>
+            <p>
+               The Agile Docs web application includes multiple format options. The Full Document format uses the entire description of each story and also include story activity notes.  The Summary Document format only includes the first paragraph of each story.
+            </p>
+            <p>
+               For even greater convenience, check out the <a class="link" href="https://chrome.google.com/webstore/detail/agile-docs/godbpiedddbnobgkljkcpfnggdikcnjk" target="_blank">Agile Docs Chrome Extension.</a>. The extension adds a PDF button to the multiple stories selection tools (CSV, clone, delete...) in Pivotal Tracker. It doesn't get any easier!
+            </p>
+         </div>
+           
+         <div class="col-md-4 report-parameters">   
+           
+           <div class="form-group">
+             <label for="APIKey">API Token</label>
+             <input type="apikey" class="form-control" id="APIKey" name="APIKey" placeholder="Pivotal Tracker API Token">
+              <a class="help-block link" href="https://www.pivotaltracker.com/profile#api" target="_blank">Click here to find or create your Pivotal Tracker API Token.</p>
+           </div>
+           <div>
+              <button class="btn btn-default" name="signIn" value="Sign In" type="submit">Sign In</button>
+           </div>      
+
+         </div>
+         <div class="col-md-2">
+         </div>
+      </div>
       </form>
-      </td>
-      <td style="vertical-align: top;">
-      <p> </p>
-      <br>
-      </td>
-    </tr>
-  </tbody>
-</table>
-<script src="/js/google_analytics.js"></script>
 
+      <div class="site-wrapper-inner">
+      </div> <!--site-wrapper-inner-->
+      
+      <div class="row footer">
+         <div class="col-md-1">
+         </div>
+         <div class="col-md-10">
+         </div>
+         <div class="col-md-1">
+         </div>
+      </div>
+      
+      <nav class="navbar navbar-default navbar-fixed-bottom footer">
+        <div class="container-fluid">
+          <div>
+            <ul class="nav navbar-nav navbar-left">
+              <small> <a href="https://www.pivotaltracker.com/projects/527625">PivotalTracker project</a></small>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+               <small>Version: {{version}}</small>
+            </ul>
+          </div>
+        </div>
+      </nav>
+   </div> <!--site-wrapper-->
+
+   <script src="/js/main.js"></script>
+   <!-- Set the Javascript client endpoint security -->
+   <script src="https://apis.google.com/js/client.js?onload=init"></script>
+   <!-- Include all compiled plugins (below), or include individual files as needed -->
+   <script src="/bootstrap/dist/js/bootstrap.min.js"></script>
+   <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+   <script src="/js/ie10-viewport-bug-workaround.js"></script>
+   <script src="/js/google_analytics.js"></script>
 </body></html>
-

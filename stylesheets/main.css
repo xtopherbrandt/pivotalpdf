@@ -3,6 +3,11 @@ body {
   color: #cccccc;
 }
 
+.link:hover, .link:visited {
+   color: #66CCFF;
+}
+
+
 .header {
    background-color: #278CBA;
    border-color: #000000;
