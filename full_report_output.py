@@ -291,7 +291,7 @@ class FullReportOutput():
       httpResponse.headers['Accept-Ranges'] = 'bytes'
       httpResponse.headers['Expires'] = '0'
 
-      doc = SimpleDocTemplate( httpResponse.out, pagesize = letter, allowSplitting=1, title="""{0} User Stories""".format( projectName ), author='Agile Docs (http://pivotal-pdf.appspot.com)', leftMargin=0.75*inch, rightMargin=0.75*inch)
+      doc = SimpleDocTemplate( httpResponse.out, pagesize = letter, allowSplitting=1, title=u"""{0} User Stories""".format( projectName ), author='Agile Docs (http://pivotal-pdf.appspot.com)', leftMargin=0.75*inch, rightMargin=0.75*inch)
       
       #Create a list of flowables for the document
       flowables = []
