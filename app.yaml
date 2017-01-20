@@ -11,19 +11,19 @@ handlers:
 - url: /bootstrap/*
   static_dir: bootstrap
   secure: optional
-  
+
 - url: /js
   static_dir: js
   secure: optional
-  
+
 - url: /images
   static_dir: images
   secure: optional
-  
+
 - url: /favicon.ico
   static_files: favicon.ico
   upload: favicon.ico
-  
+
 - url: /robots.txt
   static_files: robots.txt
   upload: robots.txt
@@ -31,8 +31,13 @@ handlers:
 - url: /google2203af757bd05df6.html
   static_files: google2203af757bd05df6.html
   upload: google2203af757bd05df6.html
-  
+
+- url: /v2/generatePDF
+  script: main.application
+  secure: always
+  http_headers:
+    Access-Control-Allow-Origin: *
+
 - url: /.*
   script: main.application
   secure: always
-
