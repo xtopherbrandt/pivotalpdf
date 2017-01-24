@@ -10,7 +10,7 @@ from google.appengine.ext import db
 from user import *
 
 class GeneratePDF_2 (webapp2.RequestHandler):
-   
+
    fileNameDateTimeFormat = "%Y%m%d%H%M%S"
 
    '''
@@ -23,20 +23,20 @@ class GeneratePDF_2 (webapp2.RequestHandler):
       format (fullDocument|summaryDocument) :: either "fullDocument" or "summaryDocument". Default is fullDocument. Ex. "format":"summaryDocument"
    '''
    def post (self) :
-      
+
       logging.info ('GeneratePDF_2.post()')
 
       requestJson = self.request.body
       request = json.loads( requestJson )
-      
+
       logging.info( request )
 
       filename =  """UserStories-{0}.pdf""".format(time.strftime(self.fileNameDateTimeFormat))
-      
+
       '''Get the user's record'''
       userKey = user_key( request['apiKey'] )
       user = userKey.get()
-            
+
       '''if this user doesn't have a record yet, create one'''
       if user == None :
          user = User( id=request['apiKey'] )
@@ -44,8 +44,8 @@ class GeneratePDF_2 (webapp2.RequestHandler):
       else :
          user.last_usage_date = datetime.datetime.today()
          logging.info ("User {0} made a request from the extension.".format(request['apiKey']))
-      
-      # if they've specified summary then give them summary, 
+
+      # if they've specified summary then give them summary,
       if 'format' in request and request['format'] == 'summaryDocument' :
          report = AbbreviatedReportOutput()
          user.summary_document_count = (user.summary_document_count + 1) if ( user.summary_document_count != None ) else 1
@@ -56,13 +56,10 @@ class GeneratePDF_2 (webapp2.RequestHandler):
 
       '''Save the user info'''
       user.put()
-         
+
       if 'activities' in request and request['activities'] == False :
          outputActivity = "checked='false'"
       else :
          outputActivity = "checked='true'"
-         
-      report.GeneratePdf( self.response, request['apiKey'], request['projectId'], request['stories'], filename, outputActivity )
-      
 
-      
+      report.GeneratePdf( self.response, request['apiKey'], request['projectId'], request['stories'], filename, outputActivity )

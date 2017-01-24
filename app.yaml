@@ -35,8 +35,6 @@ handlers:
 - url: /v2/generatePDF
   script: main.application
   secure: always
-  http_headers:
-    Access-Control-Allow-Origin: https://www.pivotaltracker.com
 
 - url: /.*
   script: main.application
