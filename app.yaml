@@ -35,8 +35,7 @@ handlers:
 - url: /v2/generatePDF
   script: main.application
   secure: always
-  http_headers:
-    Access-Control-Allow-Origin: *
+  http_headers: Access-Control-Allow-Origin: *
 
 - url: /.*
   script: main.application
