@@ -350,7 +350,7 @@ class FullReportOutput():
             storyHeaderTableData = []
             # add the name to the first column and the id to second
             storyHeaderTableData.append(Paragraph( storyName,self.styleName))
-            storyHeaderTableData.append(Paragraph( storyInfo['story']['id'],self.styleName))
+            storyHeaderTableData.append(Paragraph( str(storyInfo['story']['id']),self.styleName))
 
             storyHeaderTable = Table(storyHeaderTableData, colWidths=[3.5*inch,3.5*inch] )
             storyBlock.append( storyHeaderTable )
