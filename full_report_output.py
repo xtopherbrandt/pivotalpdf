@@ -362,7 +362,7 @@ class FullReportOutput():
             storyHeaderTable = Table(storyHeaderTableData, colWidths=[4.5*inch,2.5*inch] )
 
             #set the style of the table to align the text
-            storyHeaderTable.setStyle ( storyHeaderTableStyle )
+            storyHeaderTable.setStyle ( self.storyHeaderTableStyle )
 
             storyBlock.append( storyHeaderTable )
 
