@@ -271,7 +271,7 @@ class FullReportOutput():
 
    storyHeaderTableStyle = TableStyle([
                            ('ALIGNMENT',(0,0),(0,0),'LEFT'),                  #Left align the left column
-                           ('ALIGNMENT',(-1,0),(-1,0),'RIGHT')                  #Right align the right column
+                           ('ALIGNMENT',(1,0),(1,0),'RIGHT')                  #Right align the right column
                            ])
 
    footerFontName = "Helvetica"
