@@ -348,10 +348,12 @@ class FullReportOutput():
 
             # put the name and story id in the header table
             storyHeaderTableData = []
+            storyHeaderTableDataRow = []
             # add the name to the first column and the id to second
-            storyHeaderTableData.append(storyName)
-            storyHeaderTableData.append(str(storyInfo['story']['id']))
+            storyHeaderTableDataRow.append(storyName)
+            storyHeaderTableDataRow.append(str(storyInfo['story']['id']))
 
+            storyHeaderTableData.append(storyHeaderTableDataRow)
             storyHeaderTable = Table(storyHeaderTableData, colWidths=[3.5*inch,3.5*inch] )
             storyBlock.append( storyHeaderTable )
 
