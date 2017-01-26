@@ -346,7 +346,14 @@ class FullReportOutput():
 
             storyDescription = self.BuildDescription( storyInfo, comments )
 
-            storyBlock.append(Paragraph( storyName,self.styleName))
+            # put the name and story id in the header table
+            storyHeaderTableData = []
+            # add the name to the first column and the id to second
+            storyHeaderTableData.append(Paragraph( storyName,self.styleName))
+            storyHeaderTableData.append(Paragraph( storyInfo['story']['id'],self.styleName))
+
+            storyHeaderTable = Table(storyHeaderTableData, colWidths=[3.5*inch,3.5*inch] )
+            storyBlock.append( storyHeaderTable )
 
             #Create a table row for our detail line
             tableData = []
