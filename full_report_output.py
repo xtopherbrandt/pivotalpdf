@@ -269,6 +269,11 @@ class FullReportOutput():
                            ('ALIGNMENT',(-1,0),(-1,0),'RIGHT')                  #Right align the right column
                            ])
 
+   storyHeaderTableStyle = TableStyle([
+                           ('ALIGNMENT',(0,0),(0,0),'LEFT'),                  #Left align the left column
+                           ('ALIGNMENT',(-1,0),(-1,0),'RIGHT')                  #Right align the right column
+                           ])
+
    footerFontName = "Helvetica"
    footerFontSize = 8
    footerFontLeading = None
@@ -351,10 +356,14 @@ class FullReportOutput():
             storyHeaderTableDataRow = []
             # add the name to the first column and the id to second
             storyHeaderTableDataRow.append(Paragraph( storyName,self.styleName))
-            storyHeaderTableDataRow.append(Paragraph( str(storyInfo['story']['id']), self.styleName ))
+            storyHeaderTableDataRow.append(Paragraph( str(storyInfo['story']['id']), self.styleNormal ))
 
             storyHeaderTableData.append(storyHeaderTableDataRow)
-            storyHeaderTable = Table(storyHeaderTableData, colWidths=[3.5*inch,3.5*inch] )
+            storyHeaderTable = Table(storyHeaderTableData, colWidths=[4.5*inch,2.5*inch] )
+
+            #set the style of the table to align the text
+            storyHeaderTable.setStyle ( storyHeaderTableStyle )
+
             storyBlock.append( storyHeaderTable )
 
             #Create a table row for our detail line
